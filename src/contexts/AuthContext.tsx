@@ -35,15 +35,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(transformUser(session?.user));
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(transformUser(session?.user));
       setLoading(false);
@@ -65,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) throw error;
       toast.success('Account created successfully! Please check your email for verification.');
+      
+      // Note: For development, you might want to disable email verification in Supabase console
       navigate('/app/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Error during sign up');
