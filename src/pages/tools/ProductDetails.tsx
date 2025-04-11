@@ -84,7 +84,156 @@ const products = [
       },
     ]
   },
-  // Add more products as needed
+  {
+    id: "2",
+    name: "VELO Citrus",
+    brand: "VELO",
+    type: "Nicotine Pouch",
+    nicotineStrength: 4,
+    flavors: ["Citrus", "Orange"],
+    image: "https://via.placeholder.com/300x300",
+    rating: 4.2,
+    reviewCount: 86,
+    description: "Refreshing citrus-flavored nicotine pouch with a balanced strength and excellent comfort.",
+    longDescription: "VELO Citrus offers a bright, zesty flavor that provides a refreshing alternative to traditional mint options. These slim pouches deliver a consistent nicotine release with minimal irritation. The moisture level is perfectly balanced for comfort without excessive drip, making them ideal for both new and experienced users. The citrus flavor helps mask the typical nicotine taste while providing a subtle, pleasant sensation.",
+    specifications: {
+      size: "Slim",
+      weight: "0.35g/pouch",
+      pouchCount: "20 pouches per can",
+      moistureContent: "Medium",
+      format: "White pouch",
+      ingredients: "Nicotine, Water, Plant-based Materials, Sweeteners, Stabilizers, Natural and Artificial Flavors",
+    },
+    healthNotes: "Contains pharmaceutical grade nicotine without tobacco leaf. Nicotine is an addictive chemical. Not for use by non-nicotine users, pregnant women, or those with cardiovascular conditions. May cause gum sensitivity in some users.",
+    price: "$4.49 - $5.99",
+    vendors: [
+      {
+        name: "CigElectric",
+        link: "https://example.com/buy-velo",
+        price: "$4.49",
+      },
+      {
+        name: "Smokers Outlet",
+        link: "https://example.com/buy-velo-2",
+        price: "$4.99",
+      },
+      {
+        name: "VELO Official",
+        link: "https://example.com/velo-official",
+        price: "$5.99",
+      }
+    ],
+    reviews: [
+      {
+        id: "r1",
+        user: "Alex M.",
+        avatar: "",
+        rating: 5,
+        date: "2023-10-12",
+        title: "Favorite citrus flavor on the market",
+        content: "The citrus flavor is perfectly balanced - not too sweet, not too sour. Great alternative to mint flavors which can get overwhelming. Nicotine strength is just right for me.",
+        helpful: 15,
+        unhelpful: 1,
+      },
+      {
+        id: "r2",
+        user: "Sam K.",
+        avatar: "",
+        rating: 3,
+        date: "2023-09-18",
+        title: "Good flavor but inconsistent quality",
+        content: "I really like the citrus taste, but I've found the pouches can be inconsistent from can to can. Sometimes they're perfect, other times they seem dry. When they're good though, they're really good!",
+        helpful: 12,
+        unhelpful: 2,
+      },
+      {
+        id: "r3",
+        user: "Taylor R.",
+        avatar: "",
+        rating: 4,
+        date: "2023-11-03",
+        title: "Great morning pouch",
+        content: "I've made these my go-to morning pouch. The citrus flavor is bright and energizing, pairs perfectly with coffee. Good nicotine delivery without being overwhelming.",
+        helpful: 19,
+        unhelpful: 0,
+      }
+    ]
+  },
+  {
+    id: "3",
+    name: "ON! Coffee",
+    brand: "ON!",
+    type: "Nicotine Pouch",
+    nicotineStrength: 8,
+    flavors: ["Coffee", "Mocha"],
+    image: "https://via.placeholder.com/300x300",
+    rating: 4.7,
+    reviewCount: 94,
+    description: "High-strength nicotine pouch with authentic coffee flavor, perfect for coffee lovers looking to reduce smoking.",
+    longDescription: "ON! Coffee nicotine pouches deliver a rich, authentic coffee experience with notes of chocolate and roasted beans. These small but potent pouches pack a substantial nicotine punch at 8mg strength, making them ideal for those transitioning from regular cigarettes. The unique coffee flavor offers a welcome alternative to traditional mint or fruit options, and pairs exceptionally well with your morning routine. Despite their higher strength, these pouches are designed to minimize gum irritation.",
+    specifications: {
+      size: "Mini",
+      weight: "0.3g/pouch",
+      pouchCount: "20 pouches per can",
+      moistureContent: "Low-Medium",
+      format: "White dry pouch",
+      ingredients: "Pharmaceutical Grade Nicotine, Vegetable Fibers, Food-Grade Flavorings, Stabilizers, Coffee Extract",
+    },
+    healthNotes: "Contains a higher concentration of nicotine (8mg). Not recommended for nicotine-sensitive individuals or beginner users. Nicotine is highly addictive and can increase heart rate and blood pressure. Not for use during pregnancy or by non-nicotine users.",
+    price: "$5.49 - $7.99",
+    vendors: [
+      {
+        name: "NicoDirect",
+        link: "https://example.com/buy-on",
+        price: "$5.49",
+      },
+      {
+        name: "VapeCity",
+        link: "https://example.com/buy-on-2",
+        price: "$6.29",
+      },
+      {
+        name: "ON! Official Store",
+        link: "https://example.com/on-official",
+        price: "$7.99",
+      }
+    ],
+    reviews: [
+      {
+        id: "r1",
+        user: "James L.",
+        avatar: "",
+        rating: 5,
+        date: "2023-07-19",
+        title: "Finally, a good coffee-flavored option",
+        content: "As a coffee addict and former smoker, these are PERFECT. The coffee flavor is actually good - not artificial tasting like some brands. The higher strength is great for when I really need it, especially with morning coffee.",
+        helpful: 27,
+        unhelpful: 1,
+      },
+      {
+        id: "r2",
+        user: "Maria C.",
+        avatar: "",
+        rating: 5,
+        date: "2023-08-30",
+        title: "Strong but smooth",
+        content: "These pack a punch but in a good way. The coffee flavor helps mask the nicotine sensation better than any other flavor I've tried. Great for when I need serious craving relief without having to use multiple pouches.",
+        helpful: 16,
+        unhelpful: 0,
+      },
+      {
+        id: "r3",
+        user: "Robert J.",
+        avatar: "",
+        rating: 4,
+        date: "2023-10-22",
+        title: "Good strength, flavor could be stronger",
+        content: "Perfect strength for me as a former pack-a-day smoker. My only wish is that the coffee flavor was a bit stronger - it's good but fades quicker than I'd like. Still my go-to brand though.",
+        helpful: 14,
+        unhelpful: 2,
+      }
+    ]
+  }
 ];
 
 const ProductDetails = () => {
