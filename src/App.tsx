@@ -27,6 +27,7 @@ import ProductDetails from "./pages/tools/ProductDetails";
 import QuitMethods from "./pages/tools/QuitMethods";
 import Calculators from "./pages/tools/Calculators";
 import WebToolsLayout from "./components/layout/WebToolsLayout";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/features" element={<Features />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
