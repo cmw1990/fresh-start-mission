@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, DollarSign, Calendar, Heart, Clock, Lungs, Brain, PlusCircle } from "lucide-react";
+import { ArrowLeft, DollarSign, Calendar, Heart, Clock, Activity, Brain, PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -79,7 +78,7 @@ const Calculators = () => {
           description: "Carbon monoxide levels in blood drop by half; oxygen levels return to normal.",
           timeframe: "8 hours",
           timeInMs: 8 * 60 * 60 * 1000,
-          icon: <Lungs className="h-5 w-5 text-blue-500" />
+          icon: <Activity className="h-5 w-5 text-blue-500" />
         },
         {
           name: "24 Hours",
@@ -100,7 +99,7 @@ const Calculators = () => {
           description: "Breathing becomes easier as bronchial tubes relax; energy levels increase.",
           timeframe: "72 hours",
           timeInMs: 72 * 60 * 60 * 1000,
-          icon: <Lungs className="h-5 w-5 text-blue-500" />
+          icon: <Activity className="h-5 w-5 text-blue-500" />
         },
         {
           name: "2 Weeks",
@@ -114,7 +113,7 @@ const Calculators = () => {
           description: "Cilia in lungs regrow, increasing ability to handle mucus, clean lungs, and reduce infection.",
           timeframe: "1 month",
           timeInMs: 30 * 24 * 60 * 60 * 1000,
-          icon: <Lungs className="h-5 w-5 text-blue-500" />
+          icon: <Activity className="h-5 w-5 text-blue-500" />
         },
         {
           name: "3 Months",
