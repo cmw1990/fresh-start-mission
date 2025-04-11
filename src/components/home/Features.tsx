@@ -2,8 +2,8 @@
 import { 
   ActivitySquare, 
   BatteryCharging, 
-  Brain, 
-  Ciggy, 
+  Brain as BrainIcon, 
+  Cigarette, 
   Flame, 
   LineChart, 
   ListChecks, 
@@ -24,7 +24,7 @@ const features = [
     description: "Exercises and techniques to stabilize mood swings and enhance overall emotional wellbeing.",
   },
   {
-    icon: <Brain className="h-10 w-10 text-fresh-300" />,
+    icon: <BrainIcon className="h-10 w-10 text-fresh-300" />,
     title: "Focus Enhancers",
     description: "Strategies to improve concentration and mental clarity during withdrawal periods.",
   },
@@ -39,7 +39,7 @@ const features = [
     description: "Support for multiple approaches: cold turkey, gradual reduction, NRT, or harm reduction.",
   },
   {
-    icon: <Ciggy className="h-10 w-10 text-teal-500" />,
+    icon: <Cigarette className="h-10 w-10 text-teal-500" />,
     title: "All Products Tracking",
     description: "Track use of any nicotine product: cigarettes, vapes, pouches, gums, and more.",
   },
