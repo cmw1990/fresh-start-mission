@@ -9,24 +9,14 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 
-const SignUp = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const { signUp, loading } = useAuth();
+  const { signIn, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError("");
-    
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords don't match");
-      return;
-    }
-    
-    await signUp(email, password, name);
+    await signIn(email, password);
   };
 
   return (
@@ -36,23 +26,13 @@ const SignUp = () => {
         <div className="w-full max-w-md px-4">
           <Card className="shadow-lg">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">Create an account</CardTitle>
+              <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
               <CardDescription className="text-center">
-                Start your fresh journey with Mission Fresh
+                Sign in to continue your fresh journey
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -69,32 +49,18 @@ const SignUp = () => {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Create a password"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                  {passwordError && (
-                    <p className="text-sm text-red-500">{passwordError}</p>
-                  )}
                 </div>
                 <Button 
                   type="submit" 
                   className="w-full bg-fresh-300 hover:bg-fresh-400"
                   disabled={loading}
                 >
-                  {loading ? "Creating Account..." : "Create Account"}
+                  {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
 
@@ -122,19 +88,9 @@ const SignUp = () => {
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
               <p className="text-center text-sm text-muted-foreground">
-                By creating an account, you agree to our{" "}
-                <Link to="/terms" className="text-fresh-400 hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link to="/privacy" className="text-fresh-400 hover:underline">
-                  Privacy Policy
-                </Link>
-              </p>
-              <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link to="/login" className="text-fresh-400 hover:underline">
-                  Sign in
+                Don't have an account?{" "}
+                <Link to="/sign-up" className="text-fresh-400 hover:underline">
+                  Sign up
                 </Link>
               </p>
             </CardFooter>
@@ -146,4 +102,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Login;

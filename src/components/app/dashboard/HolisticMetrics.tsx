@@ -1,19 +1,47 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NicotineLog } from '@/lib/supabase';
+import { format, subDays } from 'date-fns';
 
-// Sample data - in a real app this would come from an API or context
-const data = [
-  { day: 'Mon', mood: 3, energy: 2, focus: 2 },
-  { day: 'Tue', mood: 3, energy: 3, focus: 2 },
-  { day: 'Wed', mood: 4, energy: 3, focus: 3 },
-  { day: 'Thu', mood: 3, energy: 4, focus: 3 },
-  { day: 'Fri', mood: 4, energy: 4, focus: 4 },
-  { day: 'Sat', mood: 5, energy: 4, focus: 4 },
-  { day: 'Sun', mood: 4, energy: 5, focus: 4 },
-];
+interface HolisticMetricsProps {
+  logs: NicotineLog[];
+}
 
-const HolisticMetrics = () => {
+const HolisticMetrics = ({ logs }: HolisticMetricsProps) => {
+  // Process logs to create chart data for the past 7 days
+  const processedData = () => {
+    const today = new Date();
+    const data = [];
+    
+    // Create data for the past 7 days
+    for (let i = 6; i >= 0; i--) {
+      const date = subDays(today, i);
+      const dateString = format(date, 'yyyy-MM-dd');
+      const dayLabel = format(date, 'EEE'); // Mon, Tue, etc.
+      
+      // Find logs for this date
+      const logsForDay = logs.filter(log => log.date.startsWith(dateString));
+      
+      // Calculate average metrics for the day
+      const mood = logsForDay.reduce((sum, log) => sum + log.mood, 0) / Math.max(logsForDay.length, 1);
+      const energy = logsForDay.reduce((sum, log) => sum + log.energy, 0) / Math.max(logsForDay.length, 1);
+      const focus = logsForDay.reduce((sum, log) => sum + log.focus, 0) / Math.max(logsForDay.length, 1);
+      
+      data.push({
+        day: dayLabel,
+        date: dateString,
+        mood,
+        energy,
+        focus,
+      });
+    }
+    
+    return data;
+  };
+
+  const data = processedData();
+
   return (
     <Card className="col-span-full">
       <CardHeader>
@@ -29,26 +57,31 @@ const HolisticMetrics = () => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="day" />
             <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} />
-            <Tooltip />
+            <Tooltip 
+              formatter={(value, name) => {
+                return [value, name.charAt(0).toUpperCase() + name.slice(1) + ' (1-5)'];
+              }}
+              labelFormatter={(label) => `Day: ${label}`}
+            />
             <Legend />
             <Line 
               type="monotone" 
               dataKey="mood" 
               stroke="#9b87f5" 
               activeDot={{ r: 8 }}
-              name="Mood (1-5)"
+              name="Mood"
             />
             <Line 
               type="monotone" 
               dataKey="energy" 
               stroke="#38B2AC" 
-              name="Energy (1-5)"
+              name="Energy"
             />
             <Line 
               type="monotone" 
               dataKey="focus" 
               stroke="#805AD5" 
-              name="Focus (1-5)"
+              name="Focus"
             />
           </LineChart>
         </ResponsiveContainer>

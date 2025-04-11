@@ -1,19 +1,46 @@
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NicotineLog } from '@/lib/supabase';
+import { format, subDays } from 'date-fns';
 
-// Sample data - in a real app this would come from an API or context
-const data = [
-  { day: 'Day 1', cravings: 14, intensity: 8 },
-  { day: 'Day 2', cravings: 12, intensity: 7 },
-  { day: 'Day 3', cravings: 10, intensity: 6 },
-  { day: 'Day 4', cravings: 11, intensity: 7 },
-  { day: 'Day 5', cravings: 9, intensity: 5 },
-  { day: 'Day 6', cravings: 8, intensity: 4 },
-  { day: 'Day 7', cravings: 7, intensity: 4 },
-];
+interface CravingChartProps {
+  logs: NicotineLog[];
+}
 
-const CravingChart = () => {
+const CravingChart = ({ logs }: CravingChartProps) => {
+  // Process logs to create chart data for the past 7 days
+  const processedData = () => {
+    const today = new Date();
+    const data = [];
+    
+    // Create data for the past 7 days
+    for (let i = 6; i >= 0; i--) {
+      const date = subDays(today, i);
+      const dateString = format(date, 'yyyy-MM-dd');
+      const dayLabel = format(date, 'EEE'); // Mon, Tue, etc.
+      
+      // Find logs for this date
+      const logsForDay = logs.filter(log => log.date.startsWith(dateString));
+      
+      // Calculate average craving intensity and count
+      const craving = logsForDay.reduce((sum, log) => sum + log.craving_intensity, 0);
+      const intensity = logsForDay.length ? craving / logsForDay.length : 0;
+      const cravings = logsForDay.filter(log => log.craving_intensity > 0).length;
+      
+      data.push({
+        day: dayLabel,
+        date: dateString,
+        cravings,
+        intensity,
+      });
+    }
+    
+    return data;
+  };
+
+  const data = processedData();
+
   return (
     <Card className="col-span-full">
       <CardHeader>
@@ -39,7 +66,12 @@ const CravingChart = () => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="day" />
             <YAxis />
-            <Tooltip />
+            <Tooltip 
+              formatter={(value, name) => {
+                return [value, name === 'cravings' ? 'Number of Cravings' : 'Average Intensity (1-10)'];
+              }}
+              labelFormatter={(label) => `Day: ${label}`}
+            />
             <Legend />
             <Area 
               type="monotone" 

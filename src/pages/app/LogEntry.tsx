@@ -9,8 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { saveLogEntry } from "@/services/logService";
+import { useNavigate } from "react-router-dom";
 
 const LogEntry = () => {
+  const navigate = useNavigate();
   const [nicotineUse, setNicotineUse] = useState<"yes" | "no">("no");
   const [productType, setProductType] = useState("cigarette");
   const [quantity, setQuantity] = useState("0");
@@ -22,28 +25,42 @@ const LogEntry = () => {
   const [cravingIntensity, setCravingIntensity] = useState(5);
   const [cravingTrigger, setCravingTrigger] = useState("stress");
   const [journal, setJournal] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here we would normally send the data to an API
-    console.log({
-      nicotineUse,
-      productType: nicotineUse === "yes" ? productType : null,
-      quantity: nicotineUse === "yes" ? quantity : "0",
-      mood,
-      energy,
-      focus,
-      sleepHours,
-      sleepQuality,
-      cravingIntensity,
-      cravingTrigger,
-      journal,
-      date: new Date().toISOString(),
-    });
+    setIsSubmitting(true);
+    
+    try {
+      // Format the date in ISO format for storage
+      const currentDate = new Date().toISOString().split('T')[0];
+      
+      await saveLogEntry({
+        date: currentDate,
+        used_nicotine: nicotineUse === "yes",
+        product_type: nicotineUse === "yes" ? productType : undefined,
+        quantity: nicotineUse === "yes" ? parseInt(quantity) : 0,
+        mood,
+        energy,
+        focus,
+        sleep_hours: parseFloat(sleepHours),
+        sleep_quality: sleepQuality,
+        craving_intensity: cravingIntensity,
+        craving_trigger: cravingTrigger,
+        journal: journal || undefined,
+      });
 
-    toast.success("Your entry has been logged successfully!", {
-      description: "Keep up the great work on your fresh journey!",
-    });
+      toast.success("Your entry has been logged successfully!", {
+        description: "Keep up the great work on your fresh journey!",
+      });
+      
+      // Navigate back to dashboard after successful submission
+      navigate('/app/dashboard');
+    } catch (error) {
+      console.error("Error saving log entry:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -284,8 +301,9 @@ const LogEntry = () => {
           <Button 
             type="submit" 
             className="w-full md:w-auto bg-fresh-300 hover:bg-fresh-400"
+            disabled={isSubmitting}
           >
-            Save Log Entry
+            {isSubmitting ? "Saving..." : "Save Log Entry"}
           </Button>
         </div>
       </form>
