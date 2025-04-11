@@ -111,11 +111,11 @@ export const getUserPointsBalance = async (): Promise<number> => {
     // Calculate balance
     const totalEarned = earned.reduce((sum, item) => sum + (item.points_earned || 0), 0);
     
-    // Fix the type issue by properly accessing the nested object
+    // Fix the type issue by properly accessing the nested object structure
     const totalSpent = claimed.reduce((sum, item) => {
-      // Ensure the rewards property exists and contains points_required
-      const pointsRequired = item.rewards ? item.rewards.points_required : 0;
-      return sum + (pointsRequired || 0);
+      // Cast item.rewards to access the nested points_required property
+      const rewardsData = item.rewards as { points_required: number };
+      return sum + (rewardsData?.points_required || 0);
     }, 0);
 
     return totalEarned - totalSpent;
