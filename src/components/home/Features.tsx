@@ -10,53 +10,54 @@ import {
   Footprints,
   Sparkles
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import FeatureCard from "./FeatureCard";
+import FeaturesIntro from "./FeaturesIntro";
 
 const features = [
   {
-    icon: <BatteryCharging className="h-10 w-10 text-fresh-300" />,
+    icon: <BatteryCharging className="h-10 w-10 text-mint-500" />,
     title: "Energy Support",
-    description: "Tools to combat fatigue and boost energy levels during nicotine reduction or abstinence.",
+    description: "Combat the fatigue often experienced during nicotine withdrawal with targeted tools designed to boost and maintain energy levels naturally.",
   },
   {
-    icon: <Sparkles className="h-10 w-10 text-teal-500" />,
-    title: "Mood Lifters",
-    description: "Exercises and techniques to stabilize mood swings and enhance overall emotional wellbeing.",
+    icon: <Sparkles className="h-10 w-10 text-mint-500" />,
+    title: "Mood Regulation",
+    description: "Practical exercises and techniques to stabilize mood swings and emotional challenges commonly experienced during the quitting or reduction process.",
   },
   {
-    icon: <BrainIcon className="h-10 w-10 text-fresh-300" />,
-    title: "Focus Enhancers",
-    description: "Strategies to improve concentration and mental clarity during withdrawal periods.",
+    icon: <BrainIcon className="h-10 w-10 text-mint-500" />,
+    title: "Focus Enhancement",
+    description: "Effective strategies to improve mental clarity and concentration, addressing one of the most common barriers to successful nicotine reduction.",
   },
   {
-    icon: <Flame className="h-10 w-10 text-teal-500" />,
+    icon: <Flame className="h-10 w-10 text-mint-500" />,
     title: "Craving Management",
-    description: "Immediate tools and techniques to cope with and overcome nicotine cravings.",
+    description: "Immediate, science-backed tools to overcome intense nicotine cravings in the moment, including breathing exercises and distraction techniques.",
   },
   {
-    icon: <ListChecks className="h-10 w-10 text-fresh-300" />,
+    icon: <ListChecks className="h-10 w-10 text-mint-500" />,
     title: "Flexible Goals",
-    description: "Support for multiple approaches: cold turkey, gradual reduction, NRT, or harm reduction.",
+    description: "'Staying Afresh' or 'Staying Fresher' - set personalized goals with support for multiple approaches: cold turkey, gradual reduction, NRT, or harm reduction.",
   },
   {
-    icon: <Cigarette className="h-10 w-10 text-teal-500" />,
+    icon: <Cigarette className="h-10 w-10 text-mint-500" />,
     title: "All Products Tracking",
-    description: "Track use of any nicotine product: cigarettes, vapes, pouches, gums, and more.",
+    description: "Comprehensive tracking for any nicotine product: cigarettes, vapes, pouches, gums, patches, and more - no judgment, just support for your chosen path.",
   },
   {
-    icon: <LineChart className="h-10 w-10 text-fresh-300" />,
+    icon: <LineChart className="h-10 w-10 text-mint-500" />,
     title: "Progress Visualization",
-    description: "Clear, intuitive charts that show your progress and identify patterns.",
+    description: "See your journey with clear, motivating charts showing nicotine reduction, money saved, health improvements, and holistic wellness metrics.",
   },
   {
-    icon: <Footprints className="h-10 w-10 text-teal-500" />,
+    icon: <Footprints className="h-10 w-10 text-mint-500" />,
     title: "Step Rewards",
-    description: "Stay active and earn rewards based on your daily steps and progress.",
+    description: "Turn physical activity into tangible benefits with our step-tracking reward system, creating a positive feedback loop for your fresh journey.",
   },
   {
-    icon: <ActivitySquare className="h-10 w-10 text-fresh-300" />,
+    icon: <ActivitySquare className="h-10 w-10 text-mint-500" />,
     title: "Holistic Tracking",
-    description: "Monitor all aspects of wellbeing: sleep, energy, mood, and focus alongside nicotine use.",
+    description: "Monitor all aspects of wellbeing: sleep quality, energy levels, mood stability, and mental focus alongside your nicotine reduction progress.",
   },
 ];
 
@@ -64,24 +65,19 @@ const Features = () => {
   return (
     <section className="py-20 bg-background" id="features">
       <div className="container">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
-          <p className="text-lg text-muted-foreground">
-            Mission Fresh provides comprehensive support for your entire journey
-          </p>
-        </div>
+        <FeaturesIntro 
+          title="How Mission Fresh Supports Your Journey" 
+          description="We address the real challenges of nicotine reduction: energy drain, mood swings, focus loss, and persistent cravings - because willpower alone isn't enough."
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="overflow-hidden hover:shadow-md transition-shadow border-border hover-scale">
-              <CardHeader className="pb-2">
-                <div className="mb-2">{feature.icon}</div>
-                <CardTitle>{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">{feature.description}</CardDescription>
-              </CardContent>
-            </Card>
+            <FeatureCard 
+              key={index} 
+              icon={feature.icon} 
+              title={feature.title} 
+              description={feature.description}
+            />
           ))}
         </div>
       </div>
