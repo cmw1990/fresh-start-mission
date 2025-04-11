@@ -114,11 +114,15 @@ export const getUserPointsBalance = async (): Promise<number> => {
     // Fix the type issue by correctly handling the array structure from the join
     const totalSpent = claimed.reduce((sum, item) => {
       // Handle the case where rewards is likely an array from the join query
-      const rewardsData = Array.isArray(item.rewards) 
-        ? item.rewards[0] // Take the first item if it's an array
-        : item.rewards;   // Use as is if it's already a single object
+      if (!item.rewards) return sum;
       
-      return sum + (rewardsData?.points_required || 0);
+      if (Array.isArray(item.rewards)) {
+        // If it's an array, take the first item
+        return sum + (item.rewards[0]?.points_required || 0);
+      } else {
+        // If it's already a single object
+        return sum + ((item.rewards as unknown as { points_required: number })?.points_required || 0);
+      }
     }, 0);
 
     return totalEarned - totalSpent;
