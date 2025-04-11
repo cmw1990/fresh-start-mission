@@ -59,7 +59,9 @@ const HolisticMetrics = ({ logs }: HolisticMetricsProps) => {
             <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} />
             <Tooltip 
               formatter={(value, name) => {
-                return [value, name.charAt(0).toUpperCase() + name.slice(1) + ' (1-5)'];
+                // Convert name to string explicitly before using string methods
+                const nameStr = String(name);
+                return [value, nameStr.charAt(0).toUpperCase() + nameStr.slice(1) + ' (1-5)'];
               }}
               labelFormatter={(label) => `Day: ${label}`}
             />

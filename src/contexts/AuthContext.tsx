@@ -22,18 +22,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Helper function to transform Supabase user to our custom User type
+  const transformUser = (authUser: any): User | null => {
+    if (!authUser) return null;
+    
+    return {
+      id: authUser.id,
+      email: authUser.email || '',
+      name: authUser.user_metadata?.name || '',
+      created_at: authUser.created_at || new Date().toISOString()
+    };
+  };
+
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user as User || null);
+      setUser(transformUser(session?.user));
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setUser(session?.user as User || null);
+      setUser(transformUser(session?.user));
       setLoading(false);
     });
 
