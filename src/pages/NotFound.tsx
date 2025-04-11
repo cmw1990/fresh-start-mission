@@ -21,7 +21,7 @@ const NotFound = () => {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <h1 className="text-5xl font-bold text-fresh-500 mb-6">404</h1>
-          <div className="rounded-full w-24 h-24 bg-fresh-100 mx-auto flex items-center justify-center mb-6">
+          <div className="rounded-full w-24 h-24 bg-fresh-50 mx-auto flex items-center justify-center mb-6">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="40" 

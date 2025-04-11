@@ -12,7 +12,7 @@ const features = [
     description: "Whether you want to stay afresh (quit) or stay fresher (reduce), we support your unique journey.",
   },
   {
-    icon: <Leaf className="h-10 w-10 text-teal-500" />,
+    icon: <Leaf className="h-10 w-10 text-fresh-300" />,
     title: "Track Your Progress",
     description: "Monitor your nicotine use, cravings, and holistic metrics like mood, energy, and focus.",
   },
@@ -22,7 +22,7 @@ const features = [
     description: "Access specialized tools for managing cravings, boosting energy, improving focus, and lifting mood.",
   },
   {
-    icon: <Award className="h-10 w-10 text-teal-500" />,
+    icon: <Award className="h-10 w-10 text-fresh-300" />,
     title: "Earn Rewards",
     description: "Stay motivated with our step-based rewards system that provides incentives along your journey.",
   },
@@ -80,8 +80,8 @@ const HowItWorks = () => {
               <div className="space-y-12 mb-16">
                 <div className="flex flex-col md:flex-row gap-8 items-center">
                   <div className="md:w-1/2">
-                    <div className="bg-fresh-100 h-64 rounded-xl flex items-center justify-center">
-                      <span className="text-6xl font-bold text-fresh-600">1</span>
+                    <div className="bg-fresh-50 h-64 rounded-xl flex items-center justify-center">
+                      <span className="text-6xl font-bold text-fresh-500">1</span>
                     </div>
                   </div>
                   <div className="md:w-1/2">
@@ -96,8 +96,8 @@ const HowItWorks = () => {
                 
                 <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
                   <div className="md:w-1/2">
-                    <div className="bg-teal-100 h-64 rounded-xl flex items-center justify-center">
-                      <span className="text-6xl font-bold text-teal-600">2</span>
+                    <div className="bg-fresh-50 h-64 rounded-xl flex items-center justify-center">
+                      <span className="text-6xl font-bold text-fresh-500">2</span>
                     </div>
                   </div>
                   <div className="md:w-1/2">
@@ -112,8 +112,8 @@ const HowItWorks = () => {
                 
                 <div className="flex flex-col md:flex-row gap-8 items-center">
                   <div className="md:w-1/2">
-                    <div className="bg-fresh-100 h-64 rounded-xl flex items-center justify-center">
-                      <span className="text-6xl font-bold text-fresh-600">3</span>
+                    <div className="bg-fresh-50 h-64 rounded-xl flex items-center justify-center">
+                      <span className="text-6xl font-bold text-fresh-500">3</span>
                     </div>
                   </div>
                   <div className="md:w-1/2">
@@ -128,8 +128,8 @@ const HowItWorks = () => {
                 
                 <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
                   <div className="md:w-1/2">
-                    <div className="bg-teal-100 h-64 rounded-xl flex items-center justify-center">
-                      <span className="text-6xl font-bold text-teal-600">4</span>
+                    <div className="bg-fresh-50 h-64 rounded-xl flex items-center justify-center">
+                      <span className="text-6xl font-bold text-fresh-500">4</span>
                     </div>
                   </div>
                   <div className="md:w-1/2">

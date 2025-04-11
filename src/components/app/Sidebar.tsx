@@ -33,7 +33,7 @@ const SidebarLink = ({ href, icon, title, active }: SidebarLinkProps) => {
         className={cn(
           "w-full justify-start gap-2",
           active
-            ? "bg-fresh-100 text-fresh-500 hover:bg-fresh-100 hover:text-fresh-500"
+            ? "bg-fresh-50 text-fresh-500 hover:bg-fresh-50 hover:text-fresh-500"
             : "text-muted-foreground hover:bg-background hover:text-foreground"
         )}
       >
