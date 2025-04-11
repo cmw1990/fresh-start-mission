@@ -5,94 +5,104 @@
 
 @layer base {
   :root {
-    --background: 240 33% 98%;
-    --foreground: 240 10% 10%;
-
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
-
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
-
-    /* Standardized mint green color */
-    --mint: 150 65% 45%;
-    --primary: var(--mint);
-    --primary-foreground: 0 0% 100%;
-
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 170 63% 49%;
+    --primary-foreground: 355.7 100% 97.3%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
-
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-
-    /* Using our standardized mint color for accent too */
-    --accent: var(--mint);
-    --accent-foreground: 0 0% 100%;
-
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: var(--mint);
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: var(--mint);
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: var(--mint);
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.5rem;
     
-    /* Define unified fresh color for consistent references */
-    --fresh: var(--mint);
+    /* Fresh theme colors for consistency */
+    --fresh-50: 166 76% 97%;
+    --fresh-100: 167 64% 93%;
+    --fresh-200: 168 55% 85%;
+    --fresh-300: 168 53% 73%;
+    --fresh-400: 168 55% 58%;
+    --fresh-500: 168 55% 50%;
+    --fresh-600: 170 61% 41%;
+    --fresh-700: 172 68% 33%;
+    --fresh-800: 174 70% 27%;
+    --fresh-900: 175 79% 22%;
   }
 
   .dark {
-    --background: 240 10% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 12%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Maintaining the same mint green in dark mode for consistency */
-    --mint: 150 65% 45%;
-    --primary: var(--mint);
-    --primary-foreground: 0 0% 100%;
-
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 170 63% 45%;
+    --primary-foreground: 144.9 80.4% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
+    --muted: 0 0% 15%;
     --muted-foreground: 240 5% 64.9%;
-
-    --accent: var(--mint);
+    --accent: 12 6.5% 15.1%;
     --accent-foreground: 0 0% 98%;
-
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
+    --destructive-foreground: 0 85.7% 97.3%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --ring: 142.4 71.8% 29.2%;
+  }
+}
 
-    --sidebar-background: 240 10% 12%;
-    --sidebar-foreground: 240 5% 84.9%;
-    --sidebar-primary: var(--mint);
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: var(--mint);
-    
-    /* Define unified fresh color for consistent references */
-    --fresh: var(--mint);
+@layer components {
+  /* Default hover animation for cards */
+  .hover-scale {
+    @apply transition-transform duration-200;
+  }
+  .hover-scale:hover {
+    @apply transform scale-105;
+  }
+  
+  /* Feature card standardized styling */
+  .feature-card {
+    @apply border border-fresh-100;
+  }
+  
+  /* Mobile-specific styles */
+  .capacitor-container {
+    @apply max-w-full overflow-hidden;
+  }
+  
+  /* Safe area padding for mobile devices */
+  .safe-area-padding {
+    @apply pt-safe pb-safe pl-safe pr-safe;
+  }
+  
+  /* App layout adjustments for mobile */
+  @media (max-width: 640px) {
+    .app-container {
+      @apply pb-16;
+    }
+  }
+  
+  /* Animation for logo and transitions */
+  @keyframes logo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .app-logo {
+      animation: logo-spin infinite 20s linear;
+    }
   }
 }
 
@@ -102,70 +112,5 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
-}
-
-/* Consistent link styling */
-.story-link {
-  @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
-}
-
-.hover-scale {
-  @apply transition-transform duration-200 hover:scale-105;
-}
-
-/* Standardized button classes using our mint color */
-.btn-mint {
-  @apply bg-primary hover:bg-primary/90 text-white transition-colors;
-}
-
-.sidebar-active {
-  @apply bg-primary/10 text-primary font-medium;
-}
-
-.progress-bar {
-  @apply h-2 rounded-full bg-primary/20;
-}
-
-.progress-value {
-  @apply h-full rounded-full bg-primary;
-}
-
-.card-highlight {
-  @apply border-l-4 border-primary;
-}
-
-.tag-mint {
-  @apply bg-primary/20 text-primary/80 px-2 py-0.5 rounded-md text-xs font-medium;
-}
-
-/* Add consistent page layout styling */
-.page-container {
-  @apply container py-12 md:py-16 mx-auto px-4;
-}
-
-.page-title {
-  @apply text-4xl md:text-5xl font-bold mb-6 tracking-tight;
-}
-
-.page-description {
-  @apply text-xl text-muted-foreground mb-8;
-}
-
-/* Component-specific styles */
-.feature-card {
-  @apply overflow-hidden transition-shadow border border-border rounded-lg p-6 hover:shadow-md;
-}
-
-.feature-icon {
-  @apply h-10 w-10 text-primary mb-3;
-}
-
-.feature-title {
-  @apply text-xl font-semibold mb-2;
-}
-
-.feature-description {
-  @apply text-muted-foreground;
 }

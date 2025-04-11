@@ -6,7 +6,8 @@ import {
   LineChart,
   Settings,
   Zap,
-  LogOut
+  LogOut,
+  Footprints
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,11 +17,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
 
 const MobileNav = () => {
   const location = useLocation();
   const path = location.pathname;
   const { signOut } = useAuth();
+  const [isNativeApp, setIsNativeApp] = useState(false);
+
+  useEffect(() => {
+    // Check if running in a Capacitor native environment
+    const checkPlatform = async () => {
+      try {
+        // In a real implementation, we would check Capacitor.isNativePlatform()
+        const userAgent = navigator.userAgent.toLowerCase();
+        setIsNativeApp(userAgent.includes('android') || userAgent.includes('ios'));
+      } catch (error) {
+        console.log('Running in web environment');
+      }
+    };
+    
+    checkPlatform();
+  }, []);
 
   const navItems = [
     {
@@ -44,10 +62,10 @@ const MobileNav = () => {
       href: "/app/tools/cravings",
     },
     {
-      icon: <Settings size={20} />,
-      label: "More",
-      href: "/app/settings",
-      dropdown: true
+      icon: isNativeApp ? <Footprints size={20} /> : <Settings size={20} />,
+      label: isNativeApp ? "Steps" : "More",
+      href: isNativeApp ? "/app/rewards" : "/app/settings",
+      dropdown: !isNativeApp
     },
   ];
 
@@ -56,7 +74,7 @@ const MobileNav = () => {
   };
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-50">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-50 safe-area-padding">
       <nav className="flex items-center justify-around py-2">
         {navItems.map((item, index) => (
           item.dropdown ? (
@@ -66,7 +84,7 @@ const MobileNav = () => {
                   className={cn(
                     "p-1 rounded-full",
                     path === item.href
-                      ? "text-primary"
+                      ? "text-fresh-500"
                       : "text-muted-foreground"
                   )}
                 >
@@ -115,7 +133,7 @@ const MobileNav = () => {
                 className={cn(
                   "p-1 rounded-full",
                   path === item.href
-                    ? "text-primary"
+                    ? "text-fresh-500"
                     : "text-muted-foreground"
                 )}
               >
