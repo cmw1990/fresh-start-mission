@@ -1,375 +1,292 @@
 
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BatteryCharging, Brain, Sparkles, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Battery, Brain, Activity, Flame, Droplet, Coffee, Wind } from "lucide-react";
 
 const HolisticHealth = () => {
-  const location = useLocation();
-  const hash = location.hash.substring(1) || "energy";
-  const contentRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [hash]);
-
   return (
     <div className="container py-12">
+      <Link to="/tools" className="inline-flex items-center text-mint-500 hover:text-mint-600 mb-6">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Web Tools
+      </Link>
+      
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">Holistic Health Guides</h1>
           <p className="text-lg text-muted-foreground">
-            Practical advice for managing common challenges during the nicotine reduction or abstinence journey.
+            Practical tips and techniques to support the whole you during your fresh journey
           </p>
         </div>
         
-        <div className="mb-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Why a Holistic Approach?</CardTitle>
-              <CardDescription>
-                Quitting or reducing nicotine impacts more than just cravings. It affects your energy levels, mood, focus, and stress management.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">
-                Research shows that addressing these holistic aspects can significantly improve your chances of success. The guides below provide evidence-based strategies to help you feel better throughout the process.
+        <Card className="mb-12" id="energy">
+          <CardHeader className="bg-mint-50">
+            <div className="flex items-center gap-2">
+              <Battery className="h-6 w-6 text-mint-500" />
+              <CardTitle>Energy Management</CardTitle>
+            </div>
+            <CardDescription>
+              Practical techniques for managing energy slumps and combating fatigue during withdrawal
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-3">Why Energy Fluctuates During Nicotine Withdrawal</h3>
+              <p className="mb-3">
+                Nicotine stimulates the release of adrenaline and glucose, providing an artificial energy boost. 
+                When you reduce or eliminate nicotine, your body needs time to readjust its natural energy regulation systems.
               </p>
               <p>
-                Simply choose the area you're struggling with most right now, or explore all four domains to develop a comprehensive toolkit for your journey.
+                Energy slumps are normal and temporary. Most people report significant improvements after 1-2 weeks as the body reestablishes balance.
               </p>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Effective Energy Management Strategies</h3>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <Droplet className="h-4 w-4 text-mint-500" />
+                  Hydration First
+                </h4>
+                <p className="text-sm">
+                  Dehydration is a common cause of fatigue. Aim to drink at least 8 glasses of water daily. 
+                  Keep a water bottle with you and set reminders to sip regularly.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <Wind className="h-4 w-4 text-mint-500" />
+                  Strategic Movement
+                </h4>
+                <p className="text-sm">
+                  When energy dips, a short burst of physical activity can be more effective than caffeine. 
+                  Try a 5-minute walk, 10 jumping jacks, or climbing a flight of stairs. This activates circulation and releases natural energy-boosting compounds.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <Coffee className="h-4 w-4 text-mint-500" />
+                  Caffeine Awareness
+                </h4>
+                <p className="text-sm">
+                  Be mindful of caffeine consumption. While it can help initially, excessive caffeine can worsen energy crashes and sleep disruption. 
+                  Consider limiting intake to mornings only, and opt for green tea which provides a gentler, sustained energy boost.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-mint-500" />
+                  Micro-Rest Periods
+                </h4>
+                <p className="text-sm">
+                  Schedule short 2-5 minute breaks throughout your day. Use these for deep breathing, gentle stretching, or simply closing your eyes and relaxing. 
+                  These micro-rest periods can prevent energy depletion before it becomes severe.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
-        <div ref={contentRef}>
-          <Tabs defaultValue={hash} className="mb-8">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full mb-8">
-              <TabsTrigger value="energy" className="flex gap-2 items-center">
-                <BatteryCharging className="h-4 w-4" />
-                <span>Energy</span>
-              </TabsTrigger>
-              <TabsTrigger value="mood" className="flex gap-2 items-center">
-                <Sparkles className="h-4 w-4" />
-                <span>Mood</span>
-              </TabsTrigger>
-              <TabsTrigger value="focus" className="flex gap-2 items-center">
-                <Brain className="h-4 w-4" />
-                <span>Focus</span>
-              </TabsTrigger>
-              <TabsTrigger value="cravings" className="flex gap-2 items-center">
-                <Flame className="h-4 w-4" />
-                <span>Cravings</span>
-              </TabsTrigger>
-            </TabsList>
+        <Card className="mb-12" id="mood">
+          <CardHeader className="bg-mint-50">
+            <div className="flex items-center gap-2">
+              <Activity className="h-6 w-6 text-mint-500" />
+              <CardTitle>Mood Regulation</CardTitle>
+            </div>
+            <CardDescription>
+              Strategies for stabilizing and improving mood swings often experienced during the quitting process
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-3">Understanding Mood Changes</h3>
+              <p className="mb-3">
+                Mood fluctuations are among the most challenging aspects of changing nicotine habits. 
+                Nicotine affects dopamine, serotonin, and other neurotransmitters that regulate mood. 
+                As your brain chemistry readjusts, emotional ups and downs are normal.
+              </p>
+            </div>
             
-            <TabsContent value="energy">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <BatteryCharging className="h-6 w-6 text-fresh-300" />
-                    <CardTitle>Managing Energy Slumps</CardTitle>
-                  </div>
-                  <CardDescription>
-                    Practical strategies to combat fatigue during nicotine withdrawal and reduction
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Why Nicotine Affects Energy</h3>
-                    <p>
-                      Nicotine stimulates the release of glucose and adrenaline, creating an artificial energy boost. When you reduce or eliminate nicotine, your body temporarily struggles to regulate energy naturally, leading to fatigue and lethargy. This is completely normal and typically improves within 2-4 weeks.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Immediate Energy Boosters</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Quick Movement:</strong> Just 5 minutes of brisk walking, stretching, or climbing stairs can trigger energy-boosting endorphins.
-                      </li>
-                      <li>
-                        <strong>Cold Water:</strong> Splash cold water on your face or take a quick cold shower to activate your sympathetic nervous system.
-                      </li>
-                      <li>
-                        <strong>Proper Hydration:</strong> Even mild dehydration can worsen fatigue. Aim for at least 8-10 glasses of water daily.
-                      </li>
-                      <li>
-                        <strong>Power Breathing:</strong> Try 10 deep "power breaths" - inhale through your nose for 4 counts, hold for 2, exhale forcefully through your mouth for 6.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Strategic Energy Management</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Protein-Rich Snacks:</strong> Maintain stable blood sugar with small, protein-rich snacks every 3-4 hours (nuts, yogurt, hard-boiled eggs).
-                      </li>
-                      <li>
-                        <strong>Strategic Caffeine:</strong> A small cup of coffee or tea can help, but avoid after 2pm or excessive amounts which can worsen energy crashes.
-                      </li>
-                      <li>
-                        <strong>Power Naps:</strong> A 10-20 minute nap (no longer) can boost alertness without disrupting nighttime sleep.
-                      </li>
-                      <li>
-                        <strong>Energy Mapping:</strong> Track your energy levels throughout the day. Schedule important tasks during natural energy peaks and plan rest during dips.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Long-term Energy Foundations</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Sleep Optimization:</strong> Prioritize 7-9 hours of quality sleep. Create a consistent sleep schedule and bedtime routine.
-                      </li>
-                      <li>
-                        <strong>Regular Exercise:</strong> Even 20 minutes of moderate activity 3 times weekly significantly improves energy levels.
-                      </li>
-                      <li>
-                        <strong>Stress Management:</strong> Chronic stress depletes energy. Include regular stress-reduction practices (meditation, yoga, hobbies).
-                      </li>
-                      <li>
-                        <strong>Vitamins B12 and D:</strong> Consider having these levels checked, as deficiencies are common and can cause fatigue.
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Effective Mood Stabilizing Techniques</h3>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Five-Minute Journaling</h4>
+                <p className="text-sm">
+                  When experiencing strong emotions, try writing for just five minutes. Describe what you're feeling without judgment. 
+                  This simple practice can help process emotions and gain perspective. Consider noting three things you're grateful for at the end.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">3-3-3 Grounding Exercise</h4>
+                <p className="text-sm">
+                  When anxiety or irritability peaks: Name 3 things you can see, 3 things you can hear, and move 3 parts of your body. 
+                  This mindfulness technique helps reconnect with the present moment and interrupts negative thought spirals.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Nature Connection</h4>
+                <p className="text-sm">
+                  Even brief exposure to natural environments can improve mood. Try a 10-minute walk in a park, sitting by a window with a view of trees, 
+                  or even looking at nature photographs. Research shows these small exposures can reduce stress hormones and improve emotional regulation.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Social Support Activation</h4>
+                <p className="text-sm">
+                  When mood is low, reaching out to a supportive person can make a significant difference. 
+                  Consider creating a list of 3-5 people you can contact when struggling. Even a brief text exchange can shift perspective and provide encouragement.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="mb-12" id="focus">
+          <CardHeader className="bg-mint-50">
+            <div className="flex items-center gap-2">
+              <Brain className="h-6 w-6 text-mint-500" />
+              <CardTitle>Focus Enhancement</CardTitle>
+            </div>
+            <CardDescription>
+              Techniques to improve concentration and mental clarity during nicotine reduction or abstinence
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-3">The Brain Fog Phenomenon</h3>
+              <p className="mb-3">
+                Many people experience difficulty concentrating or "brain fog" when changing nicotine habits. 
+                This happens because nicotine affects acetylcholine receptors involved in attention and memory. 
+                Your brain is adapting to function without artificial stimulation.
+              </p>
+              <p>
+                These challenges typically improve significantly within 2-4 weeks as your brain chemistry rebalances.
+              </p>
+            </div>
             
-            <TabsContent value="mood">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Sparkles className="h-6 w-6 text-fresh-300" />
-                    <CardTitle>Mood Regulation Techniques</CardTitle>
-                  </div>
-                  <CardDescription>
-                    Evidence-based strategies to stabilize and lift your mood during nicotine withdrawal
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Understanding Mood Changes</h3>
-                    <p>
-                      Nicotine affects dopamine and serotonin - key neurotransmitters regulating mood. As your brain adjusts to functioning without nicotine, temporary mood disturbances are normal. Most people experience improvements in overall mood within 4-8 weeks of quitting.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Quick Mood Lifters</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Sunshine Exposure:</strong> Even 10-15 minutes of natural sunlight can boost serotonin and vitamin D production.
-                      </li>
-                      <li>
-                        <strong>Physical Movement:</strong> Any form of exercise releases endorphins that quickly elevate mood.
-                      </li>
-                      <li>
-                        <strong>Music Therapy:</strong> Listen to music that either matches your current mood and gradually shifts to more uplifting tunes.
-                      </li>
-                      <li>
-                        <strong>Gratitude Practice:</strong> Write down three specific things you're grateful for right now.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Emotional Regulation Strategies</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Name It to Tame It:</strong> Simply labeling your emotion ("I'm feeling frustrated") reduces its intensity.
-                      </li>
-                      <li>
-                        <strong>Thought Challenging:</strong> Question negative thoughts: "Is this thought helpful? Is there another perspective?"
-                      </li>
-                      <li>
-                        <strong>RAIN Technique:</strong> Recognize, Allow, Investigate, and Nurture difficult emotions rather than avoiding them.
-                      </li>
-                      <li>
-                        <strong>Social Connection:</strong> Brief positive social interactions trigger oxytocin release, improving mood and resilience.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Lifestyle Mood Foundations</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Sleep Quality:</strong> Poor sleep directly impacts mood regulation. Prioritize consistent sleep schedules.
-                      </li>
-                      <li>
-                        <strong>Nutrition:</strong> Emphasize omega-3 fatty acids, complex carbohydrates, and foods rich in folate and B vitamins.
-                      </li>
-                      <li>
-                        <strong>Limit Alcohol:</strong> While it may temporarily seem to improve mood, alcohol is a depressant that worsens mood over time.
-                      </li>
-                      <li>
-                        <strong>Professional Support:</strong> If mood disturbances are severe or persistent, don't hesitate to seek professional help.
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Focus-Enhancing Strategies</h3>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Pomodoro Technique</h4>
+                <p className="text-sm">
+                  Work in focused 25-minute sessions followed by 5-minute breaks. After four sessions, take a longer break (15-30 minutes). 
+                  This structure helps maintain focus when concentration is challenging and gives your brain regular recovery periods.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Single-Tasking Practice</h4>
+                <p className="text-sm">
+                  During withdrawal, multitasking becomes even more challenging. Choose one task, remove distractions (silence notifications, clear workspace), 
+                  and focus solely on that activity. Start with 10-minute sessions and gradually increase as your concentration improves.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Brain-Supporting Nutrition</h4>
+                <p className="text-sm">
+                  Certain foods can help cognitive function during withdrawal. Incorporate omega-3 fatty acids (fatty fish, walnuts, flaxseeds), 
+                  antioxidant-rich berries, and complex carbohydrates (whole grains, legumes) that provide steady glucose for brain function.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">External Memory Systems</h4>
+                <p className="text-sm">
+                  When memory and organization are affected, use external systems. Create clear to-do lists, use reminder apps, 
+                  take notes during important conversations, and create designated places for frequently used items to reduce cognitive load.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="mb-12" id="cravings">
+          <CardHeader className="bg-mint-50">
+            <div className="flex items-center gap-2">
+              <Flame className="h-6 w-6 text-mint-500" />
+              <CardTitle>Craving Management</CardTitle>
+            </div>
+            <CardDescription>
+              Effective strategies to handle cravings and urges without using nicotine products
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-3">Understanding Cravings</h3>
+              <p className="mb-3">
+                Cravings are temporary urges that typically last 3-5 minutes, even though they may feel endless in the moment. 
+                They're triggered by both physical withdrawal and psychological associations (e.g., after meals, during stress, in social situations).
+              </p>
+              <p>
+                Remember: No matter how intense, cravings always pass, and they generally decrease in frequency and intensity over time.
+              </p>
+            </div>
             
-            <TabsContent value="focus">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Brain className="h-6 w-6 text-fresh-300" />
-                    <CardTitle>Enhancing Concentration</CardTitle>
-                  </div>
-                  <CardDescription>
-                    Practical methods to improve focus and mental clarity during nicotine withdrawal
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Why Focus Suffers</h3>
-                    <p>
-                      Nicotine temporarily enhances attention and working memory by stimulating acetylcholine receptors in the brain. As these receptors adjust to functioning without nicotine, temporary cognitive fog and attention difficulties are common. Most people see improvements within 2-4 weeks.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Immediate Focus Enhancers</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Focused Breathing:</strong> Practice 4-7-8 breathing (inhale for 4 counts, hold for 7, exhale for 8) to reset attention.
-                      </li>
-                      <li>
-                        <strong>Environment Optimization:</strong> Remove distractions, use noise-cancelling headphones, ensure proper lighting.
-                      </li>
-                      <li>
-                        <strong>Movement Breaks:</strong> Brief physical activity every 30-45 minutes refreshes cognitive function.
-                      </li>
-                      <li>
-                        <strong>Hydration:</strong> Even mild dehydration significantly impairs attention and working memory.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Concentration Techniques</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Pomodoro Technique:</strong> Work in focused 25-minute intervals with 5-minute breaks between.
-                      </li>
-                      <li>
-                        <strong>Task Chunking:</strong> Break complex tasks into smaller, manageable segments with clear completion points.
-                      </li>
-                      <li>
-                        <strong>Implementation Intentions:</strong> Plan specific actions for potential distractions (e.g., "If I feel the urge to check social media, I will drink water instead").
-                      </li>
-                      <li>
-                        <strong>Single-Tasking:</strong> Focus on one task at a time. Multitasking reduces efficiency by up to 40%.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Cognitive Health Support</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Omega-3 Fatty Acids:</strong> Found in fatty fish, flaxseeds, and walnuts - support neural communication.
-                      </li>
-                      <li>
-                        <strong>Regular Aerobic Exercise:</strong> Improves brain-derived neurotrophic factor (BDNF), enhancing learning and memory.
-                      </li>
-                      <li>
-                        <strong>Adequate Sleep:</strong> REM sleep is crucial for cognitive processing and memory consolidation.
-                      </li>
-                      <li>
-                        <strong>Mental Stimulation:</strong> Learning new skills or engaging in cognitive challenges strengthens neural networks.
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="cravings">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Flame className="h-6 w-6 text-fresh-300" />
-                    <CardTitle>Craving Management Strategies</CardTitle>
-                  </div>
-                  <CardDescription>
-                    Effective techniques to overcome nicotine cravings and urges
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Understanding Cravings</h3>
-                    <p>
-                      Nicotine cravings typically last 3-5 minutes, though they can feel much longer. They're triggered by both physical dependence and psychological associations. The frequency and intensity of cravings decrease significantly after the first 2-4 weeks.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">5-Minute Craving Busters</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Delay Tactic:</strong> Tell yourself you'll wait just 5 minutes before deciding whether to use nicotine. Cravings often pass in this time.
-                      </li>
-                      <li>
-                        <strong>Deep Breathing:</strong> Six deep breaths, focusing on the sensation of air filling and leaving your lungs.
-                      </li>
-                      <li>
-                        <strong>Cold Water:</strong> Drink a glass of cold water slowly, or wash your hands and face with cold water.
-                      </li>
-                      <li>
-                        <strong>Distraction:</strong> Call someone, watch a short video, play a quick game on your phone, or complete a simple task.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Cognitive Techniques</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>DEADS Strategy:</strong> Delay, Escape, Avoid, Distract, Substitute.
-                      </li>
-                      <li>
-                        <strong>Urge Surfing:</strong> Observe the craving like a wave - it builds, crests, and eventually subsides. Don't fight it, just observe.
-                      </li>
-                      <li>
-                        <strong>Thought Challenging:</strong> Ask yourself: "What's the evidence that I need nicotine right now?" or "Will using nicotine now help me reach my goals?"
-                      </li>
-                      <li>
-                        <strong>Visualization:</strong> Imagine yourself successfully overcoming the craving and feeling proud afterward.
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Replacement Strategies</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>
-                        <strong>Oral Substitutes:</strong> Sugar-free gum, mints, toothpicks, cinnamon sticks, carrot sticks.
-                      </li>
-                      <li>
-                        <strong>Hand Occupiers:</strong> Stress balls, fidget toys, paper clips, rubber bands.
-                      </li>
-                      <li>
-                        <strong>Physical Release:</strong> Quick bursts of exercise (push-ups, jumping jacks, brisk walk).
-                      </li>
-                      <li>
-                        <strong>NRT Options:</strong> Consider appropriate nicotine replacement therapy as a temporary aid (see our NRT Guide).
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Craving Management Techniques</h3>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">4Ds Approach</h4>
+                <p className="text-sm">
+                  <strong>Delay:</strong> Tell yourself you'll wait just 5 minutes before giving in. Cravings often pass within this time.<br />
+                  <strong>Distract:</strong> Engage in an absorbing activity that occupies your mind and hands.<br />
+                  <strong>Deep breathing:</strong> Take 5-10 slow, deep breaths to activate your parasympathetic nervous system.<br />
+                  <strong>Drink water:</strong> Sipping cold water can reduce craving intensity and provide a sensory distraction.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Physical Displacement</h4>
+                <p className="text-sm">
+                  When a craving hits, change your physical environment. Step outside, move to a different room, or take a short walk. 
+                  This breaks the association between your location and the urge to use nicotine.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Hand-Mouth Substitution</h4>
+                <p className="text-sm">
+                  Address the behavioral component of cravings by substituting another hand-to-mouth activity. Options include sugar-free gum, 
+                  carrot sticks, flavored toothpicks, stress balls for hands, or using a drinking straw cut to cigarette length.
+                </p>
+              </div>
+              
+              <div className="bg-mint-50 p-4 rounded-md">
+                <h4 className="font-medium mb-2">Urge Surfing</h4>
+                <p className="text-sm">
+                  Instead of fighting the craving, observe it with curiosity. Notice where you feel it in your body, its intensity, and how it changes. 
+                  Like a wave, cravings build, peak, and subside. This mindfulness technique helps create distance between you and the urge.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <div className="mt-12 text-center">
+          <p className="text-lg mb-6">Ready to get personalized support for your fresh journey?</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild className="bg-mint-500 hover:bg-mint-600 text-white">
+              <Link to="/sign-up">
+                Create Free Account
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/tools">
+                Explore More Tools
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
