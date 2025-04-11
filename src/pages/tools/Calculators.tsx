@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,13 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, DollarSign, Clock, Activity } from "lucide-react";
 
+// Define a type for milestones
+type Milestone = {
+  time: string;
+  description: string;
+  achieved?: boolean;
+};
+
 const Calculators = () => {
   // Savings calculator state
   const [productType, setProductType] = useState("cigarettes");
@@ -19,7 +27,7 @@ const Calculators = () => {
   
   // Timeline calculator state
   const [quitDate, setQuitDate] = useState<Date | undefined>(undefined);
-  const [milestones, setMilestones] = useState<Array<{time: string, description: string}>>([]);
+  const [milestones, setMilestones] = useState<Array<Milestone>>([]);
   
   const calculateSavings = () => {
     const daily = costPerUnit * unitsPerDay;
@@ -42,7 +50,7 @@ const Calculators = () => {
     const diffTime = now.getTime() - quitDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    const newMilestones = [
+    const newMilestones: Milestone[] = [
       { time: '20 minutes', description: 'Heart rate and blood pressure drop' },
       { time: '12 hours', description: 'Carbon monoxide level in blood drops to normal' },
       { time: '2-3 days', description: 'Sense of smell and taste improve' },

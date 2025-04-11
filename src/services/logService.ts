@@ -128,7 +128,7 @@ export const getLogEntries = async (): Promise<NicotineLog[]> => {
 /**
  * Add a new log entry
  */
-export const addLogEntry = async (log: Omit<NicotineLog, 'id' | 'user_id' | 'created_at'>): Promise<NicotineLog | null> => {
+export const saveLogEntry = async (log: Omit<NicotineLog, 'id' | 'user_id' | 'created_at'>): Promise<NicotineLog | null> => {
   try {
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id;
@@ -151,7 +151,7 @@ export const addLogEntry = async (log: Omit<NicotineLog, 'id' | 'user_id' | 'cre
   } catch (error: any) {
     const errorMessage = getErrorMessage(error);
     toast.error(`Error adding log entry: ${errorMessage}`);
-    console.error('Error in addLogEntry:', error);
+    console.error('Error in saveLogEntry:', error);
     return null;
   }
 };
