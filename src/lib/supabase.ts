@@ -54,3 +54,37 @@ export type UserGoal = {
   created_at: string;
   updated_at: string;
 };
+
+// Type for step rewards
+export type StepReward = {
+  id: string;
+  user_id: string;
+  date: string;
+  steps: number;
+  points_earned: number;
+  created_at: string;
+};
+
+// Type for rewards
+export type Reward = {
+  id: string;
+  name: string;
+  description: string;
+  points_required: number;
+  active: boolean;
+  created_at: string;
+};
+
+// Type for claimed rewards
+export type ClaimedReward = {
+  id: string;
+  user_id: string;
+  reward_id: string;
+  claimed_at: string;
+  status: 'pending' | 'fulfilled';
+};
+
+// Helper functions for data handling
+export const getErrorMessage = (error: any): string => {
+  return error?.message || 'An unknown error occurred';
+};
