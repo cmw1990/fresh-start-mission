@@ -21,6 +21,12 @@ import FocusTools from "./pages/app/tools/FocusTools";
 import StepRewards from "./pages/app/StepRewards";
 import Settings from "./pages/app/Settings";
 import Features from "./pages/Features";
+import NRTGuide from "./pages/tools/NRTGuide";
+import SmokelessDirectory from "./pages/tools/SmokelessDirectory";
+import ProductDetails from "./pages/tools/ProductDetails";
+import QuitMethods from "./pages/tools/QuitMethods";
+import Calculators from "./pages/tools/Calculators";
+import WebToolsLayout from "./components/layout/WebToolsLayout";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +52,15 @@ const AppRoutes = () => {
       <Route path="/features" element={<Features />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
+      
+      {/* Web Tools Routes */}
+      <Route path="/tools" element={<WebToolsLayout />}>
+        <Route path="nrt-guide" element={<NRTGuide />} />
+        <Route path="smokeless-directory" element={<SmokelessDirectory />} />
+        <Route path="smokeless-directory/:productId" element={<ProductDetails />} />
+        <Route path="quit-methods" element={<QuitMethods />} />
+        <Route path="calculators" element={<Calculators />} />
+      </Route>
       
       {/* App Routes - Protected */}
       <Route 

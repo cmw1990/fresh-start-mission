@@ -16,6 +16,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarLinkProps {
   href: string;
@@ -46,6 +47,11 @@ const SidebarLink = ({ href, icon, title, active }: SidebarLinkProps) => {
 const Sidebar = () => {
   const location = useLocation();
   const path = location.pathname;
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <aside className="hidden md:flex flex-col h-screen w-64 border-r bg-background">
@@ -139,10 +145,10 @@ const Sidebar = () => {
             active={path === "/app/rewards"}
           />
           <SidebarLink
-            href="/app/directory"
+            href="/tools/smokeless-directory"
             icon={<Droplets size={20} />}
             title="Smokeless Directory"
-            active={path === "/app/directory"}
+            active={path === "/tools/smokeless-directory"}
           />
           <SidebarLink
             href="/app/settings"
@@ -154,7 +160,7 @@ const Sidebar = () => {
       </div>
 
       <div className="p-4 border-t">
-        <Button variant="outline" className="w-full justify-start gap-2">
+        <Button variant="outline" className="w-full justify-start gap-2" onClick={handleLogout}>
           <LogOut size={20} />
           <span>Log Out</span>
         </Button>
