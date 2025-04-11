@@ -111,10 +111,13 @@ export const getUserPointsBalance = async (): Promise<number> => {
     // Calculate balance
     const totalEarned = earned.reduce((sum, item) => sum + (item.points_earned || 0), 0);
     
-    // Fix the type issue by properly accessing the nested object structure
+    // Fix the type issue by correctly handling the array structure from the join
     const totalSpent = claimed.reduce((sum, item) => {
-      // Cast item.rewards to access the nested points_required property
-      const rewardsData = item.rewards as { points_required: number };
+      // Handle the case where rewards is likely an array from the join query
+      const rewardsData = Array.isArray(item.rewards) 
+        ? item.rewards[0] // Take the first item if it's an array
+        : item.rewards;   // Use as is if it's already a single object
+      
       return sum + (rewardsData?.points_required || 0);
     }, 0);
 
