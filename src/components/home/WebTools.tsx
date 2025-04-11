@@ -12,7 +12,7 @@ const tools = [
     link: "/tools/nrt-guide",
   },
   {
-    icon: <Droplets className="h-8 w-8 text-teal-500" />,
+    icon: <Droplets className="h-8 w-8 text-fresh-300" />,
     title: "Smokeless Directory",
     description: "Detailed directory of smokeless nicotine products with filtering, reviews, and expert notes on each option.",
     link: "/tools/smokeless-directory",
@@ -24,7 +24,7 @@ const tools = [
     link: "/tools/quit-methods",
   },
   {
-    icon: <Calculator className="h-8 w-8 text-teal-500" />,
+    icon: <Calculator className="h-8 w-8 text-fresh-300" />,
     title: "Interactive Calculators",
     description: "Calculate potential savings from quitting and view a health improvement timeline based on your quit date.",
     link: "/tools/calculators",
@@ -61,6 +61,14 @@ const WebTools = () => {
               </CardFooter>
             </Card>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link to="/tools" className="inline-block">
+            <Button className="bg-fresh-300 hover:bg-fresh-400 text-white">
+              Explore All Web Tools
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

@@ -7,7 +7,13 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,9 +50,25 @@ const Navbar = () => {
           <Link to="/features" className="text-sm font-medium story-link">
             Features
           </Link>
-          <Link to="/tools" className="text-sm font-medium story-link">
-            Web Tools
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-sm font-medium story-link flex items-center">
+              Web Tools <ChevronDown className="h-4 w-4 ml-1" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link to="/tools/nrt-guide">NRT Guide</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/tools/smokeless-directory">Smokeless Directory</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/tools/quit-methods">Quitting Methods</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/tools/calculators">Interactive Calculators</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link to="/app/dashboard" className="text-sm font-medium story-link">
             Sign In
           </Link>
@@ -72,9 +94,23 @@ const Navbar = () => {
               <Link to="/features" className="text-lg font-medium" onClick={closeSheet}>
                 Features
               </Link>
-              <Link to="/tools" className="text-lg font-medium" onClick={closeSheet}>
-                Web Tools
-              </Link>
+              <div className="space-y-3">
+                <p className="text-lg font-medium">Web Tools</p>
+                <div className="pl-4 flex flex-col gap-3">
+                  <Link to="/tools/nrt-guide" className="text-base" onClick={closeSheet}>
+                    NRT Guide
+                  </Link>
+                  <Link to="/tools/smokeless-directory" className="text-base" onClick={closeSheet}>
+                    Smokeless Directory
+                  </Link>
+                  <Link to="/tools/quit-methods" className="text-base" onClick={closeSheet}>
+                    Quitting Methods
+                  </Link>
+                  <Link to="/tools/calculators" className="text-base" onClick={closeSheet}>
+                    Interactive Calculators
+                  </Link>
+                </div>
+              </div>
               <Link to="/app/dashboard" className="text-lg font-medium" onClick={closeSheet}>
                 Sign In
               </Link>

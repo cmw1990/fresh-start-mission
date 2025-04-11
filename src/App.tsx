@@ -27,6 +27,8 @@ import ProductDetails from "./pages/tools/ProductDetails";
 import QuitMethods from "./pages/tools/QuitMethods";
 import Calculators from "./pages/tools/Calculators";
 import WebToolsLayout from "./components/layout/WebToolsLayout";
+import WebToolsIndex from "./pages/tools/WebToolsIndex";
+import HolisticHealth from "./pages/tools/HolisticHealth";
 import HowItWorks from "./pages/HowItWorks";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
@@ -45,11 +47,13 @@ const AppRoutes = () => {
       
       {/* Web Tools Routes */}
       <Route path="/tools" element={<WebToolsLayout />}>
+        <Route index element={<WebToolsIndex />} />
         <Route path="nrt-guide" element={<NRTGuide />} />
         <Route path="smokeless-directory" element={<SmokelessDirectory />} />
         <Route path="smokeless-directory/:productId" element={<ProductDetails />} />
         <Route path="quit-methods" element={<QuitMethods />} />
         <Route path="calculators" element={<Calculators />} />
+        <Route path="holistic-health" element={<HolisticHealth />} />
       </Route>
       
       {/* App Routes - Protected */}
