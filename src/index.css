@@ -121,6 +121,35 @@
       animation: logo-spin infinite 20s linear;
     }
   }
+  
+  /* Enhanced animations for UI elements */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .slide-in-bottom {
+    animation: slideInBottom 0.3s ease-out;
+  }
+  
+  @keyframes slideInBottom {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  /* Mobile-friendly touch targets */
+  .touch-target {
+    @apply min-h-12 min-w-12;
+  }
+  
+  /* Improved focus styles for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-fresh-500 focus:ring-offset-2;
+  }
 }
 
 @layer base {

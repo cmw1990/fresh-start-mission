@@ -60,6 +60,13 @@ const MobileNav = () => {
       icon: <Zap size={20} />,
       label: "Tools",
       href: "/app/tools/cravings",
+      dropdown: true,
+      subItems: [
+        { label: "Cravings", href: "/app/tools/cravings" },
+        { label: "Energy", href: "/app/tools/energy" },
+        { label: "Mood", href: "/app/tools/mood" },
+        { label: "Focus", href: "/app/tools/focus" }
+      ]
     },
     {
       icon: isNativeApp ? <Footprints size={20} /> : <Settings size={20} />,
@@ -83,7 +90,7 @@ const MobileNav = () => {
                 <div
                   className={cn(
                     "p-1 rounded-full",
-                    path === item.href
+                    path === item.href || (item.subItems && item.subItems.some(subItem => path === subItem.href))
                       ? "text-fresh-500"
                       : "text-muted-foreground"
                   )}
@@ -93,7 +100,7 @@ const MobileNav = () => {
                 <span
                   className={cn(
                     "text-xs mt-1",
-                    path === item.href
+                    path === item.href || (item.subItems && item.subItems.some(subItem => path === subItem.href))
                       ? "text-foreground font-medium"
                       : "text-muted-foreground"
                   )}
@@ -102,25 +109,37 @@ const MobileNav = () => {
                 </span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to="/app/rewards" className="w-full">
-                    Step Rewards
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/tools/smokeless-directory" className="w-full">
-                    Smokeless Directory
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/app/settings" className="w-full">
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
+                {item.subItems ? (
+                  item.subItems.map((subItem, subIndex) => (
+                    <DropdownMenuItem key={subIndex} asChild>
+                      <Link to={subItem.href} className="w-full">
+                        {subItem.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/app/rewards" className="w-full">
+                        Step Rewards
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/tools/smokeless-directory" className="w-full">
+                        Smokeless Directory
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/app/settings" className="w-full">
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
