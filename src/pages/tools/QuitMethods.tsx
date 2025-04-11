@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, TrendingDown, Cigarette, Zap, CircleSlash2, Minus, Timer, Droplet, Award } from "lucide-react";
+import { ArrowLeft, Calendar, TrendingDown, Cigarette, Zap, CircleSlash2, Minus, Timer, Droplet, Award, Info } from "lucide-react";
+import FeaturesIntro from "@/components/home/FeaturesIntro";
 
 const quitMethods = [
   {
@@ -139,23 +140,21 @@ const QuittingMethodsGuide = () => {
   
   return (
     <div className="container py-12">
-      <Link to="/" className="inline-flex items-center text-fresh-500 hover:text-fresh-600 mb-6">
+      <Link to="/tools" className="inline-flex items-center text-mint-500 hover:text-mint-600 mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Home
+        Back to Web Tools
       </Link>
       
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">Quitting Methods Guide</h1>
-          <p className="text-lg text-muted-foreground">
-            Explore different approaches to quitting or reducing nicotine use and find what works for you
-          </p>
-        </div>
+        <FeaturesIntro 
+          title="Quitting Methods Guide"
+          description="Explore different approaches to quitting or reducing nicotine use and find what works best for your unique journey"
+        />
         
         <Card className="mb-8">
-          <CardHeader className="bg-fresh-50">
+          <CardHeader className="bg-mint-50">
             <CardTitle>Finding Your Fresh Path</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               There's no one-size-fits-all approach to quitting nicotine. The most effective method for you depends on your personal preferences, usage patterns, and previous quit attempts.
             </CardDescription>
           </CardHeader>
@@ -168,9 +167,13 @@ const QuittingMethodsGuide = () => {
         
         <div className="grid gap-6 mb-8">
           <Tabs value={selectedMethod} onValueChange={setSelectedMethod} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full">
+            <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-2">
               {quitMethods.map((method) => (
-                <TabsTrigger key={method.id} value={method.id}>
+                <TabsTrigger 
+                  key={method.id} 
+                  value={method.id}
+                  className="data-[state=active]:bg-mint-50 data-[state=active]:text-mint-700 data-[state=active]:border-b-2 data-[state=active]:border-mint-500"
+                >
                   <span className="hidden md:inline mr-2">{method.icon}</span>
                   <span className="truncate">{method.name}</span>
                 </TabsTrigger>
@@ -179,7 +182,7 @@ const QuittingMethodsGuide = () => {
             
             {quitMethods.map((method) => (
               <TabsContent key={method.id} value={method.id}>
-                <Card>
+                <Card className="border-t-4 border-t-mint-500">
                   <CardHeader>
                     <div className="flex items-center gap-2">
                       {method.icon}
@@ -192,13 +195,16 @@ const QuittingMethodsGuide = () => {
                   <CardContent className="space-y-6">
                     {method.details.map((detail, index) => (
                       <div key={index}>
-                        <h3 className="font-semibold mb-2">{detail.title}</h3>
+                        <h3 className="font-semibold mb-2 flex items-center">
+                          <Info className="h-4 w-4 text-mint-500 mr-2" />
+                          {detail.title}
+                        </h3>
                         <p className="text-muted-foreground">{detail.content}</p>
                       </div>
                     ))}
                     
-                    <div className="bg-fresh-50 p-4 rounded-md">
-                      <p className="font-medium text-fresh-800">
+                    <div className="bg-mint-50 p-4 rounded-md">
+                      <p className="font-medium text-mint-800">
                         {method.successRate}
                       </p>
                     </div>
@@ -212,7 +218,7 @@ const QuittingMethodsGuide = () => {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-fresh-500" />
+              <Award className="h-5 w-5 text-mint-500" />
               Recommended Combinations
             </CardTitle>
           </CardHeader>
@@ -244,7 +250,7 @@ const QuittingMethodsGuide = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-fresh-500" />
+              <Calendar className="h-5 w-5 text-mint-500" />
               Ready to Start Your Fresh Journey?
             </CardTitle>
           </CardHeader>
@@ -253,17 +259,25 @@ const QuittingMethodsGuide = () => {
               Mission Fresh helps you implement any of these methods with personalized tracking, goal setting, and holistic tools for managing the real challenges that come with nicotine withdrawal.
             </p>
             
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <Button asChild className="w-full bg-fresh-300 hover:bg-fresh-400">
+            <div className="grid md:grid-cols-2 gap-4 mt-6">
+              <Button asChild className="w-full bg-mint-500 hover:bg-mint-600 text-white">
                 <Link to="/sign-up">
                   Create a Free Account
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
+              <Button asChild variant="outline" className="w-full border-mint-500 text-mint-700 hover:bg-mint-50">
                 <Link to="/tools/nrt-guide">
+                  <Droplet className="mr-2 h-4 w-4" />
                   Explore NRT Options
                 </Link>
               </Button>
+            </div>
+            
+            <div className="flex justify-center mt-4">
+              <Link to="/tools/smokeless-directory" className="text-mint-600 hover:text-mint-700 inline-flex items-center">
+                View Our Smokeless Product Directory
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Link>
             </div>
           </CardContent>
         </Card>
