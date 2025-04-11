@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    --primary: 105 65% 45%; /* Mint green primary */
+    --primary: 150 65% 45%; /* Vibrant mint green primary */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4.8% 95.9%;
@@ -23,7 +23,7 @@
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 105 65% 45%; /* Mint green accent */
+    --accent: 150 65% 45%; /* Vibrant mint green accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -31,18 +31,18 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 105 65% 45%; /* Mint green ring */
+    --ring: 150 65% 45%; /* Vibrant mint green ring */
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 105 65% 45%; /* Mint green sidebar */
+    --sidebar-primary: 150 65% 45%; /* Vibrant mint green sidebar */
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 105 65% 45%; /* Mint green sidebar ring */
+    --sidebar-ring: 150 65% 45%; /* Vibrant mint green sidebar ring */
   }
 
   .dark {
@@ -55,7 +55,7 @@
     --popover: 240 10% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 105 65% 45%; /* Mint green primary */
+    --primary: 150 65% 45%; /* Vibrant mint green primary */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 3.7% 15.9%;
@@ -64,7 +64,7 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 105 65% 45%; /* Mint green accent */
+    --accent: 150 65% 45%; /* Vibrant mint green accent */
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -76,12 +76,12 @@
 
     --sidebar-background: 240 10% 12%;
     --sidebar-foreground: 240 5% 84.9%;
-    --sidebar-primary: 105 65% 45%; /* Mint green sidebar */
+    --sidebar-primary: 150 65% 45%; /* Vibrant mint green sidebar */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 105 65% 45%; /* Mint green sidebar ring */
+    --sidebar-ring: 150 65% 45%; /* Vibrant mint green sidebar ring */
   }
 }
 
@@ -101,4 +101,29 @@
 
 .hover-scale {
   @apply transition-transform duration-200 hover:scale-105;
+}
+
+/* Added styles for new vibrant mint green design */
+.btn-mint {
+  @apply bg-mint-400 hover:bg-mint-500 text-white transition-colors;
+}
+
+.sidebar-active {
+  @apply bg-mint-50 text-mint-500 font-medium;
+}
+
+.progress-bar {
+  @apply h-2 rounded-full bg-mint-100;
+}
+
+.progress-value {
+  @apply h-full rounded-full bg-mint-400;
+}
+
+.card-highlight {
+  @apply border-l-4 border-mint-400;
+}
+
+.tag-mint {
+  @apply bg-mint-100 text-mint-700 px-2 py-0.5 rounded-md text-xs font-medium;
 }

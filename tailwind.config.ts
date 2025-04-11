@@ -63,19 +63,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        fresh: {
-          50: "#F2FCE2", // This is our mint green color
+        mint: {
+          50: "#F2FCE2", 
           100: "#E3F9C5",
           200: "#C7F1A3",
           300: "#A9E678",
           400: "#8BDC4F",
-          500: "#6DC425",
+          500: "#6DC425", // Main mint color
           600: "#57A01C",
           700: "#417B17",
           800: "#2D5511",
           900: "#1B3608",
         },
-        // Removing teal colors since we're standardizing on mint green
       },
       borderRadius: {
         lg: "var(--radius)",
