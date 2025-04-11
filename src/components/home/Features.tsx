@@ -15,47 +15,47 @@ import FeaturesIntro from "./FeaturesIntro";
 
 const features = [
   {
-    icon: <BatteryCharging className="h-10 w-10 text-mint-500" />,
+    icon: <BatteryCharging className="feature-icon" />,
     title: "Energy Support",
     description: "Combat the fatigue often experienced during nicotine withdrawal with targeted tools designed to boost and maintain energy levels naturally.",
   },
   {
-    icon: <Sparkles className="h-10 w-10 text-mint-500" />,
+    icon: <Sparkles className="feature-icon" />,
     title: "Mood Regulation",
     description: "Practical exercises and techniques to stabilize mood swings and emotional challenges commonly experienced during the quitting or reduction process.",
   },
   {
-    icon: <BrainIcon className="h-10 w-10 text-mint-500" />,
+    icon: <BrainIcon className="feature-icon" />,
     title: "Focus Enhancement",
     description: "Effective strategies to improve mental clarity and concentration, addressing one of the most common barriers to successful nicotine reduction.",
   },
   {
-    icon: <Flame className="h-10 w-10 text-mint-500" />,
+    icon: <Flame className="feature-icon" />,
     title: "Craving Management",
     description: "Immediate, science-backed tools to overcome intense nicotine cravings in the moment, including breathing exercises and distraction techniques.",
   },
   {
-    icon: <ListChecks className="h-10 w-10 text-mint-500" />,
+    icon: <ListChecks className="feature-icon" />,
     title: "Flexible Goals",
     description: "'Staying Afresh' or 'Staying Fresher' - set personalized goals with support for multiple approaches: cold turkey, gradual reduction, NRT, or harm reduction.",
   },
   {
-    icon: <Cigarette className="h-10 w-10 text-mint-500" />,
+    icon: <Cigarette className="feature-icon" />,
     title: "All Products Tracking",
     description: "Comprehensive tracking for any nicotine product: cigarettes, vapes, pouches, gums, patches, and more - no judgment, just support for your chosen path.",
   },
   {
-    icon: <LineChart className="h-10 w-10 text-mint-500" />,
+    icon: <LineChart className="feature-icon" />,
     title: "Progress Visualization",
     description: "See your journey with clear, motivating charts showing nicotine reduction, money saved, health improvements, and holistic wellness metrics.",
   },
   {
-    icon: <Footprints className="h-10 w-10 text-mint-500" />,
+    icon: <Footprints className="feature-icon" />,
     title: "Step Rewards",
     description: "Turn physical activity into tangible benefits with our step-tracking reward system, creating a positive feedback loop for your fresh journey.",
   },
   {
-    icon: <ActivitySquare className="h-10 w-10 text-mint-500" />,
+    icon: <ActivitySquare className="feature-icon" />,
     title: "Holistic Tracking",
     description: "Monitor all aspects of wellbeing: sleep quality, energy levels, mood stability, and mental focus alongside your nicotine reduction progress.",
   },

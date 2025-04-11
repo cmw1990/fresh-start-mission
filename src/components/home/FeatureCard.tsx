@@ -10,7 +10,7 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ icon, title, description }: FeatureCardProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow border-border hover-scale">
+    <Card className="feature-card hover-scale">
       <CardHeader className="pb-2">
         <div className="mb-2">{icon}</div>
         <CardTitle>{title}</CardTitle>

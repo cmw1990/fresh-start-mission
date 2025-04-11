@@ -63,17 +63,31 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        /* Standardize the mint colors to use our HSL variable system */
         mint: {
-          50: "#F2FCE2", 
-          100: "#E3F9C5",
-          200: "#C7F1A3",
-          300: "#A9E678",
-          400: "#8BDC4F",
-          500: "#6DC425", // Main mint color
-          600: "#57A01C",
-          700: "#417B17",
-          800: "#2D5511",
-          900: "#1B3608",
+          50: "hsl(var(--mint) / 0.05)",
+          100: "hsl(var(--mint) / 0.1)",
+          200: "hsl(var(--mint) / 0.2)",
+          300: "hsl(var(--mint) / 0.3)",
+          400: "hsl(var(--mint) / 0.4)",
+          500: "hsl(var(--mint))", // Main mint color
+          600: "hsl(var(--mint) / 0.6)",
+          700: "hsl(var(--mint) / 0.7)",
+          800: "hsl(var(--mint) / 0.8)",
+          900: "hsl(var(--mint) / 0.9)",
+        },
+        /* Standardize fresh colors to be aliases of mint for consistency */
+        fresh: {
+          50: "hsl(var(--fresh) / 0.05)",
+          100: "hsl(var(--fresh) / 0.1)",
+          200: "hsl(var(--fresh) / 0.2)",
+          300: "hsl(var(--fresh) / 0.3)",
+          400: "hsl(var(--fresh) / 0.4)",
+          500: "hsl(var(--fresh))", // Main fresh color
+          600: "hsl(var(--fresh) / 0.6)",
+          700: "hsl(var(--fresh) / 0.7)",
+          800: "hsl(var(--fresh) / 0.8)",
+          900: "hsl(var(--fresh) / 0.9)",
         },
       },
       borderRadius: {

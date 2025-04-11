@@ -9,18 +9,18 @@ const Hero = () => {
       <div className="container relative z-10 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 text-center md:text-left">
-            <div className="inline-block px-3 py-1 rounded-full bg-fresh-100 text-fresh-500 font-medium text-sm animate-fade-in">
+            <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-sm animate-fade-in">
               A Fresh World is Mission Possible!
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tighter">
-              Reclaim Your <span className="text-fresh-300">Energy</span>. Find Your <span className="text-teal-500">Fresh</span> Start.
+              Reclaim Your <span className="text-primary">Energy</span>. Find Your <span className="text-primary">Fresh</span> Start.
             </h1>
             <p className="text-xl text-muted-foreground">
               Mission Fresh supports your journey to a nicotine-free life with holistic tools for energy, mood, focus, and cravings.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <Link to="/sign-up">
-                <Button size="lg" className="bg-fresh-300 hover:bg-fresh-400 text-white w-full sm:w-auto">
+                <Button size="lg" variant="default" className="w-full sm:w-auto">
                   Start Your Fresh Journey
                 </Button>
               </Link>
@@ -33,10 +33,10 @@ const Hero = () => {
           </div>
           <div className="hidden md:block">
             <div className="relative">
-              <div className="absolute -top-10 -left-10 w-72 h-72 bg-fresh-100 rounded-full filter blur-3xl opacity-30"></div>
-              <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-teal-100 rounded-full filter blur-3xl opacity-30"></div>
+              <div className="absolute -top-10 -left-10 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl opacity-30"></div>
+              <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl opacity-30"></div>
               <div className="relative bg-white p-5 rounded-2xl shadow-lg hover-scale animate-scale-in">
-                <div className="aspect-square w-full overflow-hidden rounded-xl bg-fresh-50 flex items-center justify-center">
+                <div className="aspect-square w-full overflow-hidden rounded-xl bg-primary/5 flex items-center justify-center">
                   <img
                     src="/placeholder.svg"
                     alt="Mission Fresh App"

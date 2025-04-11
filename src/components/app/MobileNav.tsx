@@ -66,7 +66,7 @@ const MobileNav = () => {
                   className={cn(
                     "p-1 rounded-full",
                     path === item.href
-                      ? "text-fresh-400"
+                      ? "text-primary"
                       : "text-muted-foreground"
                   )}
                 >
@@ -115,7 +115,7 @@ const MobileNav = () => {
                 className={cn(
                   "p-1 rounded-full",
                   path === item.href
-                    ? "text-fresh-400"
+                    ? "text-primary"
                     : "text-muted-foreground"
                 )}
               >

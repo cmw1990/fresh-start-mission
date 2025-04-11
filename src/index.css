@@ -14,7 +14,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    --primary: 150 65% 45%; /* Vibrant mint green primary */
+    /* Standardized mint green color */
+    --mint: 150 65% 45%;
+    --primary: var(--mint);
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4.8% 95.9%;
@@ -23,7 +25,8 @@
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 150 65% 45%; /* Vibrant mint green accent */
+    /* Using our standardized mint color for accent too */
+    --accent: var(--mint);
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -31,18 +34,21 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 150 65% 45%; /* Vibrant mint green ring */
+    --ring: var(--mint);
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 150 65% 45%; /* Vibrant mint green sidebar */
+    --sidebar-primary: var(--mint);
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 150 65% 45%; /* Vibrant mint green sidebar ring */
+    --sidebar-ring: var(--mint);
+    
+    /* Define unified fresh color for consistent references */
+    --fresh: var(--mint);
   }
 
   .dark {
@@ -55,7 +61,9 @@
     --popover: 240 10% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 150 65% 45%; /* Vibrant mint green primary */
+    /* Maintaining the same mint green in dark mode for consistency */
+    --mint: 150 65% 45%;
+    --primary: var(--mint);
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 3.7% 15.9%;
@@ -64,7 +72,7 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 150 65% 45%; /* Vibrant mint green accent */
+    --accent: var(--mint);
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -76,12 +84,15 @@
 
     --sidebar-background: 240 10% 12%;
     --sidebar-foreground: 240 5% 84.9%;
-    --sidebar-primary: 150 65% 45%; /* Vibrant mint green sidebar */
+    --sidebar-primary: var(--mint);
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 150 65% 45%; /* Vibrant mint green sidebar ring */
+    --sidebar-ring: var(--mint);
+    
+    /* Define unified fresh color for consistent references */
+    --fresh: var(--mint);
   }
 }
 
@@ -95,6 +106,7 @@
   }
 }
 
+/* Consistent link styling */
 .story-link {
   @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
 }
@@ -103,27 +115,57 @@
   @apply transition-transform duration-200 hover:scale-105;
 }
 
-/* Added styles for new vibrant mint green design */
+/* Standardized button classes using our mint color */
 .btn-mint {
-  @apply bg-mint-400 hover:bg-mint-500 text-white transition-colors;
+  @apply bg-primary hover:bg-primary/90 text-white transition-colors;
 }
 
 .sidebar-active {
-  @apply bg-mint-50 text-mint-500 font-medium;
+  @apply bg-primary/10 text-primary font-medium;
 }
 
 .progress-bar {
-  @apply h-2 rounded-full bg-mint-100;
+  @apply h-2 rounded-full bg-primary/20;
 }
 
 .progress-value {
-  @apply h-full rounded-full bg-mint-400;
+  @apply h-full rounded-full bg-primary;
 }
 
 .card-highlight {
-  @apply border-l-4 border-mint-400;
+  @apply border-l-4 border-primary;
 }
 
 .tag-mint {
-  @apply bg-mint-100 text-mint-700 px-2 py-0.5 rounded-md text-xs font-medium;
+  @apply bg-primary/20 text-primary/80 px-2 py-0.5 rounded-md text-xs font-medium;
+}
+
+/* Add consistent page layout styling */
+.page-container {
+  @apply container py-12 md:py-16 mx-auto px-4;
+}
+
+.page-title {
+  @apply text-4xl md:text-5xl font-bold mb-6 tracking-tight;
+}
+
+.page-description {
+  @apply text-xl text-muted-foreground mb-8;
+}
+
+/* Component-specific styles */
+.feature-card {
+  @apply overflow-hidden transition-shadow border border-border rounded-lg p-6 hover:shadow-md;
+}
+
+.feature-icon {
+  @apply h-10 w-10 text-primary mb-3;
+}
+
+.feature-title {
+  @apply text-xl font-semibold mb-2;
+}
+
+.feature-description {
+  @apply text-muted-foreground;
 }

@@ -33,7 +33,7 @@ const SidebarLink = ({ href, icon, title, active }: SidebarLinkProps) => {
         className={cn(
           "w-full justify-start gap-2",
           active
-            ? "bg-fresh-50 text-fresh-500 hover:bg-fresh-50 hover:text-fresh-500"
+            ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
             : "text-muted-foreground hover:bg-background hover:text-foreground"
         )}
       >
@@ -56,7 +56,7 @@ const Sidebar = () => {
   return (
     <aside className="hidden md:flex flex-col h-screen w-64 border-r bg-background">
       <div className="flex items-center gap-2 p-6">
-        <div className="rounded-full bg-fresh-300 p-1.5">
+        <div className="rounded-full bg-primary p-1.5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -71,7 +71,7 @@ const Sidebar = () => {
             <path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z" />
           </svg>
         </div>
-        <span className="text-xl font-bold text-fresh-600">Mission Fresh</span>
+        <span className="text-xl font-bold text-foreground">Mission Fresh</span>
       </div>
 
       <div className="flex-1 overflow-auto py-4 px-3">
