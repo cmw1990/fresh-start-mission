@@ -20,6 +20,7 @@ import MoodTools from "./pages/app/tools/MoodTools";
 import FocusTools from "./pages/app/tools/FocusTools";
 import StepRewards from "./pages/app/StepRewards";
 import Settings from "./pages/app/Settings";
+import Features from "./pages/Features";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/features" element={<Features />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       
