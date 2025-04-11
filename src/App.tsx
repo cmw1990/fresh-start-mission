@@ -11,7 +11,7 @@ import AppLayout from "./components/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
 import LogEntry from "./pages/app/LogEntry";
 import CravingTools from "./pages/app/tools/CravingTools";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Goals from "./pages/app/Goals";
 import Progress from "./pages/app/Progress";
@@ -28,21 +28,9 @@ import QuitMethods from "./pages/tools/QuitMethods";
 import Calculators from "./pages/tools/Calculators";
 import WebToolsLayout from "./components/layout/WebToolsLayout";
 import HowItWorks from "./pages/HowItWorks";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 const queryClient = new QueryClient();
-
-// Protected route component
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-  
-  return children;
-};
 
 // App Routes component to handle auth routes
 const AppRoutes = () => {
