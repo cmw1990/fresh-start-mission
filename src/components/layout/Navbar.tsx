@@ -59,47 +59,43 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
     return user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
-  // TODO: Revisit anchor links (#how-it-works, #features) if these become separate pages.
-  // Currently assuming they are sections on the LandingPage as per t1.md.
-
   return (
     <header 
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         transparentAtTop && !scrolled 
-          ? "bg-transparent" 
+          ? "bg-white/95 backdrop-blur-md"
           : "bg-white/80 backdrop-blur-md border-b shadow-sm"
       )}
     >
       <div className={cn(
         "container flex h-16 items-center justify-between",
-        !(transparentAtTop && !scrolled) && "border-b" // Add border only when not transparent
+        !(transparentAtTop && !scrolled) && "border-b"
       )}>
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center space-x-2">
-            {/* Assuming logo.svg is in public folder */}
             <img src="/logo.svg" alt="Mission Fresh Logo" className="h-8 w-8" /> 
             <span className={cn(
               "font-bold text-xl",
-              transparentAtTop && !scrolled ? "text-white" : "text-gray-900"
+              transparentAtTop && !scrolled ? "text-gray-900" : "text-gray-900"
             )}>Mission Fresh</span>
           </Link>
           
           <nav className="hidden md:flex gap-6 items-center">
             <a 
-              href="/#how-it-works" // Ensure it links to landing page section
+              href="/#how-it-works"
               className={cn(
-                "text-sm font-medium hover:text-primary transition-colors", 
-                transparentAtTop && !scrolled ? "text-white/90 hover:text-white" : "text-gray-700"
+                "text-sm font-medium hover:text-primary transition-colors",
+                transparentAtTop && !scrolled ? "text-gray-700" : "text-gray-700"
               )}
             >
               How It Works
             </a>
             <a 
-              href="/#features" // Ensure it links to landing page section
+              href="/#features"
               className={cn(
-                "text-sm font-medium hover:text-primary transition-colors", 
-                transparentAtTop && !scrolled ? "text-white/90 hover:text-white" : "text-gray-700"
+                "text-sm font-medium hover:text-primary transition-colors",
+                transparentAtTop && !scrolled ? "text-gray-700" : "text-gray-700"
               )}
             >
               Features
@@ -109,8 +105,8 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
               <DropdownMenuTrigger asChild>
                 <button 
                   className={cn(
-                    "flex items-center text-sm font-medium hover:text-primary transition-colors outline-none", 
-                    transparentAtTop && !scrolled ? "text-white/90 hover:text-white" : "text-gray-700"
+                    "flex items-center text-sm font-medium hover:text-primary transition-colors outline-none",
+                    transparentAtTop && !scrolled ? "text-gray-700" : "text-gray-700"
                   )}
                 >
                   Web Tools <ChevronDown className="ml-1 h-4 w-4" />
@@ -135,11 +131,10 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Pricing Link (Future) - Placeholder */}
             <span 
               className={cn(
-                "text-sm font-medium transition-colors cursor-not-allowed", 
-                transparentAtTop && !scrolled ? "text-white/50" : "text-gray-400"
+                "text-sm font-medium transition-colors cursor-not-allowed",
+                transparentAtTop && !scrolled ? "text-gray-400" : "text-gray-400"
               )}
               title="Coming Soon"
             >
@@ -170,7 +165,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/app/dashboard">Dashboard</Link> {/* Updated link */}
+                  <Link to="/app/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/app/settings">Settings</Link>
@@ -188,15 +183,10 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
             <>
               <Link to="/auth?mode=login">
                 <Button 
-                  variant={transparentAtTop && !scrolled ? "outline" : "ghost"} 
-                  size="sm" 
-                  className={cn(
-                    transparentAtTop && !scrolled 
-                      ? "text-white border-white hover:text-white hover:bg-white/20" 
-                      : ""
-                  )}
+                  variant={transparentAtTop && !scrolled ? "ghost" : "ghost"} 
+                  size="sm"
                 >
-                  Sign In {/* Updated Text */}
+                  Sign In
                 </Button>
               </Link>
               <Link to="/auth?mode=register" className="hidden sm:block">
@@ -204,7 +194,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                   size="sm" 
                   className={cn(
                     transparentAtTop && !scrolled 
-                      ? "bg-white text-black hover:bg-white/90" 
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
                       : "bg-primary hover:bg-primary/90 text-primary-foreground"
                   )}
                 >
@@ -214,7 +204,6 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
             </>
           )}
           
-          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
               <Button 
@@ -224,8 +213,8 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                 aria-label="Menu"
               >
                 <Menu className={cn(
-                  "h-5 w-5", 
-                  transparentAtTop && !scrolled ? "text-white" : ""
+                  "h-5 w-5",
+                  transparentAtTop && !scrolled ? "" : ""
                 )} />
               </Button>
             </SheetTrigger>
@@ -247,7 +236,6 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                 >
                   Features
                 </a>
-                {/* Pricing Link (Future) - Placeholder */}
                 <span 
                   className="text-base font-medium text-muted-foreground cursor-not-allowed"
                   title="Coming Soon"
@@ -295,7 +283,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                       to="/auth?mode=login" 
                       className="text-base font-medium hover:text-primary transition-colors"
                     >
-                      Sign In {/* Updated Text */}
+                      Sign In
                     </Link>
                     <Link 
                       to="/auth?mode=register" 
@@ -310,7 +298,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                   <>
                     <div className="h-px bg-border my-2" />
                     <Link 
-                      to="/app/dashboard" // Updated link
+                      to="/app/dashboard" 
                       className="text-base font-medium hover:text-primary transition-colors"
                     >
                       Dashboard
