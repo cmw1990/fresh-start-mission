@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart } from "@/components/ui/chart";
+import { BarChart } from "@/components/ui/bar-chart";
 import { useAuth } from "@/contexts/AuthContext";
 
 const StepRewards = () => {
@@ -42,11 +42,19 @@ const StepRewards = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
       queryClient.invalidateQueries({ queryKey: ['total-points'] });
-      toast.success("Steps recorded successfully!");
+      toast({
+        title: "Success",
+        description: "Steps recorded successfully!",
+        variant: "success"
+      });
       setSteps("0");
     },
     onError: (error: any) => {
-      toast.error("Failed to record steps: " + (error.message || "Unknown error"));
+      toast({
+        title: "Error",
+        description: "Failed to record steps: " + (error.message || "Unknown error"),
+        variant: "error"
+      });
     }
   });
 
@@ -56,11 +64,19 @@ const StepRewards = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['total-points'] });
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
-      toast.success("Rewards claimed successfully!");
+      toast({
+        title: "Success",
+        description: "Rewards claimed successfully!",
+        variant: "success"
+      });
       setRedeemPoints(0);
     },
     onError: (error: any) => {
-      toast.error("Failed to claim rewards: " + (error.message || "Unknown error"));
+      toast({
+        title: "Error",
+        description: "Failed to claim rewards: " + (error.message || "Unknown error"),
+        variant: "error"
+      });
     }
   });
 
@@ -70,10 +86,18 @@ const StepRewards = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
       queryClient.invalidateQueries({ queryKey: ['total-points'] });
-      toast.success("Steps synced from your device!");
+      toast({
+        title: "Success",
+        description: "Steps synced from your device!",
+        variant: "success"
+      });
     },
     onError: (error: any) => {
-      toast.error("Failed to sync steps: " + (error.message || "Unknown error"));
+      toast({
+        title: "Error",
+        description: "Failed to sync steps: " + (error.message || "Unknown error"),
+        variant: "error"
+      });
       setIsNativeTracking(false);
     }
   });
@@ -85,7 +109,7 @@ const StepRewards = () => {
         // In a real implementation, we would check if Capacitor Health is available
         // For now, we'll just simulate this based on whether we're in a mobile app context
         const isMobileApp = window.matchMedia('(display-mode: standalone)').matches ||
-                          window.navigator.standalone ||
+                          ('navigator' in window && 'standalone' in navigator && (navigator as any).standalone === true) ||
                           document.referrer.includes('android-app://');
         
         setIsNativeTracking(isMobileApp);
@@ -116,7 +140,11 @@ const StepRewards = () => {
     e.preventDefault();
     const parsedSteps = parseInt(steps);
     if (isNaN(parsedSteps) || parsedSteps < 0) {
-      toast.error("Please enter a valid number of steps");
+      toast({
+        title: "Error",
+        description: "Please enter a valid number of steps",
+        variant: "error"
+      });
       return;
     }
     
@@ -129,12 +157,20 @@ const StepRewards = () => {
   const handleClaimRewards = (e: React.FormEvent) => {
     e.preventDefault();
     if (redeemPoints <= 0) {
-      toast.error("Please enter a valid number of points to redeem");
+      toast({
+        title: "Error",
+        description: "Please enter a valid number of points to redeem",
+        variant: "error"
+      });
       return;
     }
     
     if (redeemPoints > (totalPoints || 0)) {
-      toast.error(`You don't have enough points. Available: ${totalPoints}`);
+      toast({
+        title: "Error",
+        description: `You don't have enough points. Available: ${totalPoints}`,
+        variant: "error"
+      });
       return;
     }
     

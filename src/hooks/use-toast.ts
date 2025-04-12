@@ -7,7 +7,7 @@ type ToastProps = {
   title?: string;
   description?: string;
   action?: React.ReactNode;
-  variant?: "default" | "destructive" | "success" | "warning" | "info"; // Add variant support
+  variant?: "default" | "destructive" | "success" | "warning" | "info" | "error"; // Add error type to variant
 };
 
 // Simple toast function that maps our parameters to sonner
@@ -45,7 +45,7 @@ function toast({ title, description, action, variant }: ToastProps) {
 // Mock the old useToast hook API with sonner's functions
 function useToast() {
   return {
-    toast: (props: ToastProps) => toast(props),
+    toast,
     dismiss: sonnerToast.dismiss,
     error: (title: string, options?: any) => sonnerToast.error(title, options),
     success: (title: string, options?: any) => sonnerToast.success(title, options),
@@ -54,4 +54,5 @@ function useToast() {
   };
 }
 
+// Export both the toast function and the useToast hook
 export { useToast, toast };
