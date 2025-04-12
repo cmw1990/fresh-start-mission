@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
 const AccountDeletion = () => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const [confirmEmail, setConfirmEmail] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ const AccountDeletion = () => {
       if (error) throw error;
       
       // Log the user out
-      await logout();
+      await signOut();
       
       toast.success('Your account has been deleted successfully');
       navigate('/');

@@ -1,3 +1,4 @@
+
 import Hero from '@/components/home/Hero';
 import FeaturesIntro from '@/components/home/FeaturesIntro';
 import HowItWorks from '@/components/home/HowItWorks';
@@ -15,7 +16,10 @@ const LandingPage = () => {
         keywords="quit smoking, quit vaping, quit nicotine, tobacco cessation, nicotine addiction, health tracker, smoking cessation app"
       />
       <Hero />
-      <FeaturesIntro />
+      <FeaturesIntro 
+        title="Take Control of Your Journey" 
+        description="Our suite of powerful tools and features designed to support you at every step" 
+      />
       <HowItWorks />
       <WebTools />
       <Testimonials />

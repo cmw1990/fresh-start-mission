@@ -29,7 +29,18 @@ export async function getUserPreferences(): Promise<UserPreferences | null> {
     if (error) throw error;
     
     // Return the preferences or null if none exist
-    return data || null;
+    if (!data) return null;
+    
+    // Make sure to convert theme to the correct type
+    const preferences: UserPreferences = {
+      theme: data.theme as 'light' | 'dark' | 'system',
+      notifications: data.notifications,
+      dashboard_widgets: data.dashboard_widgets,
+      cost_per_product: data.cost_per_product,
+      show_welcome: data.show_welcome
+    };
+    
+    return preferences;
   } catch (error) {
     console.error('Error fetching user preferences:', error);
     return null;

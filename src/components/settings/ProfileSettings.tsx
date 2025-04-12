@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { updateProfile, getUserProfile } from '@/services/profileService';
+import { updateUserProfile, getUserProfile } from '@/services/profileService';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Loader2, Save, UserCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,7 +27,7 @@ const ProfileSettings = () => {
       
       setLoading(true);
       try {
-        const profile = await getUserProfile(user.id);
+        const profile = await getUserProfile();
         if (profile) {
           setFirstName(profile.first_name || '');
           setLastName(profile.last_name || '');
@@ -50,7 +50,7 @@ const ProfileSettings = () => {
     
     setIsSaving(true);
     try {
-      await updateProfile({
+      await updateUserProfile({
         id: user.id,
         first_name: firstName,
         last_name: lastName,
