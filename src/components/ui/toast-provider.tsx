@@ -11,33 +11,11 @@ export function ToastProvider() {
           color: "black",
           border: "1px solid #e2e8f0",
         },
-        success: {
-          style: {
-            background: "#10b981",
-            color: "white",
-            border: "none",
-          },
-        },
-        error: {
-          style: {
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-          },
-        },
-        warning: {
-          style: {
-            background: "#f59e0b",
-            color: "white",
-            border: "none",
-          },
-        },
-        info: {
-          style: {
-            background: "#3b82f6",
-            color: "white",
-            border: "none",
-          },
+        classNames: {
+          success: "bg-green-500 text-white border-none",
+          error: "bg-red-500 text-white border-none",
+          warning: "bg-amber-500 text-white border-none",
+          info: "bg-blue-500 text-white border-none",
         },
       }}
       closeButton

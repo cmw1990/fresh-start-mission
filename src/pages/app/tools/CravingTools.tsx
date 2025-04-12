@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 import BreathingExercise from "@/components/tools/breathing/BreathingExercise";
 import { 
-  Lungs, 
+  Wind, // Replacing Lungs with Wind icon for breathing exercises
   Brain, 
   Clock, 
   Activity,
@@ -134,6 +134,11 @@ const CravingTools = () => {
         craving_intensity: intensityAfter,
         craving_trigger: "Used breathing exercise",
         journal: `Used ${breathingType} breathing exercise. Started at intensity ${intensityBefore}, ended at ${intensityAfter}.`,
+        focus: 0, // Adding required fields to match NicotineLog type
+        mood: 0,
+        energy: 0,
+        sleep_hours: 0,
+        sleep_quality: 0
       });
       
       toast.success("Your progress has been logged!", {
@@ -229,7 +234,7 @@ const CravingTools = () => {
             <Card className="hover:border-fresh-300 transition-all">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center">
-                  <Lungs className="h-5 w-5 mr-2 text-fresh-500" />
+                  <Wind className="h-5 w-5 mr-2 text-fresh-500" />
                   Box Breathing
                 </CardTitle>
                 <CardDescription>
@@ -247,7 +252,7 @@ const CravingTools = () => {
             <Card className="hover:border-fresh-300 transition-all">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center">
-                  <Lungs className="h-5 w-5 mr-2 text-fresh-500" />
+                  <Wind className="h-5 w-5 mr-2 text-fresh-500" />
                   4-7-8 Technique
                 </CardTitle>
                 <CardDescription>
@@ -265,7 +270,7 @@ const CravingTools = () => {
             <Card className="hover:border-fresh-300 transition-all">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center">
-                  <Lungs className="h-5 w-5 mr-2 text-fresh-500" />
+                  <Wind className="h-5 w-5 mr-2 text-fresh-500" />
                   Coherent Breathing
                 </CardTitle>
                 <CardDescription>
