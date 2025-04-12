@@ -11,7 +11,7 @@ import { ProductSelector } from "@/components/goals/ProductSelector";
 import MotivationInput from "@/components/goals/MotivationInput";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { validateData, goalSchema } from "@/lib/validation";
+import { validateData, goalSchema, formatValidationErrors } from "@/lib/validation";
 import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 
 const Goals = () => {
@@ -85,7 +85,8 @@ const Goals = () => {
     
     if (!validationResult.success) {
       toast.error("Please correct the form errors");
-      setValidationErrors(validationResult.errors.format());
+      // Format the errors for display
+      setValidationErrors(formatValidationErrors(validationResult.errors));
       return;
     }
     

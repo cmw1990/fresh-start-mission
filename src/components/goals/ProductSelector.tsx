@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export interface ProductSelectorProps {
   product: string;
   setProduct: React.Dispatch<React.SetStateAction<string>>;
+  error?: string; // Adding optional error prop
 }
 
 const getDefaultProductOptions = (productType: string) => {
@@ -32,6 +33,7 @@ const getDefaultProductOptions = (productType: string) => {
 export const ProductSelector = ({
   product,
   setProduct,
+  error
 }: ProductSelectorProps) => {
   const { user } = useAuth();
   const defaultOptions = getDefaultProductOptions(product);
@@ -160,6 +162,8 @@ export const ProductSelector = ({
           <PlusCircle className="h-4 w-4" /> Add Custom Product
         </Button>
       )}
+      
+      {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
     </div>
   );
 };

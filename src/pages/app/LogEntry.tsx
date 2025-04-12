@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -12,7 +11,7 @@ import JournalTab from "@/components/log/JournalTab";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, WifiOff } from "lucide-react";
-import { validateData, logEntrySchema } from "@/lib/validation";
+import { validateData, logEntrySchema, formatValidationErrors } from "@/lib/validation";
 import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 import { useOfflineSupport } from "@/hooks/useOfflineSupport";
 
@@ -77,8 +76,7 @@ const LogEntry = () => {
     
     if (!validationResult.success) {
       // Format and display validation errors
-      const errors = validationResult.errors.format();
-      setValidationErrors(errors);
+      setValidationErrors(formatValidationErrors(validationResult.errors));
       toast.error("Please fix the form errors before submitting");
       return;
     }

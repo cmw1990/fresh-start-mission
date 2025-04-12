@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +14,7 @@ import {
 interface MotivationInputProps {
   value: string;
   onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  error?: string;
 }
 
 // Motivation templates to help users articulate their reasons
@@ -35,7 +35,7 @@ const MOTIVATION_EXAMPLES = [
   "When I succeed in staying afresh, I'm going to use the money I save to finally take that vacation I've been postponing for years."
 ];
 
-const MotivationInput = ({ value, onChange }: MotivationInputProps) => {
+const MotivationInput = ({ value, onChange, error }: MotivationInputProps) => {
   const [showGuidance, setShowGuidance] = useState(true);
   const [showExamples, setShowExamples] = useState(false);
 
@@ -144,6 +144,7 @@ const MotivationInput = ({ value, onChange }: MotivationInputProps) => {
           onChange={onChange}
           className="min-h-[120px]"
         />
+        {error && <p className="text-sm text-red-500">{error}</p>}
       </CardContent>
     </Card>
   );

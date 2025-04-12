@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Common validation schemas
@@ -52,7 +51,7 @@ export const stepRewardSchema = z.object({
 export function validateData<T>(
   schema: z.ZodSchema<T>,
   data: unknown
-): { success: true; data: T } | { success: false; errors: z.ZodError } {
+): { success: true; data: T } | { success: false; errors: z.ZodError<T> } {
   try {
     const validData = schema.parse(data);
     return { success: true, data: validData };

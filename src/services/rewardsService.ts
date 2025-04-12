@@ -1,11 +1,10 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 /**
  * Types that match our database schema
  */
-type StepReward = {
+export type StepReward = {
   id: string;
   user_id: string;
   date: string;
@@ -17,7 +16,7 @@ type StepReward = {
 /**
  * Type for claimed rewards with points_redeemed property
  */
-type ClaimedReward = {
+export type ClaimedReward = {
   id: string;
   user_id: string;
   reward_id: string | null;
@@ -27,26 +26,68 @@ type ClaimedReward = {
 };
 
 /**
+ * Type for reward history items that includes both step rewards and claimed rewards
+ */
+export type RewardHistory = {
+  id: string;
+  date: string;
+  type: 'step' | 'reward';
+  points: number;
+  steps?: number;
+  name?: string;
+};
+
+/**
  * Fetch the user's step history and rewards
  */
-export const getRewardHistory = async (): Promise<StepReward[]> => {
+export const getRewardHistory = async (): Promise<RewardHistory[]> => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error("User not authenticated");
   
-  const { data, error } = await supabase
+  const { data: stepData, error: stepError } = await supabase
     .from('step_rewards')
     .select('*')
     .eq('user_id', user.id)
-    .order('date', { ascending: false })
-    .limit(30);
+    .order('date', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching reward history', error);
-    throw error;
+  if (stepError) {
+    console.error('Error fetching step rewards history', stepError);
+    throw stepError;
   }
 
-  return data as StepReward[];
+  const { data: rewardData, error: rewardError } = await supabase
+    .from('claimed_rewards')
+    .select('*, rewards(name)')
+    .eq('user_id', user.id)
+    .order('claimed_at', { ascending: false });
+
+  if (rewardError) {
+    console.error('Error fetching claimed rewards history', rewardError);
+    throw rewardError;
+  }
+
+  // Format step data
+  const stepHistory: RewardHistory[] = (stepData || []).map(item => ({
+    id: item.id,
+    date: item.date,
+    type: 'step',
+    points: item.points_earned,
+    steps: item.steps
+  }));
+
+  // Format reward data
+  const rewardHistory: RewardHistory[] = (rewardData || []).map(item => ({
+    id: item.id,
+    date: new Date(item.claimed_at).toISOString().split('T')[0],
+    type: 'reward',
+    points: -item.points_redeemed, // Negative because points are spent
+    name: item.rewards?.name || 'Unknown Reward'
+  }));
+
+  // Combine and sort by date, most recent first
+  return [...stepHistory, ...rewardHistory]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
 /**
@@ -176,7 +217,7 @@ export const claimRewardPoints = async (pointsToRedeem: number) => {
 /**
  * Get the user's current point total
  */
-export const getTotalPoints = async () => {
+export const getTotalPoints = async (): Promise<number> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     

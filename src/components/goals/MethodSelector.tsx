@@ -21,6 +21,12 @@ interface MethodSelectorProps {
   setReduction: (value: string) => void;
   timeline: string;
   setTimeline: (value: string) => void;
+  errors?: {
+    method?: string;
+    quitDate?: string;
+    reduction?: string;
+    timeline?: string;
+  };
 }
 
 const MethodSelector = ({
@@ -31,7 +37,8 @@ const MethodSelector = ({
   reduction,
   setReduction,
   timeline,
-  setTimeline
+  setTimeline,
+  errors = {}
 }: MethodSelectorProps) => {
   return (
     <Card>
@@ -52,6 +59,7 @@ const MethodSelector = ({
             <SelectItem value="harm-reduction">Harm Reduction</SelectItem>
           </SelectContent>
         </Select>
+        {errors.method && <p className="text-sm text-red-500 mt-1">{errors.method}</p>}
         
         <div className="mt-6">
           {method === "cold-turkey" && (
@@ -79,6 +87,7 @@ const MethodSelector = ({
                   />
                 </PopoverContent>
               </Popover>
+              {errors.quitDate && <p className="text-sm text-red-500 mt-1">{errors.quitDate}</p>}
             </div>
           )}
           
@@ -94,6 +103,7 @@ const MethodSelector = ({
                   value={reduction} 
                   onChange={(e) => setReduction(e.target.value)}
                 />
+                {errors.reduction && <p className="text-sm text-red-500 mt-1">{errors.reduction}</p>}
               </div>
               <div>
                 <Label htmlFor="timeline">Timeline (days)</Label>
@@ -105,6 +115,7 @@ const MethodSelector = ({
                   value={timeline} 
                   onChange={(e) => setTimeline(e.target.value)}
                 />
+                {errors.timeline && <p className="text-sm text-red-500 mt-1">{errors.timeline}</p>}
               </div>
             </div>
           )}

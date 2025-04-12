@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 interface GoalTypeSelectorProps {
   value: "afresh" | "fresher";
   onChange: (value: string) => void;
+  error?: string; // Adding optional error prop
 }
 
-const GoalTypeSelector = ({ value, onChange }: GoalTypeSelectorProps) => {
+const GoalTypeSelector = ({ value, onChange, error }: GoalTypeSelectorProps) => {
   return (
     <Card>
       <CardHeader>
@@ -40,6 +41,7 @@ const GoalTypeSelector = ({ value, onChange }: GoalTypeSelectorProps) => {
             </Label>
           </div>
         </RadioGroup>
+        {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
       </CardContent>
     </Card>
   );

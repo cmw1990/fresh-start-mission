@@ -11,10 +11,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Footprints, Award, ChevronRight, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useStepTracking } from "@/hooks/useStepTracking";
-import { getTotalPoints, getRewardHistory, claimReward } from "@/services/rewardService";
 import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 import { format } from "date-fns";
-import { recordStepCount } from "@/services/rewardsService";
+import { 
+  recordStepCount, 
+  getTotalPoints, 
+  getRewardHistory,
+  type RewardHistory 
+} from "@/services/rewardsService";
 import { Progress } from "@/components/ui/progress";
 
 interface Reward {
@@ -64,7 +68,10 @@ const StepRewards = () => {
 
   // Claim reward mutation
   const claimRewardMutation = useMutation({
-    mutationFn: (rewardId: string) => claimReward(rewardId),
+    mutationFn: (rewardId: string) => {
+      toast.error("This feature is coming soon!");
+      return Promise.resolve(); // Placeholder
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['total-points'] });
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
@@ -124,7 +131,7 @@ const StepRewards = () => {
   };
 
   const handleClaimReward = async (rewardId: string, pointsRequired: number) => {
-    if (!points || points < pointsRequired) {
+    if (points === undefined || points < pointsRequired) {
       toast.error("Not enough points", { 
         description: `You need ${pointsRequired} points to claim this reward` 
       });
@@ -356,14 +363,16 @@ const StepRewards = () => {
                   <TableRow key={item.id}>
                     <TableCell>{format(new Date(item.date), 'MMM d, yyyy')}</TableCell>
                     <TableCell>
-                      {item.name ? 'Reward Claim' : 'Step Tracking'}
+                      {item.type === 'reward' ? 'Reward Claim' : 'Step Tracking'}
                     </TableCell>
                     <TableCell>
-                      {item.name ? item.name : `${item.steps.toLocaleString()} steps`}
+                      {item.type === 'reward' ? 
+                        (item.name || 'Unknown Reward') : 
+                        `${item.steps?.toLocaleString() || 0} steps`}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {item.name ? (
-                        <span className="text-red-500">-{item.points.toLocaleString()}</span>
+                      {item.points < 0 ? (
+                        <span className="text-red-500">{item.points.toLocaleString()}</span>
                       ) : (
                         <span className="text-green-500">+{item.points.toLocaleString()}</span>
                       )}
