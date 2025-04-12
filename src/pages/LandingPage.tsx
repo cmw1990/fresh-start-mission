@@ -6,6 +6,8 @@ import WebTools from '@/components/home/WebTools';
 import CTASection from '@/components/home/CTASection';
 import SEOHead from '@/components/common/SEOHead';
 import Testimonials from '@/components/home/Testimonials';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 
 const LandingPage = () => {
   return (
@@ -15,6 +17,7 @@ const LandingPage = () => {
         description="Start your journey to becoming nicotine-free with Mission Fresh. Track your progress, manage cravings, and celebrate milestones with our supportive community and evidence-based tools."
         keywords="quit smoking, quit vaping, quit nicotine, tobacco cessation, nicotine addiction, health tracker, smoking cessation app"
       />
+      <Navbar transparentAtTop={true} />
       <Hero />
       <FeaturesIntro 
         title="Take Control of Your Journey" 
@@ -24,8 +27,10 @@ const LandingPage = () => {
       <WebTools />
       <Testimonials />
       <CTASection />
+      <Footer />
     </>
   );
 };
 
 export default LandingPage;
+
