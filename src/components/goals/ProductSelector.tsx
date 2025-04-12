@@ -9,10 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface ProductSelectorProps {
-  productType: string;
-  onProductTypeChange: (value: string) => void;
-  productOptions?: string[];
+export interface ProductSelectorProps {
+  product: string;
+  setProduct: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const getDefaultProductOptions = (productType: string) => {
@@ -31,13 +30,12 @@ const getDefaultProductOptions = (productType: string) => {
 };
 
 export const ProductSelector = ({
-  productType,
-  onProductTypeChange,
-  productOptions = []
+  product,
+  setProduct,
 }: ProductSelectorProps) => {
   const { user } = useAuth();
-  const defaultOptions = getDefaultProductOptions(productType);
-  const [options, setOptions] = useState<string[]>([...defaultOptions, ...productOptions]);
+  const defaultOptions = getDefaultProductOptions(product);
+  const [options, setOptions] = useState<string[]>([...defaultOptions]);
   const [customProducts, setCustomProducts] = useState<{ name: string }[]>([]);
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [customProductName, setCustomProductName] = useState('');
@@ -47,7 +45,7 @@ export const ProductSelector = ({
     if (user) {
       fetchCustomProducts();
     }
-  }, [user, productType]);
+  }, [user, product]);
 
   const fetchCustomProducts = async () => {
     try {
@@ -102,7 +100,7 @@ export const ProductSelector = ({
       setShowAddCustom(false);
       
       // Select the newly added product
-      onProductTypeChange(customProductName);
+      setProduct(customProductName);
       
       toast.success("Custom product added!");
     } catch (error) {
@@ -116,8 +114,8 @@ export const ProductSelector = ({
       <Label htmlFor="product-type">Product Type</Label>
       <RadioGroup
         id="product-type"
-        value={productType}
-        onValueChange={onProductTypeChange}
+        value={product}
+        onValueChange={setProduct}
         className="flex flex-col space-y-3"
       >
         {options.map((option) => (
