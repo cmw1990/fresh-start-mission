@@ -1,27 +1,20 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalsService";
+import { getUserGoal } from "@/services/goalService";
 import { UserGoal } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-
-type GoalMethod = "cold-turkey" | "gradual-reduction" | "tapering" | "nrt" | "harm-reduction";
+import GoalTypeSelector from "@/components/goals/GoalTypeSelector";
+import MethodSelector from "@/components/goals/MethodSelector";
+import ProductSelector from "@/components/goals/ProductSelector";
+import MotivationInput from "@/components/goals/MotivationInput";
 
 const Goals = () => {
   const { user } = useAuth();
   const [goalType, setGoalType] = useState<"afresh" | "fresher">("afresh");
-  const [method, setMethod] = useState<GoalMethod>("cold-turkey");
+  const [method, setMethod] = useState<"cold-turkey" | "gradual-reduction" | "tapering" | "nrt" | "harm-reduction">("cold-turkey");
   const [product, setProduct] = useState("cigarette");
   const [quitDate, setQuitDate] = useState<Date | undefined>(new Date());
   const [reduction, setReduction] = useState("50");
@@ -40,7 +33,7 @@ const Goals = () => {
         if (goal) {
           setExistingGoal(goal);
           setGoalType(goal.goal_type as "afresh" | "fresher");
-          setMethod(goal.method as GoalMethod);
+          setMethod(goal.method as "cold-turkey" | "gradual-reduction" | "tapering" | "nrt" | "harm-reduction");
           setProduct(goal.product_type);
           if (goal.quit_date) {
             setQuitDate(new Date(goal.quit_date));
@@ -82,14 +75,19 @@ const Goals = () => {
       };
       
       if (existingGoal) {
-        await updateUserGoal(existingGoal.id, goalData);
+        await import('@/services/goalService').then(module => {
+          module.updateUserGoal(existingGoal.id, goalData);
+        });
         toast.success("Your goals have been updated successfully!");
       } else {
-        const newGoal = await saveUserGoal(goalData);
-        if (newGoal) {
-          setExistingGoal(newGoal);
-          toast.success("Your goals have been saved successfully!");
-        }
+        await import('@/services/goalService').then(module => {
+          module.saveUserGoal(goalData).then(newGoal => {
+            if (newGoal) {
+              setExistingGoal(newGoal);
+            }
+          });
+        });
+        toast.success("Your goals have been saved successfully!");
       }
     } catch (error) {
       console.error("Error saving goals:", error);
@@ -121,171 +119,25 @@ const Goals = () => {
       
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Primary Goal</CardTitle>
-              <CardDescription>Choose your main objective</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup 
-                value={goalType} 
-                onValueChange={(value) => setGoalType(value as "afresh" | "fresher")}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
-                <div className="flex items-center space-x-2 border rounded-md p-4 cursor-pointer hover:bg-muted">
-                  <RadioGroupItem value="afresh" id="afresh" />
-                  <Label htmlFor="afresh" className="flex-1 cursor-pointer">
-                    <div className="font-semibold">Staying Afresh</div>
-                    <div className="text-sm text-muted-foreground">
-                      Complete abstinence from nicotine products
-                    </div>
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2 border rounded-md p-4 cursor-pointer hover:bg-muted">
-                  <RadioGroupItem value="fresher" id="fresher" />
-                  <Label htmlFor="fresher" className="flex-1 cursor-pointer">
-                    <div className="font-semibold">Staying Fresher</div>
-                    <div className="text-sm text-muted-foreground">
-                      Reducing nicotine intake over time
-                    </div>
-                  </Label>
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
+          <GoalTypeSelector 
+            value={goalType} 
+            onChange={(value) => setGoalType(value as "afresh" | "fresher")} 
+          />
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Method</CardTitle>
-              <CardDescription>Select your preferred approach</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Select value={method} onValueChange={(value) => setMethod(value as GoalMethod)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cold-turkey">Cold Turkey</SelectItem>
-                  <SelectItem value="gradual-reduction">Gradual Reduction</SelectItem>
-                  <SelectItem value="tapering">Tapering Schedule</SelectItem>
-                  <SelectItem value="nrt">NRT Assisted</SelectItem>
-                  <SelectItem value="harm-reduction">Harm Reduction</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <div className="mt-6">
-                {method === "cold-turkey" && (
-                  <div className="space-y-4">
-                    <Label>Quit Date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !quitDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {quitDate ? format(quitDate, "PPP") : "Select a date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={quitDate}
-                          onSelect={setQuitDate}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                )}
-                
-                {method === "gradual-reduction" && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="reduction">Target Reduction (%)</Label>
-                      <Input 
-                        id="reduction" 
-                        type="number" 
-                        min="1" 
-                        max="99" 
-                        value={reduction} 
-                        onChange={(e) => setReduction(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="timeline">Timeline (days)</Label>
-                      <Input 
-                        id="timeline" 
-                        type="number" 
-                        min="1" 
-                        max="365" 
-                        value={timeline} 
-                        onChange={(e) => setTimeline(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                )}
-                
-                {method === "tapering" && (
-                  <div className="text-muted-foreground">
-                    Set up a custom tapering schedule in the next step after saving your goals.
-                  </div>
-                )}
-                
-                {method === "nrt" && (
-                  <div className="text-muted-foreground">
-                    After saving, you'll be able to select your preferred NRT products and set up your protocol.
-                  </div>
-                )}
-                
-                {method === "harm-reduction" && (
-                  <div className="text-muted-foreground">
-                    Focus on reducing harm while maintaining some nicotine use. You'll be able to set specific targets after saving.
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <MethodSelector 
+            method={method} 
+            setMethod={setMethod}
+            quitDate={quitDate}
+            setQuitDate={setQuitDate}
+            reduction={reduction}
+            setReduction={setReduction}
+            timeline={timeline}
+            setTimeline={setTimeline}
+          />
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Details</CardTitle>
-              <CardDescription>Tell us what you're using</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Select value={product} onValueChange={setProduct}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select product type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cigarette">Cigarette</SelectItem>
-                  <SelectItem value="vape">Vape</SelectItem>
-                  <SelectItem value="pouch">Nicotine Pouch</SelectItem>
-                  <SelectItem value="gum">Nicotine Gum</SelectItem>
-                  <SelectItem value="patch">Nicotine Patch</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
+          <ProductSelector product={product} setProduct={setProduct} />
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Motivation</CardTitle>
-              <CardDescription>Remind yourself why you're on this journey</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea 
-                placeholder="Why do you want to stay afresh or fresher? What benefits are you looking forward to?" 
-                value={motivation}
-                onChange={(e) => setMotivation(e.target.value)}
-                className="min-h-[120px]"
-              />
-            </CardContent>
-          </Card>
+          <MotivationInput value={motivation} onChange={(e) => setMotivation(e.target.value)} />
           
           <Button 
             type="submit" 
