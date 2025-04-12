@@ -1,7 +1,7 @@
-
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 // Landing pages and web tools (public)
 import LandingPage from "@/pages/LandingPage";
@@ -37,50 +37,52 @@ import NotFoundPage from "@/pages/NotFoundPage";
 
 function App() {
   return (
-    <AuthProvider>
-      <Toaster />
-      
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="/sign-up" element={<AuthPage />} />
-        <Route path="/how-it-works" element={<HowItWorks />} />
-        <Route path="/features" element={<Features />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <Toaster />
         
-        {/* Public web tools routes */}
-        <Route path="/tools" element={<WebToolsLayout />}>
-          <Route index element={<NRTGuide />} />
-          <Route path="nrt-guide" element={<NRTGuide />} />
-          <Route path="smokeless-directory" element={<SmokelessDirectory />} />
-          <Route path="smokeless-directory/:productId" element={<ProductDetails />} />
-          <Route path="quit-methods" element={<QuitMethods />} />
-          <Route path="calculators" element={<CalculatorsPage />} />
-          <Route path="holistic-health" element={<HolisticHealth />} />
-        </Route>
-        
-        {/* Protected app routes */}
-        <Route path="/app" element={<AuthGuard><AppLayout /></AuthGuard>}>
-          <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="log" element={<LogEntry />} />
-          <Route path="goals" element={<Goals />} />
-          <Route path="progress" element={<ProgressPage />} />
-          <Route path="rewards" element={<StepRewards />} />
-          <Route path="settings" element={<Settings />} />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/sign-up" element={<AuthPage />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/features" element={<Features />} />
           
-          {/* Tool sections */}
-          <Route path="tools/cravings" element={<CravingTools />} />
-          <Route path="tools/energy" element={<EnergyTools />} />
-          <Route path="tools/mood" element={<MoodTools />} />
-          <Route path="tools/focus" element={<FocusTools />} />
-        </Route>
-        
-        {/* Catch-all 404 route */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </AuthProvider>
+          {/* Public web tools routes */}
+          <Route path="/tools" element={<WebToolsLayout />}>
+            <Route index element={<NRTGuide />} />
+            <Route path="nrt-guide" element={<NRTGuide />} />
+            <Route path="smokeless-directory" element={<SmokelessDirectory />} />
+            <Route path="smokeless-directory/:productId" element={<ProductDetails />} />
+            <Route path="quit-methods" element={<QuitMethods />} />
+            <Route path="calculators" element={<CalculatorsPage />} />
+            <Route path="holistic-health" element={<HolisticHealth />} />
+          </Route>
+          
+          {/* Protected app routes */}
+          <Route path="/app" element={<AuthGuard><AppLayout /></AuthGuard>}>
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="log" element={<LogEntry />} />
+            <Route path="goals" element={<Goals />} />
+            <Route path="progress" element={<ProgressPage />} />
+            <Route path="rewards" element={<StepRewards />} />
+            <Route path="settings" element={<Settings />} />
+            
+            {/* Tool sections */}
+            <Route path="tools/cravings" element={<CravingTools />} />
+            <Route path="tools/energy" element={<EnergyTools />} />
+            <Route path="tools/mood" element={<MoodTools />} />
+            <Route path="tools/focus" element={<FocusTools />} />
+          </Route>
+          
+          {/* Catch-all 404 route */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,385 +1,302 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getRewardHistory, recordStepCount, claimRewardPoints, getTotalPoints, syncNativeSteps } from "@/services/rewardsService";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart } from "@/components/ui/bar-chart";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAvailableRewards, getUserPointsBalance, claimReward } from '@/services/rewardService';
+import EnhancedMobileStepTracker from '@/components/mobile/EnhancedMobileStepTracker';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { Gift, Trophy, ArrowRight, Clock, Check } from 'lucide-react';
+import { useStepTracking } from '@/hooks/useStepTracking';
+
+// Define reward history type
+type RewardHistory = {
+  id: string;
+  name: string;
+  date: string;
+  points: number;
+  status: 'pending' | 'fulfilled';
+};
+
+// Schema for manual step entry
+const stepFormSchema = z.object({
+  steps: z
+    .string()
+    .min(1, { message: "Steps are required" })
+    .refine((val) => !isNaN(parseInt(val)), { message: "Steps must be a number" })
+    .refine((val) => parseInt(val) > 0 && parseInt(val) <= 50000, { 
+      message: "Steps must be between 1 and 50,000" 
+    })
+});
 
 const StepRewards = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [steps, setSteps] = useState("0");
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [redeemPoints, setRedeemPoints] = useState(0);
-  const [isNativeTracking, setIsNativeTracking] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  
+  const { isNative, stepData, logManualSteps } = useStepTracking();
+  
+  const form = useForm<z.infer<typeof stepFormSchema>>({
+    resolver: zodResolver(stepFormSchema),
+    defaultValues: {
+      steps: '',
+    },
+  });
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user && !loading) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  // Fetch available rewards
+  const { 
+    data: rewards = [],
+    isLoading: isLoadingRewards 
+  } = useQuery({
+    queryKey: ['available-rewards'],
+    queryFn: getAvailableRewards,
+    enabled: !!user
+  });
+
+  // Fetch user points balance
+  const { 
+    data: pointsBalance = 0,
+    isLoading: isLoadingPoints 
+  } = useQuery({
+    queryKey: ['user-points-balance'],
+    queryFn: getUserPointsBalance,
+    enabled: !!user
+  });
 
   // Fetch reward history
-  const { data: rewardHistory, isLoading: isHistoryLoading } = useQuery({
+  const {
+    data: rewardHistory = [],
+    isLoading: isLoadingHistory
+  } = useQuery({
     queryKey: ['reward-history'],
-    queryFn: getRewardHistory,
-    enabled: !!user,
-  });
-
-  // Fetch total points
-  const { data: totalPoints, isLoading: isPointsLoading } = useQuery({
-    queryKey: ['total-points'],
-    queryFn: getTotalPoints,
-    enabled: !!user,
-  });
-
-  // Record steps mutation
-  const recordStepsMutation = useMutation({
-    mutationFn: ({ steps, date }: { steps: number, date: string }) =>
-      recordStepCount(steps, date),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reward-history'] });
-      queryClient.invalidateQueries({ queryKey: ['total-points'] });
-      toast({
-        title: "Success",
-        description: "Steps recorded successfully!",
-        variant: "success"
-      });
-      setSteps("0");
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: "Failed to record steps: " + (error.message || "Unknown error"),
-        variant: "error"
-      });
-    }
-  });
-
-  // Claim rewards mutation
-  const claimRewardsMutation = useMutation({
-    mutationFn: (points: number) => claimRewardPoints(points),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['total-points'] });
-      queryClient.invalidateQueries({ queryKey: ['reward-history'] });
-      toast({
-        title: "Success",
-        description: "Rewards claimed successfully!",
-        variant: "success"
-      });
-      setRedeemPoints(0);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: "Failed to claim rewards: " + (error.message || "Unknown error"),
-        variant: "error"
-      });
-    }
-  });
-
-  // Sync native steps mutation
-  const syncStepsMutation = useMutation({
-    mutationFn: syncNativeSteps,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reward-history'] });
-      queryClient.invalidateQueries({ queryKey: ['total-points'] });
-      toast({
-        title: "Success",
-        description: "Steps synced from your device!",
-        variant: "success"
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: "Failed to sync steps: " + (error.message || "Unknown error"),
-        variant: "error"
-      });
-      setIsNativeTracking(false);
-    }
-  });
-
-  // Check if native tracking is available
-  useEffect(() => {
-    const checkNativeTracking = async () => {
-      try {
-        // In a real implementation, we would check if Capacitor Health is available
-        // For now, we'll just simulate this based on whether we're in a mobile app context
-        const isMobileApp = window.matchMedia('(display-mode: standalone)').matches ||
-                          ('navigator' in window && 'standalone' in navigator && (navigator as any).standalone === true) ||
-                          document.referrer.includes('android-app://');
-        
-        setIsNativeTracking(isMobileApp);
-        
-        // If we're in a mobile app, we could try to sync steps automatically here
-        if (isMobileApp) {
-          // This would be replaced with actual Capacitor Health API call
-          // syncStepsMutation.mutate(getRandomSteps());
+    queryFn: async () => {
+      // Mock implementation for now
+      // In a real app, this would fetch from backend
+      return [
+        {
+          id: '1',
+          name: '5% Discount Code',
+          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+          points: 500,
+          status: 'fulfilled' as const
+        },
+        {
+          id: '2',
+          name: 'Premium App Feature',
+          date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+          points: 1000,
+          status: 'pending' as const
         }
-      } catch (error) {
-        console.error("Error checking native tracking:", error);
-      }
-    };
-    
-    checkNativeTracking();
-  }, []);
+      ];
+    },
+    enabled: !!user
+  });
 
-  // Format date for submission
-  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+  // Mutation for claiming rewards
+  const claimRewardMutation = useMutation({
+    mutationFn: (rewardId: string) => claimReward(rewardId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-points-balance'] });
+      queryClient.invalidateQueries({ queryKey: ['reward-history'] });
+    }
+  });
 
-  // Get chart data from history
-  const chartData = rewardHistory?.slice(0, 7).map(entry => ({
-    date: format(new Date(entry.date), 'MMM d'),
-    steps: entry.steps
-  })).reverse() || [];
-
-  const handleSubmitSteps = (e: React.FormEvent) => {
-    e.preventDefault();
-    const parsedSteps = parseInt(steps);
-    if (isNaN(parsedSteps) || parsedSteps < 0) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid number of steps",
-        variant: "error"
-      });
+  // Handle reward claim
+  const handleClaimReward = (rewardId: string, pointsRequired: number) => {
+    if (pointsBalance < pointsRequired) {
+      toast.error('Not enough points to claim this reward');
       return;
     }
     
-    recordStepsMutation.mutate({
-      steps: parsedSteps,
-      date: formattedDate
-    });
+    claimRewardMutation.mutate(rewardId);
   };
 
-  const handleClaimRewards = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (redeemPoints <= 0) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid number of points to redeem",
-        variant: "error"
-      });
-      return;
-    }
-    
-    if (redeemPoints > (totalPoints || 0)) {
-      toast({
-        title: "Error",
-        description: `You don't have enough points. Available: ${totalPoints}`,
-        variant: "error"
-      });
-      return;
-    }
-    
-    claimRewardsMutation.mutate(redeemPoints);
+  // Handle manual step submission
+  const onSubmitSteps = (data: z.infer<typeof stepFormSchema>) => {
+    const steps = parseInt(data.steps);
+    logManualSteps(steps);
+    form.reset();
+    setShowManualEntry(false);
   };
 
-  // Function to simulate syncing with native step counter
-  const handleSyncNativeSteps = () => {
-    // This would be replaced with actual Capacitor Health API call
-    const simulatedSteps = Math.floor(Math.random() * 5000) + 3000;
-    syncStepsMutation.mutate(simulatedSteps);
-  };
+  if (loading) {
+    return <div className="container py-8">Loading...</div>;
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="container py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Step Rewards</h1>
         <p className="text-muted-foreground">
-          Earn points for staying active and redeem for rewards
+          Track your steps and earn rewards to support your fresh journey
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Points Summary Card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="bg-green-50">
+            <Trophy className="h-6 w-6 text-green-600 mb-2" />
             <CardTitle>Your Points</CardTitle>
-            <CardDescription>Current balance and activity</CardDescription>
+            <CardDescription>Convert steps to rewards</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-6">
-              <div className="text-4xl font-bold mb-2">{isPointsLoading ? "..." : totalPoints}</div>
-              <div className="text-sm text-muted-foreground">Total Points Available</div>
+          <CardContent className="pt-6">
+            <div className="text-center mb-4">
+              <p className="text-4xl font-bold text-green-600">{pointsBalance}</p>
+              <p className="text-sm text-muted-foreground">Available Points</p>
             </div>
-            
-            <div className="mt-4">
-              <h3 className="font-medium mb-2">How to Earn Points</h3>
-              <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Record your daily steps (1 point per 100 steps)</li>
-                <li>• Complete your daily wellness log (10 points)</li>
-                <li>• Achieve milestones in your fresh journey (varies)</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+            <p className="text-sm text-center mb-4">
+              You earn 1 point for every 100 steps you take!
+            </p>
+            {!isNative && (
+              <Button
+                onClick={() => setShowManualEntry(prev => !prev)}
+                variant="outline"
+                className="w-full"
+              >
+                {showManualEntry ? 'Cancel' : 'Enter Steps Manually'}
+              </Button>
+            )}
 
-        {/* Step Tracker Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Track Your Steps</CardTitle>
-            <CardDescription>Log your steps to earn points</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="manual">
-              <TabsList className="mb-4 w-full">
-                <TabsTrigger value="manual" className="flex-1">Manual Entry</TabsTrigger>
-                <TabsTrigger 
-                  value="auto" 
-                  className="flex-1" 
-                  disabled={!isNativeTracking}
-                >
-                  Auto Sync
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="manual">
-                <form onSubmit={handleSubmitSteps}>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Select Date</label>
-                      <div className="border rounded-md p-2">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) => date && setSelectedDate(date)}
-                          className="mx-auto"
-                          disabled={(date) => date > new Date() || date < new Date(new Date().setDate(new Date().getDate() - 30))}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="steps" className="block text-sm font-medium mb-1">Steps Taken</label>
-                      <Input
-                        id="steps"
-                        type="number"
-                        value={steps}
-                        onChange={(e) => setSteps(e.target.value)}
-                        placeholder="Enter number of steps"
-                        min="0"
-                      />
-                    </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full"
-                      disabled={recordStepsMutation.isPending}
-                    >
-                      {recordStepsMutation.isPending ? "Recording..." : "Record Steps"}
+            {showManualEntry && (
+              <div className="mt-4">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmitSteps)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="steps"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Today's Steps</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Enter steps" 
+                              type="number"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full">
+                      Log Steps
                     </Button>
-                  </div>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="auto">
-                {isNativeTracking ? (
-                  <div className="space-y-4 text-center">
-                    <p className="text-sm mb-4">
-                      Sync steps automatically from your device's health app
-                    </p>
-                    <Button 
-                      onClick={handleSyncNativeSteps}
-                      className="w-full"
-                      disabled={syncStepsMutation.isPending}
-                    >
-                      {syncStepsMutation.isPending ? "Syncing..." : "Sync Now"}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground">
-                      Native step tracking is not available on this device. Please use manual entry instead.
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* Redeem Rewards Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Redeem Rewards</CardTitle>
-            <CardDescription>Exchange your points for rewards</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleClaimRewards}>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="redeem" className="block text-sm font-medium mb-1">Points to Redeem</label>
-                  <Input
-                    id="redeem"
-                    type="number"
-                    value={redeemPoints || ""}
-                    onChange={(e) => setRedeemPoints(parseInt(e.target.value) || 0)}
-                    placeholder="Enter points to redeem"
-                    min="0"
-                    max={totalPoints || 0}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="font-medium">Available Rewards</h3>
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span>Badge: 7-Day Streak</span>
-                    <span className="font-medium">100 points</span>
-                  </div>
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span>$5 Gift Card</span>
-                    <span className="font-medium">500 points</span>
-                  </div>
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span>Premium Membership (1 month)</span>
-                    <span className="font-medium">1000 points</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full"
-                  disabled={claimRewardsMutation.isPending || redeemPoints <= 0 || redeemPoints > (totalPoints || 0)}
-                >
-                  {claimRewardsMutation.isPending ? "Processing..." : "Claim Reward"}
-                </Button>
+                  </form>
+                </Form>
               </div>
-            </form>
+            )}
           </CardContent>
         </Card>
+
+        {/* Mobile Step Tracker */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <EnhancedMobileStepTracker />
+        </div>
       </div>
 
-      {/* Step History Chart */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Your Step History</CardTitle>
-          <CardDescription>Recent activity over the past week</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isHistoryLoading ? (
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="animate-spin h-8 w-8 border-4 border-fresh-300 rounded-full border-t-transparent"></div>
-            </div>
-          ) : chartData.length > 0 ? (
-            <div className="h-[300px]">
-              <BarChart 
-                data={chartData}
-                index="date"
-                categories={["steps"]}
-                colors={["#10b981"]}
-                valueFormatter={(value) => `${value.toLocaleString()} steps`}
-              />
-            </div>
-          ) : (
-            <div className="h-[200px] flex items-center justify-center">
-              <p className="text-muted-foreground">No step data recorded yet. Start tracking to see your history!</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Available Rewards */}
+      <div className="mt-10">
+        <h2 className="text-2xl font-semibold mb-4">Available Rewards</h2>
+        
+        {isLoadingRewards ? (
+          <p>Loading rewards...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rewards.map((reward) => (
+              <Card key={reward.id} className="overflow-hidden">
+                <CardHeader className="bg-blue-50">
+                  <CardTitle className="flex justify-between items-center">
+                    <span>{reward.name}</span>
+                    <span className="text-amber-600 font-bold">{reward.points_required} pts</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <p className="text-sm mb-4">{reward.description}</p>
+                  <Button 
+                    onClick={() => handleClaimReward(reward.id, reward.points_required)}
+                    disabled={pointsBalance < reward.points_required || claimRewardMutation.isPending}
+                    className="w-full"
+                    variant={pointsBalance >= reward.points_required ? "default" : "outline"}
+                  >
+                    {claimRewardMutation.isPending ? 
+                      "Processing..." : 
+                      pointsBalance >= reward.points_required ? 
+                        "Claim Reward" : 
+                        `Need ${reward.points_required - pointsBalance} more points`
+                    }
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Reward History */}
+      <div className="mt-10">
+        <h2 className="text-2xl font-semibold mb-4">Your Reward History</h2>
+        
+        {isLoadingHistory ? (
+          <p>Loading history...</p>
+        ) : rewardHistory.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="py-2 px-4 text-left">Reward</th>
+                  <th className="py-2 px-4 text-left">Date</th>
+                  <th className="py-2 px-4 text-left">Points</th>
+                  <th className="py-2 px-4 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rewardHistory.map((item) => (
+                  <tr key={item.id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4">{item.name}</td>
+                    <td className="py-3 px-4">{item.date}</td>
+                    <td className="py-3 px-4">{item.points}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                        ${item.status === 'fulfilled' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {item.status === 'fulfilled' ? (
+                          <><Check className="w-3 h-3 mr-1" /> Fulfilled</>
+                        ) : (
+                          <><Clock className="w-3 h-3 mr-1" /> Pending</>
+                        )}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10 border rounded-lg">
+            <p className="text-muted-foreground">You haven't claimed any rewards yet.</p>
+            <p className="text-muted-foreground">Track your steps and earn points to get started!</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
