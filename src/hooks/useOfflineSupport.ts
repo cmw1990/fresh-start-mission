@@ -2,9 +2,16 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
+interface OfflineDataItem {
+  id: string;
+  type: string;
+  data: any;
+  timestamp: string;
+}
+
 export function useOfflineSupport() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [offlineData, setOfflineData] = useState<any[]>([]);
+  const [offlineData, setOfflineData] = useState<OfflineDataItem[]>([]);
   
   // Update online status
   useEffect(() => {
@@ -48,7 +55,7 @@ export function useOfflineSupport() {
   // Save data locally when offline
   const saveOfflineData = (type: string, data: any) => {
     try {
-      const newItem = {
+      const newItem: OfflineDataItem = {
         id: `offline_${Date.now()}`,
         type,
         data,

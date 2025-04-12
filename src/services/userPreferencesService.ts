@@ -35,7 +35,7 @@ export async function getUserPreferences(): Promise<UserPreferences | null> {
     const preferences: UserPreferences = {
       theme: data.theme as 'light' | 'dark' | 'system',
       notifications: data.notifications,
-      dashboard_widgets: data.dashboard_widgets,
+      dashboard_widgets: data.dashboard_widgets as DashboardWidget[],
       cost_per_product: data.cost_per_product,
       show_welcome: data.show_welcome
     };
