@@ -95,7 +95,7 @@ const EnhancedMobileStepTracker = () => {
             
             <div className="bg-gray-50 p-3 rounded-lg flex justify-between items-center">
               <div>
-                <p className="font-medium">{pointsBalance} points available</p>
+                <p className="font-medium">{pointsBalance?.toString() || '0'} points available</p>
                 <p className="text-xs text-muted-foreground">
                   {Math.floor(stepData.steps / 100)} points earned today
                 </p>

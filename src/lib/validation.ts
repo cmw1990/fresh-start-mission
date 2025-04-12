@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 // Common validation schemas
@@ -72,4 +73,12 @@ export function formatValidationErrors(errors: z.ZodError): Record<string, strin
     }
   });
   return formattedErrors;
+}
+
+// Modified function to safely handle validation results for Goals and LogEntry pages
+export function getValidationErrors(result: ReturnType<typeof validateData>): Record<string, string> {
+  if (!result.success && 'errors' in result) {
+    return formatValidationErrors(result.errors);
+  }
+  return {};
 }

@@ -28,6 +28,11 @@ interface Reward {
   points_required: number;
 }
 
+// Extended RewardHistory type to ensure steps property exists
+interface ExtendedRewardHistory extends RewardHistory {
+  steps?: number;
+}
+
 const StepRewards = () => {
   const [steps, setSteps] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +51,7 @@ const StepRewards = () => {
 
   // Fetch total points
   const { 
-    data: points, 
+    data: points = 0, 
     isLoading: pointsLoading,
     error: pointsError
   } = useQuery({
@@ -57,12 +62,12 @@ const StepRewards = () => {
 
   // Fetch reward history
   const { 
-    data: history, 
+    data: history = [], 
     isLoading: historyLoading,
     error: historyError
-  } = useQuery({
+  } = useQuery<ExtendedRewardHistory[]>({
     queryKey: ['reward-history'],
-    queryFn: getRewardHistory,
+    queryFn: () => getRewardHistory() as Promise<ExtendedRewardHistory[]>,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -131,7 +136,7 @@ const StepRewards = () => {
   };
 
   const handleClaimReward = async (rewardId: string, pointsRequired: number) => {
-    if (points === undefined || points < pointsRequired) {
+    if ((points === undefined || points < pointsRequired) && typeof points === 'number') {
       toast.error("Not enough points", { 
         description: `You need ${pointsRequired} points to claim this reward` 
       });
