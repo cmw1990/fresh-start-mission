@@ -3,11 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { StepReward, ClaimedReward, Reward } from "@/lib/supabase";
 
 // Get all step rewards for the current user
-export const getStepRewards = async (userId: string) => {
+export const getStepRewards = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
   const { data, error } = await supabase
     .from('step_rewards')
     .select('*')
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .order('date', { ascending: false });
 
   if (error) {
@@ -19,13 +23,20 @@ export const getStepRewards = async (userId: string) => {
 };
 
 // Add new step data and calculate rewards
-export const addStepData = async (userId: string, date: string, steps: number) => {
+export const logSteps = async (steps: number) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
   // Calculate points based on steps (1 point per 1000 steps)
   const pointsEarned = Math.floor(steps / 1000);
   
+  // Format the date in ISO format for storage
+  const currentDate = new Date().toISOString().split('T')[0];
+  
   const stepReward = {
-    user_id: userId,
-    date,
+    user_id: user.id,
+    date: currentDate,
     steps,
     points_earned: pointsEarned
   };
@@ -61,14 +72,18 @@ export const getAvailableRewards = async () => {
 };
 
 // Get claimed rewards for the current user
-export const getClaimedRewards = async (userId: string) => {
+export const getClaimedRewards = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
   const { data, error } = await supabase
     .from('claimed_rewards')
     .select(`
       *,
       reward:reward_id (name, description, points_required)
     `)
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .order('claimed_at', { ascending: false });
 
   if (error) {
@@ -80,9 +95,13 @@ export const getClaimedRewards = async (userId: string) => {
 };
 
 // Claim a reward
-export const claimReward = async (userId: string, rewardId: string) => {
+export const claimReward = async (rewardId: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
   const claimedReward = {
-    user_id: userId,
+    user_id: user.id,
     reward_id: rewardId,
     status: 'pending'
   };
@@ -102,11 +121,15 @@ export const claimReward = async (userId: string, rewardId: string) => {
 };
 
 // Get total points earned by a user
-export const getTotalPoints = async (userId: string) => {
+export const getUserPointsBalance = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
   const { data, error } = await supabase
     .from('step_rewards')
     .select('points_earned')
-    .eq('user_id', userId);
+    .eq('user_id', user.id);
 
   if (error) {
     console.error('Error fetching total points', error);
@@ -125,7 +148,7 @@ export const getTotalPoints = async (userId: string) => {
     .select(`
       reward:reward_id (points_required)
     `)
-    .eq('user_id', userId);
+    .eq('user_id', user.id);
 
   if (claimedError) {
     console.error('Error fetching claimed rewards', claimedError);

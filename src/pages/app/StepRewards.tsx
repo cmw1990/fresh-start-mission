@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Footprints, Gift, Trophy, Award } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { getUserPointsBalance, logSteps, getAvailableRewards, claimReward } from "@/services/rewardService";
+import { getUserPointsBalance, logSteps, getAvailableRewards, claimReward } from "@/services/rewardsService";
 import { Reward } from "@/lib/supabase";
 
 const StepRewards = () => {
@@ -24,8 +24,10 @@ const StepRewards = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const points = await getUserPointsBalance();
-        setRewardPoints(points);
+        if (!user) return;
+        
+        const pointsInfo = await getUserPointsBalance();
+        setRewardPoints(pointsInfo.available);
         
         const rewards = await getAvailableRewards();
         setAvailableRewards(rewards);
@@ -37,9 +39,7 @@ const StepRewards = () => {
       }
     };
     
-    if (user) {
-      fetchData();
-    }
+    fetchData();
   }, [user]);
   
   const handleStepsSubmit = async () => {
@@ -53,9 +53,11 @@ const StepRewards = () => {
       
       const result = await logSteps(stepsNum);
       if (result) {
+        toast.success(`Successfully logged ${stepsNum} steps!`);
+        
         // Refresh points balance
         const newBalance = await getUserPointsBalance();
-        setRewardPoints(newBalance);
+        setRewardPoints(newBalance.available);
         setSteps("0");
       }
     } catch (error) {
@@ -71,9 +73,11 @@ const StepRewards = () => {
       setClaimingId(rewardId);
       const result = await claimReward(rewardId);
       if (result) {
+        toast.success("Reward claimed successfully!");
+        
         // Refresh points balance
         const newBalance = await getUserPointsBalance();
-        setRewardPoints(newBalance);
+        setRewardPoints(newBalance.available);
       }
     } catch (error) {
       console.error("Error claiming reward:", error);

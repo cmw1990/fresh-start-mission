@@ -1,115 +1,141 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase, User } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  loading: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  loading: boolean;
+  error: string | null;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  session: null,
+  signIn: async () => {},
+  signUp: async () => {},
+  signOut: async () => {},
+  loading: true,
+  error: null
+});
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  // Helper function to transform Supabase user to our custom User type
-  const transformUser = (authUser: any): User | null => {
-    if (!authUser) return null;
-    
-    return {
-      id: authUser.id,
-      email: authUser.email || '',
-      name: authUser.user_metadata?.name || '',
-      created_at: authUser.created_at || new Date().toISOString()
-    };
-  };
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(transformUser(session?.user));
+    // First, set up the auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
       setLoading(false);
     });
 
-    // Then check for existing session
+    // Then check for an existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(transformUser(session?.user));
+      setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     try {
       setLoading(true);
+      setError(null);
+      
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        setError(error.message);
+        throw error;
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign in');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUp = async (email: string, password: string, name: string): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { name }
+          data: {
+            name
+          }
         }
       });
       
-      if (error) throw error;
-      toast.success('Account created successfully! Please check your email for verification.');
+      if (error) {
+        setError(error.message);
+        throw error;
+      }
       
-      // Note: For development, you might want to disable email verification in Supabase console
-      navigate('/app/dashboard');
+      toast.success('Sign up successful! Please check your email for verification.');
     } catch (error: any) {
-      toast.error(error.message || 'Error during sign up');
+      toast.error(error.message || 'Failed to sign up');
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signOut = async (): Promise<void> => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      toast.success('Signed in successfully!');
-      navigate('/app/dashboard');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        setError(error.message);
+        throw error;
+      }
+      
+      setUser(null);
+      setSession(null);
     } catch (error: any) {
-      toast.error(error.message || 'Error during sign in');
+      toast.error(error.message || 'Failed to sign out');
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success('Signed out successfully');
-      navigate('/');
-    } catch (error: any) {
-      toast.error(error.message || 'Error during sign out');
-    }
+  const value = {
+    user,
+    session,
+    signIn,
+    signUp,
+    signOut,
+    loading,
+    error
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};

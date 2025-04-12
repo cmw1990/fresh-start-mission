@@ -1,88 +1,72 @@
 
-import { supabase, UserGoal } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { UserGoal } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
-/**
- * Retrieves the user's goal
- */
-export const getUserGoal = async (): Promise<UserGoal | null> => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return null;
+// Get the goal for the current user
+export const getUserGoal = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
 
-    const { data, error } = await supabase
-      .from('user_goals')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+  const { data, error } = await supabase
+    .from('user_goals')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
 
-    if (error) throw error;
-    return data as UserGoal;
-  } catch (error: any) {
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No goals found, return null
+      return null;
+    }
     console.error('Error fetching user goal:', error);
-    return null;
+    throw error;
   }
+
+  return data as UserGoal;
 };
 
-/**
- * Saves or updates the user's goal
- */
-export const saveUserGoal = async (goalData: Omit<UserGoal, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<UserGoal | null> => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) {
-      toast.error('You must be logged in to save goals');
-      return null;
-    }
+// Add a new goal
+export const saveUserGoal = async (goal: Omit<UserGoal, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
 
-    const { data, error } = await supabase
-      .from('user_goals')
-      .insert({
-        ...goalData,
-        user_id: user.user.id,
-      })
-      .select()
-      .single();
+  const goalWithUserId = {
+    ...goal,
+    user_id: user.id
+  };
 
-    if (error) throw error;
-    
-    toast.success('Your goals have been saved successfully!');
-    return data as UserGoal;
-  } catch (error: any) {
-    console.error('Error saving user goal:', error);
-    toast.error(error.message || 'Error saving your goals');
-    return null;
+  const { data, error } = await supabase
+    .from('user_goals')
+    .insert(goalWithUserId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding goal:', error);
+    throw error;
   }
+
+  return data as UserGoal;
 };
 
-/**
- * Updates an existing user goal
- */
-export const updateUserGoal = async (goalId: string, goalData: Partial<UserGoal>): Promise<UserGoal | null> => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) {
-      toast.error('You must be logged in to update goals');
-      return null;
-    }
+// Update an existing goal
+export const updateUserGoal = async (goalId: string, updates: Partial<Omit<UserGoal, 'id' | 'created_at' | 'updated_at' | 'user_id'>>) => {
+  const { data, error } = await supabase
+    .from('user_goals')
+    .update(updates)
+    .eq('id', goalId)
+    .select()
+    .single();
 
-    const { data, error } = await supabase
-      .from('user_goals')
-      .update(goalData)
-      .eq('id', goalId)
-      .eq('user_id', user.user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    
-    toast.success('Your goals have been updated successfully!');
-    return data as UserGoal;
-  } catch (error: any) {
-    console.error('Error updating user goal:', error);
-    toast.error(error.message || 'Error updating your goals');
-    return null;
+  if (error) {
+    console.error('Error updating goal:', error);
+    throw error;
   }
+
+  return data as UserGoal;
 };

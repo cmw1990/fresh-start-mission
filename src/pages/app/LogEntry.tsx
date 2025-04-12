@@ -11,9 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { saveLogEntry } from "@/services/logService";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LogEntry = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [nicotineUse, setNicotineUse] = useState<"yes" | "no">("no");
   const [productType, setProductType] = useState("cigarette");
   const [quantity, setQuantity] = useState("0");
@@ -29,6 +31,12 @@ const LogEntry = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error("You must be logged in to submit a log entry");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -36,6 +44,7 @@ const LogEntry = () => {
       const currentDate = new Date().toISOString().split('T')[0];
       
       await saveLogEntry({
+        user_id: user.id,
         date: currentDate,
         used_nicotine: nicotineUse === "yes",
         product_type: nicotineUse === "yes" ? productType : undefined,
@@ -58,6 +67,7 @@ const LogEntry = () => {
       navigate('/app/dashboard');
     } catch (error) {
       console.error("Error saving log entry:", error);
+      toast.error("Failed to save your entry. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,30 +1,35 @@
 
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
-const AuthGuard = ({ children }: AuthGuardProps) => {
+const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { user, loading } = useAuth();
-  
-  // Show loading state while checking authentication
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      // Redirect to login page and save the intended destination
+      navigate('/auth', { state: { from: location.pathname } });
+    }
+  }, [user, loading, navigate, location]);
+
+  // Show loading state if still checking authentication
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-fresh-300"></div>
+        <div className="h-12 w-12 border-4 border-fresh-300 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
-  
-  // Redirect if not authenticated
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  // Render children if authenticated
-  return <>{children}</>;
+
+  // Only render children if authenticated
+  return user ? <>{children}</> : null;
 };
 
 export default AuthGuard;

@@ -1,13 +1,17 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { NicotineLog } from "@/lib/supabase";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Get all log entries for the current user
 export const getLogEntries = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+
   const { data, error } = await supabase
     .from('nicotine_logs')
     .select('*')
+    .eq('user_id', user.id)
     .order('date', { ascending: false });
 
   if (error) {
@@ -39,9 +43,14 @@ export const saveLogEntry = addLogEntry;
 
 // Calculate and return recent stats for the dashboard
 export const getRecentLogStats = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
   const { data: logs, error } = await supabase
     .from('nicotine_logs')
     .select('*')
+    .eq('user_id', user.id)
     .order('date', { ascending: false });
 
   if (error) {

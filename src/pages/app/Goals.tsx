@@ -15,10 +15,12 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalService";
 import { UserGoal } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 type GoalMethod = "cold-turkey" | "gradual-reduction" | "tapering" | "nrt" | "harm-reduction";
 
 const Goals = () => {
+  const { user } = useAuth();
   const [goalType, setGoalType] = useState<"afresh" | "fresher">("afresh");
   const [method, setMethod] = useState<GoalMethod>("cold-turkey");
   const [product, setProduct] = useState("cigarette");
@@ -31,31 +33,39 @@ const Goals = () => {
   
   useEffect(() => {
     const fetchGoal = async () => {
+      if (!user) return;
+      
       setLoading(true);
-      const goal = await getUserGoal();
-      if (goal) {
-        setExistingGoal(goal);
-        setGoalType(goal.goal_type as "afresh" | "fresher");
-        setMethod(goal.method as GoalMethod);
-        setProduct(goal.product_type);
-        if (goal.quit_date) {
-          setQuitDate(new Date(goal.quit_date));
+      try {
+        const goal = await getUserGoal();
+        if (goal) {
+          setExistingGoal(goal);
+          setGoalType(goal.goal_type as "afresh" | "fresher");
+          setMethod(goal.method as GoalMethod);
+          setProduct(goal.product_type);
+          if (goal.quit_date) {
+            setQuitDate(new Date(goal.quit_date));
+          }
+          if (goal.reduction_percent) {
+            setReduction(goal.reduction_percent.toString());
+          }
+          if (goal.timeline_days) {
+            setTimeline(goal.timeline_days.toString());
+          }
+          if (goal.motivation) {
+            setMotivation(goal.motivation);
+          }
         }
-        if (goal.reduction_percent) {
-          setReduction(goal.reduction_percent.toString());
-        }
-        if (goal.timeline_days) {
-          setTimeline(goal.timeline_days.toString());
-        }
-        if (goal.motivation) {
-          setMotivation(goal.motivation);
-        }
+      } catch (error) {
+        console.error("Error fetching goal:", error);
+        toast.error("Failed to load your goals");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     
     fetchGoal();
-  }, []);
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,10 +84,12 @@ const Goals = () => {
       
       if (existingGoal) {
         await updateUserGoal(existingGoal.id, goalData);
+        toast.success("Your goals have been updated successfully!");
       } else {
         const newGoal = await saveUserGoal(goalData);
         if (newGoal) {
           setExistingGoal(newGoal);
+          toast.success("Your goals have been saved successfully!");
         }
       }
     } catch (error) {
