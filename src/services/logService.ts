@@ -1,18 +1,22 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { NicotineLog } from "@/lib/supabase";
+import { toast } from "sonner";
 
-// Get all log entries for the current user
-export const getLogEntries = async () => {
+/**
+ * Get logs for the current user
+ */
+export const getUserLogs = async (limit: number = 100) => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error("User not authenticated");
-
+  
   const { data, error } = await supabase
     .from('nicotine_logs')
     .select('*')
     .eq('user_id', user.id)
-    .order('date', { ascending: false });
+    .order('date', { ascending: false })
+    .limit(limit);
 
   if (error) {
     console.error('Error fetching logs', error);
@@ -22,93 +26,96 @@ export const getLogEntries = async () => {
   return data as NicotineLog[];
 };
 
-// Add a new log entry
-export const addLogEntry = async (log: Omit<NicotineLog, 'id' | 'created_at'>) => {
-  const { data, error } = await supabase
-    .from('nicotine_logs')
-    .insert(log)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error adding log entry', error);
-    throw error;
-  }
-
-  return data as NicotineLog;
-};
-
-// Save log entry (alias for addLogEntry to match the import in LogEntry.tsx)
-export const saveLogEntry = addLogEntry;
-
-// Calculate and return recent stats for the dashboard
-export const getRecentLogStats = async () => {
+/**
+ * Get a specific log entry by date
+ */
+export const getLogByDate = async (date: string) => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error("User not authenticated");
   
-  const { data: logs, error } = await supabase
+  const { data, error } = await supabase
     .from('nicotine_logs')
     .select('*')
     .eq('user_id', user.id)
-    .order('date', { ascending: false });
+    .eq('date', date)
+    .maybeSingle();
 
   if (error) {
-    console.error('Error fetching logs for stats', error);
+    console.error('Error fetching log by date', error);
     throw error;
   }
 
-  // Calculate days afresh (days without nicotine)
-  const sortedLogs = [...(logs as NicotineLog[])].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-  
-  let daysAfresh = 0;
-  for (const log of sortedLogs) {
-    if (!log.used_nicotine) {
-      daysAfresh++;
+  return data as NicotineLog | null;
+};
+
+/**
+ * Save a new log entry or update existing one for the current date
+ */
+export const saveLogEntry = async (log: Omit<NicotineLog, 'id' | 'created_at'>) => {
+  try {
+    // Check if log already exists for this date
+    const existingLog = await getLogByDate(log.date);
+    
+    if (existingLog) {
+      // Update existing log
+      const { data, error } = await supabase
+        .from('nicotine_logs')
+        .update(log)
+        .eq('id', existingLog.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      toast.success("Log entry updated successfully!");
+      return data as NicotineLog;
     } else {
-      break;
+      // Create new log
+      const { data, error } = await supabase
+        .from('nicotine_logs')
+        .insert(log)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      toast.success("Log entry saved successfully!");
+      return data as NicotineLog;
     }
+  } catch (error: any) {
+    console.error('Error saving log entry', error);
+    toast.error(error.message || "Error saving log entry");
+    throw error;
+  }
+};
+
+/**
+ * Get analytics data for dashboard
+ */
+export const getLogAnalytics = async (days: number = 30) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
+  // Calculate the date range
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+  
+  const formattedStartDate = startDate.toISOString().split('T')[0];
+  const formattedEndDate = endDate.toISOString().split('T')[0];
+  
+  const { data, error } = await supabase
+    .from('nicotine_logs')
+    .select('*')
+    .eq('user_id', user.id)
+    .gte('date', formattedStartDate)
+    .lte('date', formattedEndDate)
+    .order('date', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching log analytics', error);
+    throw error;
   }
 
-  // Calculate money saved (assuming $10 per day saved when not using nicotine)
-  const moneySaved = daysAfresh * 10;
-
-  // Calculate life regained (assuming 11 minutes per cigarette, average 20 per day)
-  const minutesSaved = daysAfresh * 20 * 11;
-  const lifeRegained = minutesSaved > 1440 
-    ? `${Math.floor(minutesSaved / 1440)} days, ${Math.floor((minutesSaved % 1440) / 60)} hrs` 
-    : `${Math.floor(minutesSaved / 60)} hrs`;
-
-  // Calculate number of cravings in the past week
-  const lastWeek = new Date();
-  lastWeek.setDate(lastWeek.getDate() - 7);
-  
-  const recentLogs = sortedLogs.filter(
-    log => new Date(log.date) >= lastWeek
-  );
-  
-  const recentCravings = recentLogs.reduce((total, log) => 
-    total + (log.craving_intensity > 2 ? 1 : 0), 0);
-
-  // Calculate average mood, energy and focus from recent logs
-  const avgMood = recentLogs.reduce((sum, log) => sum + log.mood, 0) / 
-    (recentLogs.length || 1);
-
-  const avgEnergy = recentLogs.reduce((sum, log) => sum + log.energy, 0) / 
-    (recentLogs.length || 1);
-    
-  const avgFocus = recentLogs.reduce((sum, log) => sum + log.focus, 0) / 
-    (recentLogs.length || 1);
-
-  return {
-    daysAfresh,
-    moneySaved,
-    lifeRegained,
-    recentCravings,
-    avgMood,
-    avgEnergy,
-    avgFocus
-  };
+  return data as NicotineLog[];
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalService";
+import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalsService";
 import { UserGoal } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 
