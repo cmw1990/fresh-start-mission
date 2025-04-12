@@ -45,7 +45,7 @@ export const getRandomQuote = async (): Promise<Quote> => {
     const { data, error } = await supabase
       .from('quotes')
       .select('*')
-      .order(() => 'RANDOM()')  // Get a random quote
+      .order('RANDOM()')  // Use a string here, not a function
       .limit(1)
       .single();
     

@@ -8,7 +8,7 @@ import { UserGoal } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import GoalTypeSelector from "@/components/goals/GoalTypeSelector";
 import MethodSelector from "@/components/goals/MethodSelector";
-import ProductSelector from "@/components/goals/ProductSelector";
+import { ProductSelector } from "@/components/goals/ProductSelector";
 import MotivationInput from "@/components/goals/MotivationInput";
 
 const Goals = () => {
