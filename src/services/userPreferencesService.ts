@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -23,8 +22,8 @@ type UserPreferencesDB = {
   notification_cravings: boolean;
   notification_logs: boolean;
   notification_milestones: boolean;
-  cost_per_product?: Record<string, number>;
-  show_welcome?: boolean;
+  cost_per_product: Record<string, number>;
+  show_welcome: boolean;
 };
 
 export async function getUserPreferences(): Promise<UserPreferences | null> {
