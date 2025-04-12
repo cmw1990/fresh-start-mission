@@ -3,11 +3,13 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "../app/Sidebar";
 import MobileNav from "../app/MobileNav";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AppLayout = () => {
   const [isMobileApp, setIsMobileApp] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     // Check if we're running as a native app
@@ -35,7 +37,7 @@ const AppLayout = () => {
         <div className="fixed inset-0 bg-fresh-300 z-50 flex items-center justify-center">
           <div className="text-center text-white">
             <h1 className="text-3xl font-bold mb-4">Welcome to Mission Fresh</h1>
-            <p className="mb-8">A Fresh World is Mission Possible!</p>
+            <p className="mb-8">{user?.email ? `Welcome ${user.email}!` : 'A Fresh World is Mission Possible!'}</p>
             <button 
               className="bg-white text-fresh-600 px-6 py-2 rounded-full font-medium"
               onClick={() => setShowSplash(false)}

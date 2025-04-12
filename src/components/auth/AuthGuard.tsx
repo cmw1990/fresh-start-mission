@@ -23,7 +23,10 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="h-12 w-12 border-4 border-fresh-300 border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-12 w-12 border-4 border-fresh-300 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-fresh-500 font-medium">Loading your journey...</p>
+        </div>
       </div>
     );
   }

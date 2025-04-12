@@ -47,6 +47,7 @@ function App() {
         
         {/* Public web tools routes */}
         <Route path="/tools" element={<WebToolsLayout />}>
+          <Route index element={<NRTGuide />} />
           <Route path="nrt-guide" element={<NRTGuide />} />
           <Route path="smokeless-directory" element={<SmokelessDirectory />} />
           <Route path="smokeless-directory/:productId" element={<ProductDetails />} />
@@ -57,6 +58,7 @@ function App() {
         
         {/* Protected app routes */}
         <Route path="/app" element={<AuthGuard><AppLayout /></AuthGuard>}>
+          <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="log" element={<LogEntry />} />
           <Route path="goals" element={<Goals />} />
