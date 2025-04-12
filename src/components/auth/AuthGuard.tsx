@@ -7,10 +7,10 @@ interface AuthGuardProps {
 }
 
 const AuthGuard = ({ children }: AuthGuardProps) => {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
   
   // Show loading state while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-fresh-300"></div>
