@@ -21,6 +21,9 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
+  // Get user display name from user_metadata or email
+  const userDisplayName = user?.user_metadata?.name || user?.email?.split('@')[0] || "Account";
+
   const closeSheet = () => setIsOpen(false);
 
   return (
@@ -79,7 +82,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2">
                     <User className="h-4 w-4" />
-                    <span>{user.name || "Account"}</span>
+                    <span>{userDisplayName}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

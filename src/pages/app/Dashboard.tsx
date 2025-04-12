@@ -24,7 +24,10 @@ const Dashboard = () => {
   
   const isLoading = statsLoading || logsLoading;
   
-  const firstName = user?.name ? user.name.split(' ')[0] : 'there';
+  // Get first name from user_metadata or email
+  const firstName = user?.user_metadata?.name 
+    ? user.user_metadata.name.split(' ')[0] 
+    : user?.email?.split('@')[0] || 'there';
 
   return (
     <div className="container py-8">

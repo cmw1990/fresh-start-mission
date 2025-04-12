@@ -12,7 +12,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const Settings = () => {
   const { user, signOut } = useAuth();
-  const [name, setName] = useState(user?.name || "");
+  
+  // Get name from user_metadata or email
+  const initialName = user?.user_metadata?.name || user?.email?.split('@')[0] || "";
+  const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(user?.email || "");
   const [isLoading, setIsLoading] = useState(false);
   
