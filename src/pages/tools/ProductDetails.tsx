@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { SmokelessProduct, ProductReview } from "@/lib/supabase";
 import { cn } from "@/lib/utils"; 
 import {
   Breadcrumb,
@@ -31,43 +32,12 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from 'date-fns';
 
-// Interfaces aligned with sb.md (simplified for frontend display)
-interface Review {
-  id: string;
-  user_id: string; // Assuming we might fetch user profile later
-  rating: number;
-  review_text?: string | null;
-  created_at: string;
-  // Placeholder for user info until fetched
-  user_name?: string; 
-  user_avatar_url?: string | null;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  brand: string;
-  description?: string | null;
-  image_url?: string | null;
-  nicotine_strength_mg?: number | null;
-  flavor_category?: string | null;
-  ingredients?: string[] | null;
-  expert_notes_chemicals?: string | null;
-  expert_notes_gum_health?: string | null;
-  user_rating_avg?: number | null;
-  user_rating_count?: number | null;
-  created_at?: string;
-  updated_at?: string;
-  // Potentially add fields like usage_instructions if needed from DB
-}
-
 // --- Data Fetching Functions ---
 
-const fetchProductDetails = async (productId: string): Promise<Product | null> => {
+const fetchProductDetails = async (productId: string): Promise<SmokelessProduct | null> => {
   if (!productId) return null;
   
-  // Use type assertion to bypass TypeScript error for the new table
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('smokeless_products')
     .select('*')
     .eq('id', productId)
@@ -81,14 +51,13 @@ const fetchProductDetails = async (productId: string): Promise<Product | null> =
     }
     throw new Error(`Error fetching product: ${error.message}`);
   }
-  return data as Product | null;
+  return data as SmokelessProduct | null;
 };
 
-const fetchProductReviews = async (productId: string): Promise<Review[]> => {
+const fetchProductReviews = async (productId: string): Promise<ProductReview[]> => {
    if (!productId) return [];
    
-   // Use type assertion to bypass TypeScript error for the new table
-   const { data, error } = await (supabase as any)
+   const { data, error } = await supabase
      .from('smokeless_product_reviews')
      .select('*')
      .eq('product_id', productId)
@@ -103,12 +72,12 @@ const fetchProductReviews = async (productId: string): Promise<Review[]> => {
    
    // Add placeholder user info for now
    const reviewsWithPlaceholders = (data || []).map(r => ({
-       ...(r as any), // Cast r to any to access properties temporarily
-       user_name: `User ${((r as any).user_id as string)?.substring(0, 6) || 'Anonymous'}`, // Placeholder name with safe access
+       ...r,
+       user_name: `User ${r.user_id?.substring(0, 6) || 'Anonymous'}`, // Placeholder name with safe access
        user_avatar_url: null, // Placeholder avatar
    }));
    
-   return reviewsWithPlaceholders as Review[];
+   return reviewsWithPlaceholders as ProductReview[];
 };
 
 // --- Helper Components ---
@@ -160,7 +129,7 @@ const RatingBreakdown = ({ breakdown, totalReviews }: { breakdown: any, totalRev
   );
 };
 
-const ReviewCard = ({ review }: { review: Review }) => {
+const ReviewCard = ({ review }: { review: ProductReview }) => {
   return (
      <Card className="border-l-4 border-primary/20">
       <CardHeader className="flex flex-row items-start justify-between pb-2 space-x-4">
@@ -194,7 +163,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
 
   // Fetch Product Details
-  const { data: product, isLoading: isLoadingProduct, error: productError, isError: isProductError } = useQuery<Product | null>({
+  const { data: product, isLoading: isLoadingProduct, error: productError, isError: isProductError } = useQuery<SmokelessProduct | null>({
     queryKey: ['productDetails', productId],
     queryFn: () => fetchProductDetails(productId!),
     enabled: !!productId, // Only run query if productId exists
@@ -202,7 +171,7 @@ const ProductDetails = () => {
   });
 
   // Fetch Product Reviews
-  const { data: reviews, isLoading: isLoadingReviews, error: reviewsError } = useQuery<Review[]>({
+  const { data: reviews, isLoading: isLoadingReviews, error: reviewsError } = useQuery<ProductReview[]>({
       queryKey: ['productReviews', productId],
       queryFn: () => fetchProductReviews(productId!),
       enabled: !!productId, // Only run query if productId exists

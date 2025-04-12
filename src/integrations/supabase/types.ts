@@ -2023,6 +2023,89 @@ export type Database = {
         }
         Relationships: []
       }
+      smokeless_vendor_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_moderated: boolean | null
+          rating: number
+          review_text: string | null
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_moderated?: boolean | null
+          rating: number
+          review_text?: string | null
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_moderated?: boolean | null
+          rating?: number
+          review_text?: string | null
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smokeless_vendor_reviews_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "smokeless_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      smokeless_vendors: {
+        Row: {
+          affiliate_link_template: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          regions_served: string[] | null
+          shipping_info_summary: string | null
+          updated_at: string | null
+          user_rating_avg: number | null
+          user_rating_count: number | null
+          website_url: string | null
+        }
+        Insert: {
+          affiliate_link_template?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          regions_served?: string[] | null
+          shipping_info_summary?: string | null
+          updated_at?: string | null
+          user_rating_avg?: number | null
+          user_rating_count?: number | null
+          website_url?: string | null
+        }
+        Update: {
+          affiliate_link_template?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          regions_served?: string[] | null
+          shipping_info_summary?: string | null
+          updated_at?: string | null
+          user_rating_avg?: number | null
+          user_rating_count?: number | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       step_rewards: {
         Row: {
           created_at: string

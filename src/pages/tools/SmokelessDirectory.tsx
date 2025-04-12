@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
+import { SmokelessProduct, SmokelessVendor } from "@/lib/supabase";
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
 } from "@/components/ui/card";
@@ -20,24 +21,18 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Define interfaces for the data types (Matches sb.md definitions)
 interface Product {
   id: string;
   name: string;
   brand: string;
-  nicotine_strength_mg?: number | null; // Adjusted based on sb.md
-  flavor_category?: string | null; // Adjusted based on sb.md
-  rating?: number | null; // Renamed from user_rating_avg
-  review_count?: number | null; // Renamed from user_rating_count
+  nicotine_strength_mg?: number | null;
+  flavor_category?: string | null;
+  rating?: number | null;
+  review_count?: number | null;
   description?: string | null;
   image_url?: string | null;
-  chemical_concerns?: string | null; // Renamed from expert_notes_chemicals
-  gum_health_impact?: string | null; // Renamed from expert_notes_gum_health
-  // available_in?: string[] | null; // Removed, potentially complex to filter/display initially
-  // release_method?: string | null; // Removed, potentially less critical field
-  // price?: string | null; // Removed, pricing can be complex
-  // type?: string | null; // Removed, use flavor_category?
-  // flavors?: string[] | null; // Removed, use flavor_category?
+  chemical_concerns?: string | null;
+  gum_health_impact?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -45,12 +40,12 @@ interface Product {
 interface Vendor {
   id: string;
   name: string;
-  website_url?: string | null; // Renamed from website
-  rating?: number | null; // Renamed from user_rating_avg
-  review_count?: number | null; // Renamed from user_rating_count
-  shipping_info_summary?: string | null; // Renamed from shipping_countries/description
+  website_url?: string | null;
+  rating?: number | null;
+  review_count?: number | null;
+  shipping_info_summary?: string | null;
   description?: string | null;
-  affiliate_link_template?: string | null; // Renamed from affiliate_link
+  affiliate_link_template?: string | null;
   logo_url?: string | null;
   regions_served?: string[] | null;
   created_at?: string;
@@ -58,12 +53,11 @@ interface Vendor {
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
-  // Generate stars for rating
   const renderStars = (rating: number | null | undefined) => {
     const safeRating = rating || 0;
     const fullStars = Math.floor(safeRating);
-    const hasHalfStar = safeRating % 1 >= 0.5; // Keep half-star logic if desired
-    
+    const hasHalfStar = safeRating % 1 >= 0.5;
+
     return (
       <div className="flex items-center">
         {[...Array(5)].map((_, i) => (
@@ -74,8 +68,8 @@ const ProductCard = ({ product }: { product: Product }) => {
               "fill-current", 
               i < fullStars 
                 ? "text-amber-400" 
-                : i === fullStars && hasHalfStar // Keep half-star logic if desired
-                ? "text-amber-400" // Or use a half-star icon
+                : i === fullStars && hasHalfStar
+                ? "text-amber-400"
                 : "text-gray-300"
             )}
           />
@@ -90,11 +84,11 @@ const ProductCard = ({ product }: { product: Product }) => {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
       <Link to={`/tools/smokeless-directory/${product.id}`}>
         <CardHeader className="p-4 bg-muted">
-          <div className="aspect-w-16 aspect-h-9 flex items-center justify-center h-32"> {/* Fixed height */}
+          <div className="aspect-w-16 aspect-h-9 flex items-center justify-center h-32">
             <img 
-              src={product.image_url || '/placeholder.svg'} // Use placeholder
+              src={product.image_url || '/placeholder.svg'}
               alt={product.name}
-              className="object-contain max-h-full w-auto rounded-md" // Adjusted styling
+              className="object-contain max-h-full w-auto rounded-md"
             />
           </div>
         </CardHeader>
@@ -115,7 +109,6 @@ const ProductCard = ({ product }: { product: Product }) => {
             {product.nicotine_strength_mg !== null && product.nicotine_strength_mg !== undefined && <Badge variant="secondary">{product.nicotine_strength_mg}mg</Badge>}
             {product.flavor_category && <span className="text-muted-foreground">{product.flavor_category}</span>}
           </div>
-          {/* Price removed for simplicity */}
         </div>
         
         <p className="text-sm text-muted-foreground line-clamp-2">
@@ -139,10 +132,8 @@ const ProductCard = ({ product }: { product: Product }) => {
 };
 
 const VendorCard = ({ vendor }: { vendor: Vendor }) => {
-  // Function to generate affiliate link (basic example)
   const getAffiliateLink = () => {
-    // Replace with actual logic if needed, maybe using template
-    return vendor.website_url || '#'; 
+    return vendor.website_url || '#';
   };
 
   return (
@@ -151,8 +142,7 @@ const VendorCard = ({ vendor }: { vendor: Vendor }) => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center">
             {vendor.name}
-            {/* Shield can indicate verification status if available */}
-            {/* <ShieldCheck size={16} className="ml-2 text-green-500" /> */}
+            <ShieldCheck size={16} className="ml-2 text-green-500" />
           </CardTitle>
           <div className="flex items-center">
             <StarIcon size={16} className="text-amber-400 fill-current mr-1" />
@@ -164,7 +154,7 @@ const VendorCard = ({ vendor }: { vendor: Vendor }) => {
           <a 
             href={getAffiliateLink()}
             target="_blank" 
-            rel="noopener noreferrer nofollow" // Added nofollow for affiliate links
+            rel="noopener noreferrer nofollow"
             className="text-primary hover:underline truncate"
             title={vendor.website_url || ''}
           >
@@ -200,58 +190,57 @@ const VendorCard = ({ vendor }: { vendor: Vendor }) => {
   );
 };
 
-// Fetching functions for React Query
-const fetchProducts = async (): Promise<Product[]> => {
-  // TODO: Implement proper filtering/pagination on the backend later
-  // @ts-ignore - Temporary ignore until backend tables/types are synced (see sb.md)
-  const { data, error } = await supabase.from('smokeless_products').select('*').limit(100); // Added limit
+const fetchProducts = async (): Promise<SmokelessProduct[]> => {
+  const { data, error } = await supabase
+    .from('smokeless_products')
+    .select('*')
+    .limit(100);
+
   if (error) {
       console.error("Error fetching products:", error);
       throw new Error(error.message);
   }
-  // TEMPORARY FIX: Use type assertion until types are generated correctly
-  return (data || []) as any as Product[]; 
+  
+  return data as SmokelessProduct[];
 };
 
-const fetchVendors = async (): Promise<Vendor[]> => {
-  // TODO: Implement proper filtering/pagination on the backend later
-  // @ts-ignore - Temporary ignore until backend tables/types are synced (see sb.md)
-  const { data, error } = await supabase.from('smokeless_vendors').select('*').limit(50); // Added limit
+const fetchVendors = async (): Promise<SmokelessVendor[]> => {
+  const { data, error } = await supabase
+    .from('smokeless_vendors')
+    .select('*')
+    .limit(50);
+
   if (error) {
       console.error("Error fetching vendors:", error);
       throw new Error(error.message);
   }
-   // TEMPORARY FIX: Use type assertion until types are generated correctly
-  return (data || []) as any as Vendor[];
+   
+  return data as SmokelessVendor[];
 };
 
 const SmokelessDirectory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  // Simplified filters based on updated Product interface
-  const [selectedFlavor, setSelectedFlavor] = useState("all"); 
+  const [selectedFlavor, setSelectedFlavor] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
-  const [nicotineRange, setNicotineRange] = useState([0, 20]); // Adjusted range
+  const [nicotineRange, setNicotineRange] = useState([0, 20]);
   const [selectedTab, setSelectedTab] = useState("products");
-  
-  // Use React Query to fetch data
-  const { data: products, isLoading: isLoadingProducts, error: productsError } = useQuery<Product[]>({
+
+  const { data: products, isLoading: isLoadingProducts, error: productsError } = useQuery<SmokelessProduct[]>({
     queryKey: ['smokelessProducts'],
     queryFn: fetchProducts,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: vendors, isLoading: isLoadingVendors, error: vendorsError } = useQuery<Vendor[]>({
+  const { data: vendors, isLoading: isLoadingVendors, error: vendorsError } = useQuery<SmokelessVendor[]>({
     queryKey: ['smokelessVendors'],
     queryFn: fetchVendors,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Handle loading and error states
   const isLoading = isLoadingProducts || isLoadingVendors;
-  const queryError = productsError || vendorsError; // Renamed variable
+  const queryError = productsError || vendorsError;
 
-  // Memoize filtered products to avoid recalculation on every render
   const filteredProducts = useMemo(() => {
     if (!products) return [];
     
@@ -262,40 +251,39 @@ const SmokelessDirectory = () => {
 
       const matchesFlavor = selectedFlavor === "all" || product.flavor_category === selectedFlavor;
       const matchesBrandFilter = selectedBrand === "all" || product.brand === selectedBrand;
-      const matchesNicotine = product.nicotine_strength_mg === null || product.nicotine_strength_mg === undefined || // Handle null/undefined
+      const matchesNicotine = product.nicotine_strength_mg === null || product.nicotine_strength_mg === undefined || 
                               (product.nicotine_strength_mg >= nicotineRange[0] && 
                                product.nicotine_strength_mg <= nicotineRange[1]);
       
       return matchesSearch && matchesFlavor && matchesBrandFilter && matchesNicotine;
     });
   }, [products, searchTerm, selectedFlavor, selectedBrand, nicotineRange]);
-  
-  // Memoize unique flavors and brands
+
   const productFlavors = useMemo(() => {
     if (!products) return ["all"];
     const flavors = products
       .map(p => p.flavor_category)
-      .filter((f): f is string => f !== null && f !== undefined && f !== ''); // Type guard and filter empty
-    return ["all", ...Array.from(new Set(flavors)).sort()]; // Sort alphabetically
+      .filter((f): f is string => f !== null && f !== undefined && f !== '');
+    return ["all", ...Array.from(new Set(flavors)).sort()];
   }, [products]);
 
   const productBrands = useMemo(() => {
     if (!products) return ["all"];
-     const brands = products
+    const brands = products
       .map(p => p.brand)
-      .filter((b): b is string => b !== null && b !== undefined && b !== ''); // Type guard and filter empty
-    return ["all", ...Array.from(new Set(brands)).sort()]; // Sort alphabetically
+      .filter((b): b is string => b !== null && b !== undefined && b !== '');
+    return ["all", ...Array.from(new Set(brands)).sort()];
   }, [products]);
 
-  if (queryError) { // Use renamed variable
+  if (queryError) {
     return (
       <div className="max-w-7xl mx-auto py-8 px-4 text-center text-red-600 bg-red-50 p-4 rounded-md">
-         <div className="flex items-center justify-center">
-           <AlertCircle className="mr-2" />
-           <span className="font-medium">Error loading directory data:</span>
-         </div>
-         <p className="text-sm mt-1">{(queryError as Error).message}</p> 
-         <p className="text-xs mt-2">Please ensure the backend tables (`smokeless_products`, `smokeless_vendors`) exist and types are generated (see `sb.md`).</p>
+        <div className="flex items-center justify-center">
+          <AlertCircle className="mr-2" />
+          <span className="font-medium">Error loading directory data:</span>
+        </div>
+        <p className="text-sm mt-1">{(queryError as Error).message}</p> 
+        <p className="text-xs mt-2">Please ensure the backend tables (`smokeless_products`, `smokeless_vendors`) exist and types are generated (see `sb.md`).</p>
       </div>
     );
   }
@@ -322,7 +310,6 @@ const SmokelessDirectory = () => {
         </TabsList>
       </Tabs>
 
-      {/* Products Tab */}
       <TabsContent value="products" className="mt-0">
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="relative flex-1">
@@ -400,7 +387,7 @@ const SmokelessDirectory = () => {
                   <Slider
                     id="nicotine-slider"
                     min={0}
-                    max={20} // Increased max range
+                    max={20}
                     step={1}
                     value={nicotineRange}
                     onValueChange={setNicotineRange}
@@ -422,7 +409,6 @@ const SmokelessDirectory = () => {
                 >
                   Reset Filters
                 </Button>
-                {/* Apply button removed - filters apply instantly */}
               </div>
             </CardContent>
           </Card>
@@ -439,7 +425,7 @@ const SmokelessDirectory = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Card key={i} aria-hidden="true">
-                <CardHeader className="p-4 bg-muted aspect-w-16 aspect-h-9 flex items-center justify-center h-32"> {/* Fixed height */}
+                <CardHeader className="p-4 bg-muted aspect-w-16 aspect-h-9 flex items-center justify-center h-32">
                   <Skeleton className="h-full w-full" />
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
@@ -471,7 +457,7 @@ const SmokelessDirectory = () => {
                   setSelectedBrand("all");
                   setNicotineRange([0, 20]);
                   setSearchTerm("");
-                  setFilterOpen(true); // Open filters after reset
+                  setFilterOpen(true);
                 }}>
                   Reset Filters
                 </Button>
@@ -481,7 +467,6 @@ const SmokelessDirectory = () => {
         )}
       </TabsContent>
 
-      {/* Vendors Tab */}
       <TabsContent value="vendors" className="mt-0">
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Verified Vendors</h2>
@@ -516,7 +501,7 @@ const SmokelessDirectory = () => {
             ))}
           </div>
         ) : (
-           <>
+          <>
             {vendors && vendors.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {vendors.map(vendor => (
@@ -524,7 +509,7 @@ const SmokelessDirectory = () => {
                 ))}
               </div>
             ) : (
-               <div className="col-span-full text-center py-16 bg-gray-50 rounded-lg">
+              <div className="col-span-full text-center py-16 bg-gray-50 rounded-lg">
                 <p className="text-lg font-medium text-gray-700">No vendors listed yet.</p>
                 <p className="text-muted-foreground mt-1">Check back later for verified vendor information.</p>
               </div>
@@ -532,7 +517,6 @@ const SmokelessDirectory = () => {
           </>
         )}
 
-        {/* Accordions */}
         <Accordion type="single" collapsible className="w-full mt-12 border-t pt-8">
           <AccordionItem value="shipping-regulations">
             <AccordionTrigger className="text-lg">Shipping Regulations Overview</AccordionTrigger>
@@ -605,7 +589,7 @@ const SmokelessDirectory = () => {
                     Tobacco-free nicotine pouches generally do not stain teeth, unlike traditional snus or dip which contain tobacco leaf.
                   </p>
                 </div>
-                 <div>
+                <div>
                   <h3 className="font-medium">Can pouches help quit smoking?</h3>
                   <p className="text-muted-foreground">
                     Many people use them as a harm reduction tool or a step towards quitting nicotine entirely. They can replace the hand-to-mouth habit and provide nicotine without combustion. However, they are not approved cessation therapies like NRT (patches, gum). Discuss options with a healthcare provider.
@@ -617,19 +601,18 @@ const SmokelessDirectory = () => {
         </Accordion>
       </TabsContent>
 
-      {/* Footer CTA */}
       <div className="mt-16 p-6 bg-gradient-to-r from-fresh-50 to-blue-50 border border-fresh-100 rounded-lg text-center">
         <h2 className="text-xl font-semibold mb-3">Ready to Take Control?</h2>
         <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
           Mission Fresh offers more than just information. Track your progress, manage cravings, and boost your well-being with our holistic tools.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-           <Link to="/tools/nrt-guide">
-             <Button variant="outline" className="w-full sm:w-auto">Learn About NRT</Button>
-           </Link>
-           <Link to="/app/dashboard">
-             <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90">Start Your Fresh Journey</Button>
-           </Link>
+          <Link to="/tools/nrt-guide">
+            <Button variant="outline" className="w-full sm:w-auto">Learn About NRT</Button>
+          </Link>
+          <Link to="/app/dashboard">
+            <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90">Start Your Fresh Journey</Button>
+          </Link>
         </div>
       </div>
     </div>

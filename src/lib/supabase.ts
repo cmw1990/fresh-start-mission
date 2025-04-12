@@ -1,18 +1,6 @@
 
-import { createClient } from '@supabase/supabase-js';
-
-// Use the Supabase credentials from integrations/supabase/client.ts
-const supabaseUrl = "https://yekarqanirdkdckimpna.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlla2FycWFuaXJka2Rja2ltcG5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNzUwOTQsImV4cCI6MjA1OTg1MTA5NH0.WQlbyilIuH_Vz_Oit-M5MZ9II9oqO7tg-ThkZ5GCtfc";
-
-// Initialize the Supabase client with proper configuration
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-});
+// Re-export the Supabase client from the integrations folder for consistency
+export { supabase } from '@/integrations/supabase/client';
 
 // Types for database entities
 export type User = {
@@ -82,6 +70,61 @@ export type ClaimedReward = {
   reward_id: string;
   claimed_at: string;
   status: 'pending' | 'fulfilled';
+};
+
+// Types for smokeless directory
+export type SmokelessProduct = {
+  id: string;
+  name: string;
+  brand: string;
+  description?: string | null;
+  image_url?: string | null;
+  nicotine_strength_mg?: number | null;
+  flavor_category?: string | null;
+  ingredients?: string[] | null;
+  expert_notes_chemicals?: string | null;
+  expert_notes_gum_health?: string | null;
+  user_rating_avg?: number | null;
+  user_rating_count?: number | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type SmokelessVendor = {
+  id: string;
+  name: string;
+  website_url?: string | null;
+  description?: string | null;
+  logo_url?: string | null;
+  shipping_info_summary?: string | null;
+  regions_served?: string[] | null;
+  affiliate_link_template?: string | null;
+  user_rating_avg?: number | null;
+  user_rating_count?: number | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ProductReview = {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  review_text?: string | null;
+  created_at: string;
+  is_moderated: boolean;
+  user_name?: string; // For UI display
+  user_avatar_url?: string | null; // For UI display
+};
+
+export type VendorReview = {
+  id: string;
+  vendor_id: string;
+  user_id: string;
+  rating: number;
+  review_text?: string | null;
+  created_at: string;
+  is_moderated: boolean;
 };
 
 // Helper functions for data handling
