@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import StatsCard from "@/components/app/StatsCard";
 import CravingChart from "@/components/app/dashboard/CravingChart";
