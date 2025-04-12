@@ -238,13 +238,13 @@ const FocusContent = () => {
           description="Physical approaches to sharpen mental clarity"
           icon={<Droplets className="h-5 w-5" />}
           color="blue"
-          tips=[
+          tips={[
             "Stay well-hydrated - even mild dehydration can impair concentration",
             "Take short movement breaks every 30-45 minutes to boost circulation to the brain",
             "Practice 4-7-8 breathing (inhale for 4, hold for 7, exhale for 8) when focus starts to drift",
             "Ensure adequate protein intake to support neurotransmitter production",
             "Consider omega-3 fatty acids (fish, flaxseeds, walnuts) which support cognitive function"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -252,13 +252,13 @@ const FocusContent = () => {
           description="Work with your body's natural cycles"
           icon={<Clock className="h-5 w-5" />}
           color="red"
-          tips=[
+          tips={[
             "Identify your personal high-focus hours and schedule important tasks during those times",
             "Take advantage of the 90-minute ultradian rhythm by working in 90-minute focused sessions",
             "Schedule complex cognitive tasks earlier in the day when possible",
             "Take a short 10-20 minute nap if afternoon focus severely deteriorates (set an alarm)",
             "Consider brief exposure to bright light when concentration dips to reset alertness"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -266,13 +266,13 @@ const FocusContent = () => {
           description="What to consume (and avoid) for better focus"
           icon={<Coffee className="h-5 w-5" />}
           color="orange"
-          tips=[
+          tips={[
             "Use caffeine strategically rather than constantly - small amounts when needed most",
             "Consider L-theanine (found in tea or supplements) which pairs with caffeine for focused alertness without jitters",
             "Avoid high-sugar snacks which can cause energy and focus crashes",
             "Stay adequately fed - low blood sugar impairs concentration",
             "Consult a healthcare provider about temporary supplements like B vitamins or rhodiola that may support focus during withdrawal"
-          ]
+          ]}
         />
       </div>
       
@@ -325,13 +325,13 @@ const MoodContent = () => {
           description="Change your thinking patterns to improve mood"
           icon={<Brain className="h-5 w-5" />}
           color="indigo"
-          tips=[
+          tips={[
             "Practice thought challenging - identify negative thoughts and test their accuracy",
             "Use the RAIN technique: Recognize, Allow, Investigate, and Non-identify with difficult emotions",
             "Maintain a 'wins journal' recording daily successes, no matter how small",
             "Set realistic expectations - understanding that mood fluctuations are normal and temporary",
             "Practice gratitude listing - writing 3 things you're grateful for each day can significantly improve mood"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -339,13 +339,13 @@ const MoodContent = () => {
           description="Leverage body-mind connections"
           icon={<Dumbbell className="h-5 w-5" />}
           color="green"
-          tips=[
+          tips={[
             "Exercise for at least 20-30 minutes daily - physical activity is one of the most effective mood regulators",
             "Get exposure to morning sunlight - this helps regulate serotonin and melatonin for mood stability",
             "Try 'power posing' - standing in expansive, confident postures for 2 minutes can reduce stress hormones",
             "Practice progressive muscle relaxation to release physical tension that contributes to irritability",
             "Use rhythmic, bilateral movements like walking or drumming which can help regulate emotional states"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -353,13 +353,13 @@ const MoodContent = () => {
           description="Harness social connections for mood support"
           icon={<Heart className="h-5 w-5" />}
           color="red"
-          tips=[
+          tips={[
             "Schedule regular contact with supportive friends or family during the withdrawal period",
             "Consider joining a cessation support group to connect with others having similar experiences",
             "Communicate clearly with close ones about what you're experiencing and what support you need",
             "Practice prosocial behaviors like helping others, which activates reward circuits in the brain",
             "Use strategic social withdrawal when irritability peaks to prevent relationship damage"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -367,13 +367,13 @@ const MoodContent = () => {
           description="Calming techniques for emotional balance"
           icon={<Activity className="h-5 w-5" />}
           color="blue"
-          tips=[
+          tips={[
             "Try box breathing (4-4-4-4): Inhale for 4, hold for 4, exhale for 4, hold for 4",
             "Practice body scanning - systematically noticing sensations throughout the body without judgment",
             "Use 'urge surfing' for emotional waves - observe feelings rise and fall without acting on them",
             "Set aside 5-10 minutes daily for a simple mindfulness practice to build emotional regulation skills",
             "Try apps like Headspace, Calm, or Insight Timer for guided emotional regulation exercises"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -381,13 +381,13 @@ const MoodContent = () => {
           description="Use sensory experiences to shift mood"
           icon={<Sun className="h-5 w-5" />}
           color="amber"
-          tips=[
+          tips={[
             "Create a 'sensory first aid kit' with items that appeal to each sense for mood regulation",
             "Try aromatherapy - scents like lavender, orange, or peppermint can alter mood states",
             "Use music strategically - create playlists for different emotional needs",
             "Try temperature-based interventions like a warm shower or holding an ice cube when emotions are intense",
             "Engage in sensory-rich activities like cooking, gardening, or crafting to shift focus away from negative moods"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -395,13 +395,13 @@ const MoodContent = () => {
           description="Build a stable base for emotional health"
           icon={<Moon className="h-5 w-5" />}
           color="purple"
-          tips=[
+          tips={[
             "Prioritize sleep hygiene - mood regulation is significantly impaired by sleep deprivation",
             "Stabilize blood sugar with regular meals - hunger can exacerbate irritability",
             "Limit alcohol which can worsen mood swings and disrupt sleep",
             "Consider temporary scaling back of responsibilities during peak withdrawal",
             "Structure your day with a predictable routine to provide a sense of control and stability"
-          ]
+          ]}
         />
       </div>
       
@@ -463,13 +463,13 @@ const CravingContent = () => {
           description="Ride the wave instead of fighting it"
           icon={<Activity className="h-5 w-5" />}
           color="blue"
-          tips=[
+          tips={[
             "Observe cravings with curiosity rather than judgment or fear",
             "Note physical sensations associated with the craving - where do you feel it in your body?",
             "Remember that cravings typically peak at 3-5 minutes before subsiding",
             "Use the phrase 'This feeling will pass, whether or not I use nicotine'",
             "Practice the RAIN approach: Recognize, Accept, Investigate, Non-identify with the craving"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -477,13 +477,13 @@ const CravingContent = () => {
           description="Refocus your mind effectively"
           icon={<Brain className="h-5 w-5" />}
           color="purple"
-          tips=[
+          tips={[
             "Have a list of 5-minute activities ready for when cravings hit",
             "Try the 'second activity' technique - always do something else while experiencing a craving",
             "Use games or puzzles on your phone that require full concentration",
             "Change your physical environment immediately when a craving begins",
             "Engage with sensory distractions - strong flavors, scents, or tactile objects"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -491,13 +491,13 @@ const CravingContent = () => {
           description="Use your body to overcome urges"
           icon={<Dumbbell className="h-5 w-5" />}
           color="green"
-          tips=[
+          tips={[
             "Drink water or brush teeth when cravings hit - these interrupt the craving cycle",
             "Try rapid physical exercise - even 1 minute of jumping jacks can reduce craving intensity",
             "Practice deep breathing to activate the parasympathetic nervous system",
             "Use progressive muscle relaxation to release tension associated with cravings",
             "Try 'urge tapping' - tapping specific acupressure points during cravings"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -505,13 +505,13 @@ const CravingContent = () => {
           description="Change how you think about cravings"
           icon={<Activity className="h-5 w-5" />}
           color="indigo"
-          tips=[
+          tips={[
             "Challenge thoughts like 'I need nicotine' by recognizing them as withdrawal symptoms, not truths",
             "Reframe each resisted craving as strengthening your 'quitting muscle'",
             "Use visualization - imagine the craving as a wave that rises and falls",
             "Remind yourself of your reasons for quitting when cravings occur",
             "Practice the 'future self' technique - imagine yourself in 1 hour, grateful you didn't give in"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -519,13 +519,13 @@ const CravingContent = () => {
           description="Control your surroundings for success"
           icon={<Sun className="h-5 w-5" />}
           color="amber"
-          tips=[
+          tips={[
             "Remove all nicotine products and paraphernalia from your environment",
             "Temporarily avoid high-risk situations where you commonly used nicotine",
             "Create physical barriers to usage - give away products, delete delivery apps",
             "Use environmental cues like motivational notes in key locations",
             "Reorganize spaces associated with nicotine use to break environmental triggers"
-          ]
+          ]}
         />
         
         <TipCard 
@@ -533,13 +533,13 @@ const CravingContent = () => {
           description="Leverage others and new habits"
           icon={<Heart className="h-5 w-5" />}
           color="red"
-          tips=[
+          tips={[
             "Call or text a supportive person when experiencing strong cravings",
             "Develop a replacement behavior for every situation where you typically used nicotine",
             "Use public accountability by sharing your quit journey with others",
             "Keep a craving journal to identify patterns and triggers",
             "Establish a 'craving buddy' - someone who agrees to be available for support"
-          ]
+          ]}
         />
       </div>
       
