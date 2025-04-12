@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils"; // Import cn utility
+import { supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils"; 
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -65,8 +65,9 @@ interface Product {
 
 const fetchProductDetails = async (productId: string): Promise<Product | null> => {
   if (!productId) return null;
-  // @ts-ignore - Temporary ignore until backend tables/types are synced (see sb.md)
-  const { data, error } = await supabase
+  
+  // Use type assertion to bypass TypeScript error for the new table
+  const { data, error } = await (supabase as any)
     .from('smokeless_products')
     .select('*')
     .eq('id', productId)
@@ -80,15 +81,15 @@ const fetchProductDetails = async (productId: string): Promise<Product | null> =
     }
     throw new Error(`Error fetching product: ${error.message}`);
   }
-  return data as any as Product | null; // Temporary type assertion
+  return data as Product | null;
 };
 
 const fetchProductReviews = async (productId: string): Promise<Review[]> => {
    if (!productId) return [];
-   // TODO: Fetch user profile info along with reviews later
-   // @ts-ignore - Temporary ignore until backend tables/types are synced (see sb.md) 
-   const { data, error } = await supabase
-     .from('smokeless_product_reviews') // Assuming this table name from sb.md
+   
+   // Use type assertion to bypass TypeScript error for the new table
+   const { data, error } = await (supabase as any)
+     .from('smokeless_product_reviews')
      .select('*')
      .eq('product_id', productId)
      .order('created_at', { ascending: false })
@@ -99,15 +100,16 @@ const fetchProductReviews = async (productId: string): Promise<Review[]> => {
      // Don't throw error here, maybe reviews just don't exist
      return []; 
    }
+   
    // Add placeholder user info for now
    const reviewsWithPlaceholders = (data || []).map(r => ({
        ...(r as any), // Cast r to any to access properties temporarily
        user_name: `User ${((r as any).user_id as string)?.substring(0, 6) || 'Anonymous'}`, // Placeholder name with safe access
        user_avatar_url: null, // Placeholder avatar
    }));
-   return reviewsWithPlaceholders as any as Review[]; // Temporary type assertion
+   
+   return reviewsWithPlaceholders as Review[];
 };
-
 
 // --- Helper Components ---
 
@@ -467,4 +469,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails; // Ensure default export exists
+export default ProductDetails;

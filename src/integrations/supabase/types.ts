@@ -1934,6 +1934,95 @@ export type Database = {
         }
         Relationships: []
       }
+      smokeless_product_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_moderated: boolean | null
+          product_id: string
+          rating: number
+          review_text: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_moderated?: boolean | null
+          product_id: string
+          rating: number
+          review_text?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_moderated?: boolean | null
+          product_id?: string
+          rating?: number
+          review_text?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smokeless_product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "smokeless_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      smokeless_products: {
+        Row: {
+          brand: string | null
+          created_at: string | null
+          description: string | null
+          expert_notes_chemicals: string | null
+          expert_notes_gum_health: string | null
+          flavor_category: string | null
+          id: string
+          image_url: string | null
+          ingredients: string[] | null
+          name: string
+          nicotine_strength_mg: number | null
+          updated_at: string | null
+          user_rating_avg: number | null
+          user_rating_count: number | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string | null
+          description?: string | null
+          expert_notes_chemicals?: string | null
+          expert_notes_gum_health?: string | null
+          flavor_category?: string | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          name: string
+          nicotine_strength_mg?: number | null
+          updated_at?: string | null
+          user_rating_avg?: number | null
+          user_rating_count?: number | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string | null
+          description?: string | null
+          expert_notes_chemicals?: string | null
+          expert_notes_gum_health?: string | null
+          flavor_category?: string | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          name?: string
+          nicotine_strength_mg?: number | null
+          updated_at?: string | null
+          user_rating_avg?: number | null
+          user_rating_count?: number | null
+        }
+        Relationships: []
+      }
       step_rewards: {
         Row: {
           created_at: string
