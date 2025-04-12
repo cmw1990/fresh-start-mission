@@ -5,12 +5,9 @@ import MobileNav from '@/components/app/MobileNav';
 import { ErrorBoundary } from 'react-error-boundary';
 import OfflineIndicator from '@/components/common/OfflineIndicator';
 import PageBreadcrumb from '@/components/common/PageBreadcrumb';
+import { Outlet } from 'react-router-dom';
 
-interface AppLayoutProps {
-  children: React.ReactNode;
-}
-
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -21,7 +18,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <div className="container py-4">
             <PageBreadcrumb />
             <ErrorBoundary fallback={<div>Something went wrong</div>}>
-              {children}
+              <Outlet />
             </ErrorBoundary>
           </div>
         </main>

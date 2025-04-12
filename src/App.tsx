@@ -70,25 +70,23 @@ function App() {
         {/* App routes - protected */}
         <Route path="/app" element={
           <AuthGuard>
-            <AppLayout>
-              <Routes>
-                <Route index element={<Dashboard />} />
-                <Route path="log" element={<LogEntry />} />
-                <Route path="goals" element={<Goals />} />
-                <Route path="progress" element={<Progress />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="step-rewards" element={<StepRewards />} />
-                
-                {/* Support tools */}
-                <Route path="tools/craving" element={<CravingTools />} />
-                <Route path="tools/energy" element={<EnergyTools />} />
-                <Route path="tools/mood" element={<MoodTools />} />
-                <Route path="tools/focus" element={<FocusTools />} />
-              </Routes>
-            </AppLayout>
+            <AppLayout />
           </AuthGuard>
-        } />
+        }>
+          <Route index element={<Dashboard />} />
+          <Route path="log" element={<LogEntry />} />
+          <Route path="goals" element={<Goals />} />
+          <Route path="progress" element={<Progress />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="step-rewards" element={<StepRewards />} />
+          
+          {/* Support tools */}
+          <Route path="tools/craving" element={<CravingTools />} />
+          <Route path="tools/energy" element={<EnergyTools />} />
+          <Route path="tools/mood" element={<MoodTools />} />
+          <Route path="tools/focus" element={<FocusTools />} />
+        </Route>
         
         {/* Catch-all route for 404s */}
         <Route path="*" element={<NotFoundPage />} />

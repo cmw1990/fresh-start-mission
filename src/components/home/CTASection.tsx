@@ -13,8 +13,8 @@ const CTASection = () => {
           <p className="text-lg mb-8 text-muted-foreground">
             Whether you want to quit completely or reduce your nicotine intake, Mission Fresh provides the support and tools you need to succeed.
           </p>
-          <Link to="/sign-up">
-            <Button size="lg" variant="default">
+          <Link to="/auth?mode=register">
+            <Button size="lg" variant="default" className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-shadow duration-300">
               Get Started Today
             </Button>
           </Link>
