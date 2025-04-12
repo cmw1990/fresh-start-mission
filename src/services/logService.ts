@@ -34,6 +34,9 @@ export const addLogEntry = async (log: Omit<NicotineLog, 'id' | 'created_at'>) =
   return data as NicotineLog;
 };
 
+// Save log entry (alias for addLogEntry to match the import in LogEntry.tsx)
+export const saveLogEntry = addLogEntry;
+
 // Calculate and return recent stats for the dashboard
 export const getRecentLogStats = async () => {
   const { data: logs, error } = await supabase
