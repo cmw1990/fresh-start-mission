@@ -275,14 +275,18 @@ const SmokelessDirectory = () => {
     return ["all", ...Array.from(new Set(brands)).sort()];
   }, [products]);
 
+  const renderChartLoading = () => (
+    <div className="h-full flex items-center justify-center text-muted-foreground">
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading chart data...
+    </div>
+  );
+
   if (queryError) {
     return (
-      <div className="max-w-7xl mx-auto py-8 px-4 text-center text-red-600 bg-red-50 p-4 rounded-md">
-        <div className="flex items-center justify-center">
-          <AlertCircle className="mr-2" />
-          <span className="font-medium">Error loading directory data:</span>
-        </div>
-        <p className="text-sm mt-1">{(queryError as Error).message}</p> 
+      <div className="container py-8 text-center text-red-600">
+        <AlertCircle className="mx-auto h-12 w-12 mb-4" />
+        <h2 className="text-xl font-semibold">Error Loading Progress Data</h2>
+        <p>{(queryError as Error).message}</p> 
         <p className="text-xs mt-2">Please ensure the backend tables (`smokeless_products`, `smokeless_vendors`) exist and types are generated (see `sb.md`).</p>
       </div>
     );
@@ -303,303 +307,303 @@ const SmokelessDirectory = () => {
         </div>
       </div>
 
-      <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-full mb-6">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full mb-6">
         <TabsList className="grid grid-cols-2 max-w-sm mx-auto">
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="vendors">Verified Vendors</TabsTrigger>
         </TabsList>
-      </Tabs>
-
-      <TabsContent value="products" className="mt-0">
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search products or brands..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search products"
-            />
+      
+        <TabsContent value="products" className="mt-0">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search products or brands..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search products"
+              />
+            </div>
+            <Button
+              variant="outline"
+              className="sm:w-auto flex items-center gap-2"
+              onClick={() => setFilterOpen(!filterOpen)}
+              aria-expanded={filterOpen}
+            >
+              <Filter size={16} />
+              Filters
+              {filterOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            className="sm:w-auto flex items-center gap-2"
-            onClick={() => setFilterOpen(!filterOpen)}
-            aria-expanded={filterOpen}
-          >
-            <Filter size={16} />
-            Filters
-            {filterOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </Button>
-        </div>
 
-        {filterOpen && (
-          <Card className="mb-6 shadow-sm border">
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <label htmlFor="flavor-filter" className="text-sm font-medium mb-2 block">Flavor Category</label>
-                  <Select 
-                    value={selectedFlavor} 
-                    onValueChange={setSelectedFlavor} 
-                    disabled={isLoadingProducts || productFlavors.length <= 1}
-                    name="flavor-filter"
+          {filterOpen && (
+            <Card className="mb-6 shadow-sm border">
+              <CardContent className="pt-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div>
+                    <label htmlFor="flavor-filter" className="text-sm font-medium mb-2 block">Flavor Category</label>
+                    <Select 
+                      value={selectedFlavor} 
+                      onValueChange={setSelectedFlavor} 
+                      disabled={isLoadingProducts || productFlavors.length <= 1}
+                      name="flavor-filter"
+                    >
+                      <SelectTrigger id="flavor-filter">
+                        <SelectValue placeholder="Select flavor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {productFlavors.map((flavor) => (
+                          <SelectItem key={flavor} value={flavor}>
+                            {flavor === "all" ? "All Flavors" : flavor}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="brand-filter" className="text-sm font-medium mb-2 block">Brand</label>
+                    <Select 
+                      value={selectedBrand} 
+                      onValueChange={setSelectedBrand} 
+                      disabled={isLoadingProducts || productBrands.length <= 1}
+                      name="brand-filter"
+                    >
+                      <SelectTrigger id="brand-filter">
+                        <SelectValue placeholder="Select brand" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {productBrands.map((brand) => (
+                          <SelectItem key={brand} value={brand}>
+                            {brand === "all" ? "All Brands" : brand}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="lg:col-span-2">
+                    <label htmlFor="nicotine-slider" className="text-sm font-medium mb-2 block">
+                      Nicotine Strength: {nicotineRange[0]}mg - {nicotineRange[1]}mg
+                    </label>
+                    <Slider
+                      id="nicotine-slider"
+                      min={0}
+                      max={20}
+                      step={1}
+                      value={nicotineRange}
+                      onValueChange={setNicotineRange}
+                      className="py-4"
+                      aria-label="Nicotine strength range slider"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => {
+                      setSelectedFlavor("all");
+                      setSelectedBrand("all");
+                      setNicotineRange([0, 20]);
+                      setSearchTerm("");
+                    }}
+                    className="mr-2"
                   >
-                    <SelectTrigger id="flavor-filter">
-                      <SelectValue placeholder="Select flavor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {productFlavors.map((flavor) => (
-                        <SelectItem key={flavor} value={flavor}>
-                          {flavor === "all" ? "All Flavors" : flavor}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    Reset Filters
+                  </Button>
                 </div>
+              </CardContent>
+            </Card>
+          )}
 
-                <div>
-                  <label htmlFor="brand-filter" className="text-sm font-medium mb-2 block">Brand</label>
-                  <Select 
-                    value={selectedBrand} 
-                    onValueChange={setSelectedBrand} 
-                    disabled={isLoadingProducts || productBrands.length <= 1}
-                    name="brand-filter"
-                  >
-                    <SelectTrigger id="brand-filter">
-                      <SelectValue placeholder="Select brand" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {productBrands.map((brand) => (
-                        <SelectItem key={brand} value={brand}>
-                          {brand === "all" ? "All Brands" : brand}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          <div className="mb-4">
+            <p className="text-sm text-muted-foreground">
+              {isLoadingProducts ? 'Loading products...' : 
+              `${filteredProducts?.length || 0} ${filteredProducts?.length === 1 ? 'product' : 'products'} found`}
+            </p>
+          </div>
 
-                <div className="lg:col-span-2">
-                  <label htmlFor="nicotine-slider" className="text-sm font-medium mb-2 block">
-                    Nicotine Strength: {nicotineRange[0]}mg - {nicotineRange[1]}mg
-                  </label>
-                  <Slider
-                    id="nicotine-slider"
-                    min={0}
-                    max={20}
-                    step={1}
-                    value={nicotineRange}
-                    onValueChange={setNicotineRange}
-                    className="py-4"
-                    aria-label="Nicotine strength range slider"
-                  />
+          {isLoadingProducts ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} aria-hidden="true">
+                  <CardHeader className="p-4 bg-muted aspect-w-16 aspect-h-9 flex items-center justify-center h-32">
+                    <Skeleton className="h-full w-full" />
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-full" />
+                  </CardContent>
+                  <CardFooter className="p-4 flex justify-between items-center bg-gray-50/50 border-t">
+                    <Skeleton className="h-5 w-20" />
+                    <Skeleton className="h-5 w-24" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <>
+              {filteredProducts && filteredProducts.length > 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
                 </div>
-              </div>
-              <div className="flex justify-end mt-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => {
+              ) : (
+                <div className="col-span-full text-center py-16 bg-gray-50 rounded-lg">
+                  <p className="text-lg font-medium text-gray-700">No products match your criteria</p>
+                  <p className="text-muted-foreground mt-1">Try adjusting your search or filters.</p>
+                  <Button variant="outline" className="mt-4" onClick={() => {
                     setSelectedFlavor("all");
                     setSelectedBrand("all");
                     setNicotineRange([0, 20]);
                     setSearchTerm("");
-                  }}
-                  className="mr-2"
-                >
-                  Reset Filters
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                    setFilterOpen(true);
+                  }}>
+                    Reset Filters
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
 
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {isLoadingProducts ? 'Loading products...' : 
-             `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'} found`}
-          </p>
-        </div>
-
-        {isLoadingProducts ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} aria-hidden="true">
-                <CardHeader className="p-4 bg-muted aspect-w-16 aspect-h-9 flex items-center justify-center h-32">
-                  <Skeleton className="h-full w-full" />
-                </CardHeader>
-                <CardContent className="p-4 space-y-3">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-full" />
-                </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center bg-gray-50/50 border-t">
-                  <Skeleton className="h-5 w-20" />
-                  <Skeleton className="h-5 w-24" />
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <>
-            {filteredProducts.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <div className="col-span-full text-center py-16 bg-gray-50 rounded-lg">
-                <p className="text-lg font-medium text-gray-700">No products match your criteria</p>
-                <p className="text-muted-foreground mt-1">Try adjusting your search or filters.</p>
-                <Button variant="outline" className="mt-4" onClick={() => {
-                  setSelectedFlavor("all");
-                  setSelectedBrand("all");
-                  setNicotineRange([0, 20]);
-                  setSearchTerm("");
-                  setFilterOpen(true);
-                }}>
-                  Reset Filters
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </TabsContent>
-
-      <TabsContent value="vendors" className="mt-0">
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Verified Vendors</h2>
-          <p className="text-muted-foreground mb-2">
-            These vendors are commonly used in the community. Links may be affiliate links that help support Mission Fresh.
-          </p>
-          <div className="flex items-center p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200">
-            <AlertCircle size={18} className="flex-shrink-0 mr-2" />
-            <p className="text-sm">
-              Always check local regulations and vendor shipping policies before ordering. Product availability and shipping restrictions vary.
+        <TabsContent value="vendors" className="mt-0">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Verified Vendors</h2>
+            <p className="text-muted-foreground mb-2">
+              These vendors are commonly used in the community. Links may be affiliate links that help support Mission Fresh.
             </p>
+            <div className="flex items-center p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200">
+              <AlertCircle size={18} className="flex-shrink-0 mr-2" />
+              <p className="text-sm">
+                Always check local regulations and vendor shipping policies before ordering. Product availability and shipping restrictions vary.
+              </p>
+            </div>
           </div>
-        </div>
 
-        {isLoadingVendors ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} aria-hidden="true">
-                <CardHeader className="pb-2 space-y-2">
-                  <Skeleton className="h-6 w-1/2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </CardHeader>
-                <CardContent className="pb-2 space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardContent>
-                <CardFooter className="pt-2 border-t">
-                  <Skeleton className="h-9 w-full" />
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <>
-            {vendors && vendors.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vendors.map(vendor => (
-                  <VendorCard key={vendor.id} vendor={vendor} />
-                ))}
-              </div>
-            ) : (
-              <div className="col-span-full text-center py-16 bg-gray-50 rounded-lg">
-                <p className="text-lg font-medium text-gray-700">No vendors listed yet.</p>
-                <p className="text-muted-foreground mt-1">Check back later for verified vendor information.</p>
-              </div>
-            )}
-          </>
-        )}
+          {isLoadingVendors ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i} aria-hidden="true">
+                  <CardHeader className="pb-2 space-y-2">
+                    <Skeleton className="h-6 w-1/2" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </CardHeader>
+                  <CardContent className="pb-2 space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </CardContent>
+                  <CardFooter className="pt-2 border-t">
+                    <Skeleton className="h-9 w-full" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <>
+              {vendors && vendors.length > 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {vendors.map(vendor => (
+                    <VendorCard key={vendor.id} vendor={vendor} />
+                  ))}
+                </div>
+              ) : (
+                <div className="col-span-full text-center py-16 bg-gray-50 rounded-lg">
+                  <p className="text-lg font-medium text-gray-700">No vendors listed yet.</p>
+                  <p className="text-muted-foreground mt-1">Check back later for verified vendor information.</p>
+                </div>
+              )}
+            </>
+          )}
 
-        <Accordion type="single" collapsible className="w-full mt-12 border-t pt-8">
-          <AccordionItem value="shipping-regulations">
-            <AccordionTrigger className="text-lg">Shipping Regulations Overview</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <h3 className="font-medium">United States</h3>
-                  <p className="text-muted-foreground">
-                    Varies by state. Federal PACT Act requires age verification. Some states have flavor bans or specific shipping restrictions (e.g., CA, MA, NY, NJ, RI). Always check vendor policies for your specific state.
+          <Accordion type="single" collapsible className="w-full mt-12 border-t pt-8">
+            <AccordionItem value="shipping-regulations">
+              <AccordionTrigger className="text-lg">Shipping Regulations Overview</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h3 className="font-medium">United States</h3>
+                    <p className="text-muted-foreground">
+                      Varies by state. Federal PACT Act requires age verification. Some states have flavor bans or specific shipping restrictions (e.g., CA, MA, NY, NJ, RI). Always check vendor policies for your specific state.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">European Union</h3>
+                    <p className="text-muted-foreground">
+                      TPD regulations apply. Nicotine limit typically 20mg/ml or 20mg/pouch. Some countries have stricter limits or bans (e.g., Netherlands, Belgium ban pouches). Cross-border shipping can be complex.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">United Kingdom</h3>
+                    <p className="text-muted-foreground">
+                      Nicotine pouches are legal and regulated separately from vaping products. Generally easier to ship domestically.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Canada</h3>
+                    <p className="text-muted-foreground">
+                      Pouches containing nicotine (but not tobacco) are legal up to 4mg/pouch without prescription. Higher strengths may face import issues. Regulations are evolving.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Australia</h3>
+                    <p className="text-muted-foreground">
+                      Nicotine (except in traditional tobacco or approved NRT) requires a prescription for import and possession. Most overseas vendors will not ship nicotine pouches.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-md border border-amber-200">
+                  <p className="text-sm font-medium">Disclaimer</p>
+                  <p className="text-sm">
+                    Regulations change frequently. This is a general guide only. Verify current local laws and vendor shipping policies before ordering. Mission Fresh is not responsible for import issues.
                   </p>
                 </div>
-                <div>
-                  <h3 className="font-medium">European Union</h3>
-                  <p className="text-muted-foreground">
-                    TPD regulations apply. Nicotine limit typically 20mg/ml or 20mg/pouch. Some countries have stricter limits or bans (e.g., Netherlands, Belgium ban pouches). Cross-border shipping can be complex.
-                  </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="faq">
+              <AccordionTrigger className="text-lg">Frequently Asked Questions</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h3 className="font-medium">Are smokeless nicotine products safer than cigarettes?</h3>
+                    <p className="text-muted-foreground">
+                      Scientific consensus indicates that non-combustible nicotine products like pouches are significantly less harmful than smoking cigarettes because they don't involve burning tobacco, which creates most harmful toxicants. However, they are not risk-free and contain addictive nicotine.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">How do I choose the right nicotine strength?</h3>
+                    <p className="text-muted-foreground">
+                      This is highly individual. General advice: Heavy smokers ({'>'}20/day) might start with 6-10mg+ pouches. Moderate (10-20/day) around 4-8mg. Light ({'<'}10/day) or new users often start at 2-4mg. It's often better to start lower and adjust. Consider how often you plan to use them.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">How long do pouches last?</h3>
+                    <p className="text-muted-foreground">
+                      Typically 20-60 minutes, depending on the brand and user preference. Nicotine release is usually strongest initially and tapers off.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Do these products stain teeth?</h3>
+                    <p className="text-muted-foreground">
+                      Tobacco-free nicotine pouches generally do not stain teeth, unlike traditional snus or dip which contain tobacco leaf.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Can pouches help quit smoking?</h3>
+                    <p className="text-muted-foreground">
+                      Many people use them as a harm reduction tool or a step towards quitting nicotine entirely. They can replace the hand-to-mouth habit and provide nicotine without combustion. However, they are not approved cessation therapies like NRT (patches, gum). Discuss options with a healthcare provider.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium">United Kingdom</h3>
-                  <p className="text-muted-foreground">
-                    Nicotine pouches are legal and regulated separately from vaping products. Generally easier to ship domestically.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Canada</h3>
-                  <p className="text-muted-foreground">
-                    Pouches containing nicotine (but not tobacco) are legal up to 4mg/pouch without prescription. Higher strengths may face import issues. Regulations are evolving.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Australia</h3>
-                  <p className="text-muted-foreground">
-                    Nicotine (except in traditional tobacco or approved NRT) requires a prescription for import and possession. Most overseas vendors will not ship nicotine pouches.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-md border border-amber-200">
-                <p className="text-sm font-medium">Disclaimer</p>
-                <p className="text-sm">
-                  Regulations change frequently. This is a general guide only. Verify current local laws and vendor shipping policies before ordering. Mission Fresh is not responsible for import issues.
-                </p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="faq">
-            <AccordionTrigger className="text-lg">Frequently Asked Questions</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <h3 className="font-medium">Are smokeless nicotine products safer than cigarettes?</h3>
-                  <p className="text-muted-foreground">
-                    Scientific consensus indicates that non-combustible nicotine products like pouches are significantly less harmful than smoking cigarettes because they don't involve burning tobacco, which creates most harmful toxicants. However, they are not risk-free and contain addictive nicotine.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">How do I choose the right nicotine strength?</h3>
-                  <p className="text-muted-foreground">
-                    This is highly individual. General advice: Heavy smokers ({'>'}20/day) might start with 6-10mg+ pouches. Moderate (10-20/day) around 4-8mg. Light ({'<'}10/day) or new users often start at 2-4mg. It's often better to start lower and adjust. Consider how often you plan to use them.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">How long do pouches last?</h3>
-                  <p className="text-muted-foreground">
-                    Typically 20-60 minutes, depending on the brand and user preference. Nicotine release is usually strongest initially and tapers off.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Do these products stain teeth?</h3>
-                  <p className="text-muted-foreground">
-                    Tobacco-free nicotine pouches generally do not stain teeth, unlike traditional snus or dip which contain tobacco leaf.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Can pouches help quit smoking?</h3>
-                  <p className="text-muted-foreground">
-                    Many people use them as a harm reduction tool or a step towards quitting nicotine entirely. They can replace the hand-to-mouth habit and provide nicotine without combustion. However, they are not approved cessation therapies like NRT (patches, gum). Discuss options with a healthcare provider.
-                  </p>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </TabsContent>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </TabsContent>
+      </Tabs>
 
       <div className="mt-16 p-6 bg-gradient-to-r from-fresh-50 to-blue-50 border border-fresh-100 rounded-lg text-center">
         <h2 className="text-xl font-semibold mb-3">Ready to Take Control?</h2>
