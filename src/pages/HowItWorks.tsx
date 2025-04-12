@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ import {
   ListChecks, 
   HeartHandshake,
   UserPlus,
-  Line,
+  LineChart,
   AreaChart,
   Wrench,
   Gift
@@ -30,7 +29,7 @@ const stepsData = [
     detail: "Our guided setup process helps you create a personalized plan based on scientific research about what works for different types of nicotine users."
   },
   {
-    icon: <Line className="h-12 w-12 text-fresh-300" />,
+    icon: <LineChart className="h-12 w-12 text-fresh-300" />,
     number: "2",
     title: "Track Your Daily Journey",
     description: "Log your nicotine use, cravings, and holistic metrics like mood, energy levels, and mental focus to build a complete picture of your health journey.",
