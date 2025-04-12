@@ -16,9 +16,11 @@ import { cn } from "@/lib/utils";
 import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalService";
 import { UserGoal } from "@/lib/supabase";
 
+type GoalMethod = "cold-turkey" | "gradual-reduction" | "tapering" | "nrt" | "harm-reduction";
+
 const Goals = () => {
   const [goalType, setGoalType] = useState<"afresh" | "fresher">("afresh");
-  const [method, setMethod] = useState("cold-turkey");
+  const [method, setMethod] = useState<GoalMethod>("cold-turkey");
   const [product, setProduct] = useState("cigarette");
   const [quitDate, setQuitDate] = useState<Date | undefined>(new Date());
   const [reduction, setReduction] = useState("50");
@@ -34,7 +36,7 @@ const Goals = () => {
       if (goal) {
         setExistingGoal(goal);
         setGoalType(goal.goal_type as "afresh" | "fresher");
-        setMethod(goal.method);
+        setMethod(goal.method as GoalMethod);
         setProduct(goal.product_type);
         if (goal.quit_date) {
           setQuitDate(new Date(goal.quit_date));
@@ -147,7 +149,7 @@ const Goals = () => {
               <CardDescription>Select your preferred approach</CardDescription>
             </CardHeader>
             <CardContent>
-              <Select value={method} onValueChange={setMethod}>
+              <Select value={method} onValueChange={(value) => setMethod(value as GoalMethod)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select your method" />
                 </SelectTrigger>
