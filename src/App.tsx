@@ -29,7 +29,7 @@ import FocusTools from './pages/app/tools/FocusTools';
 import AppLayout from './components/layout/AppLayout';
 import StepRewards from './pages/app/StepRewards';
 import Profile from './pages/app/Profile';
-import { Toaster } from 'sonner';
+import { ToastProvider } from './components/ui/toast-provider';
 import SplashScreen from './components/app/SplashScreen';
 
 function App() {
@@ -46,7 +46,7 @@ function App() {
   return (
     <div className="App">
       {isSplashScreenVisible && <SplashScreen />}
-      <Toaster richColors position="top-right" closeButton />
+      <ToastProvider />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />

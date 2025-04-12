@@ -1,96 +1,77 @@
 
-import { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 
-enum HapticImpact {
+export enum HapticImpact {
   LIGHT = 'light',
   MEDIUM = 'medium',
   HEAVY = 'heavy'
 }
 
-interface HapticsInterface {
-  impact: (style: HapticImpact) => Promise<void>;
-  notification: (type: 'success' | 'warning' | 'error') => Promise<void>;
-  vibrate: (pattern?: number[]) => Promise<void>;
-  isAvailable: boolean;
+export function useHaptics() {
+  const isNative = Capacitor.isNativePlatform();
+
+  const impact = async (style: HapticImpact = HapticImpact.MEDIUM) => {
+    if (!isNative) return;
+    
+    try {
+      // Dynamic import to avoid loading this on web
+      const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
+      
+      let impactStyle;
+      switch (style) {
+        case HapticImpact.LIGHT:
+          impactStyle = ImpactStyle.Light;
+          break;
+        case HapticImpact.HEAVY:
+          impactStyle = ImpactStyle.Heavy;
+          break;
+        default:
+          impactStyle = ImpactStyle.Medium;
+      }
+      
+      await Haptics.impact({ style: impactStyle });
+    } catch (err) {
+      console.warn('Haptic feedback error:', err);
+    }
+  };
+
+  const notification = async (type: 'SUCCESS' | 'WARNING' | 'ERROR' = 'SUCCESS') => {
+    if (!isNative) return;
+    
+    try {
+      const { Haptics, NotificationType } = await import('@capacitor/haptics');
+      
+      let notificationType;
+      switch (type) {
+        case 'SUCCESS':
+          notificationType = NotificationType.Success;
+          break;
+        case 'WARNING':
+          notificationType = NotificationType.Warning;
+          break;
+        case 'ERROR':
+          notificationType = NotificationType.Error;
+          break;
+        default:
+          notificationType = NotificationType.Success;
+      }
+      
+      await Haptics.notification({ type: notificationType });
+    } catch (err) {
+      console.warn('Haptic notification error:', err);
+    }
+  };
+
+  const vibrate = async (duration = 300) => {
+    if (!isNative) return;
+    
+    try {
+      const { Haptics } = await import('@capacitor/haptics');
+      await Haptics.vibrate({ duration });
+    } catch (err) {
+      console.warn('Haptic vibration error:', err);
+    }
+  };
+
+  return { impact, notification, vibrate, isNative };
 }
-
-export function useHaptics(): HapticsInterface {
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [haptics, setHaptics] = useState<any>(null);
-
-  useEffect(() => {
-    // Try to load Capacitor Haptics
-    const loadHaptics = async () => {
-      try {
-        // Dynamic import of Capacitor Haptics
-        const Capacitor = await import('@capacitor/core');
-        
-        if (Capacitor.Capacitor.isPluginAvailable('Haptics')) {
-          const HapticsModule = await import('@capacitor/haptics');
-          setHaptics(HapticsModule.Haptics);
-          setIsAvailable(true);
-        } else {
-          console.log('Haptics plugin not available');
-          setIsAvailable(false);
-        }
-      } catch (error) {
-        console.log('Haptics not available:', error);
-        setIsAvailable(false);
-      }
-    };
-
-    loadHaptics();
-  }, []);
-
-  // Function to trigger impact haptic feedback
-  const impact = async (style: HapticImpact = HapticImpact.MEDIUM): Promise<void> => {
-    if (!isAvailable || !haptics) return;
-
-    try {
-      await haptics.impact({ style });
-    } catch (error) {
-      console.error('Error triggering haptic impact:', error);
-    }
-  };
-
-  // Function to trigger notification haptic feedback
-  const notification = async (type: 'success' | 'warning' | 'error' = 'success'): Promise<void> => {
-    if (!isAvailable || !haptics) return;
-
-    try {
-      await haptics.notification({ type });
-    } catch (error) {
-      console.error('Error triggering haptic notification:', error);
-    }
-  };
-
-  // Function to trigger custom vibration pattern
-  const vibrate = async (pattern: number[] = [100, 50, 100]): Promise<void> => {
-    if (!isAvailable || !haptics) {
-      // Fallback to Web Vibration API if available
-      if ('vibrate' in navigator) {
-        navigator.vibrate(pattern);
-      }
-      return;
-    }
-
-    try {
-      await haptics.vibrate({ pattern });
-    } catch (error) {
-      // Fallback to Web Vibration API
-      if ('vibrate' in navigator) {
-        navigator.vibrate(pattern);
-      }
-      console.error('Error triggering haptic vibration:', error);
-    }
-  };
-
-  return {
-    impact,
-    notification,
-    vibrate,
-    isAvailable
-  };
-}
-
-export { HapticImpact };

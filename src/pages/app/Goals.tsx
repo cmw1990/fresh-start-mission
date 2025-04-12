@@ -2,16 +2,21 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { getUserGoal } from "@/services/goalService";
+import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalService";
 import { UserGoal } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import GoalTypeSelector from "@/components/goals/GoalTypeSelector";
 import MethodSelector from "@/components/goals/MethodSelector";
 import { ProductSelector } from "@/components/goals/ProductSelector";
 import MotivationInput from "@/components/goals/MotivationInput";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { validateData, goalSchema } from "@/lib/validation";
+import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 
 const Goals = () => {
   const { user } = useAuth();
+  const { impact } = useHaptics();
   const [goalType, setGoalType] = useState<"afresh" | "fresher">("afresh");
   const [method, setMethod] = useState<"cold-turkey" | "gradual-reduction" | "tapering" | "nrt" | "harm-reduction">("cold-turkey");
   const [product, setProduct] = useState("cigarette");
@@ -21,12 +26,15 @@ const Goals = () => {
   const [motivation, setMotivation] = useState("");
   const [existingGoal, setExistingGoal] = useState<UserGoal | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
   useEffect(() => {
     const fetchGoal = async () => {
       if (!user) return;
       
       setLoading(true);
+      setError(null);
       try {
         const goal = await getUserGoal();
         if (goal) {
@@ -49,6 +57,7 @@ const Goals = () => {
         }
       } catch (error) {
         console.error("Error fetching goal:", error);
+        setError("Failed to load your goals. Please try refreshing the page.");
         toast.error("Failed to load your goals");
       } finally {
         setLoading(false);
@@ -60,6 +69,26 @@ const Goals = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationErrors({});
+    setError(null);
+    
+    // Validate form data
+    const validationResult = validateData(goalSchema, {
+      goalType,
+      method,
+      product,
+      quitDate,
+      reduction,
+      timeline,
+      motivation
+    });
+    
+    if (!validationResult.success) {
+      toast.error("Please correct the form errors");
+      setValidationErrors(validationResult.errors.format());
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -74,23 +103,26 @@ const Goals = () => {
       };
       
       if (existingGoal) {
-        await import('@/services/goalService').then(module => {
-          module.updateUserGoal(existingGoal.id, goalData);
+        await updateUserGoal(existingGoal.id, goalData);
+        toast.success("Your goals have been updated successfully!", {
+          description: "Your journey has been adjusted based on your new preferences.",
         });
-        toast.success("Your goals have been updated successfully!");
       } else {
-        await import('@/services/goalService').then(module => {
-          module.saveUserGoal(goalData).then(newGoal => {
-            if (newGoal) {
-              setExistingGoal(newGoal);
-            }
-          });
+        const newGoal = await saveUserGoal(goalData);
+        if (newGoal) {
+          setExistingGoal(newGoal);
+        }
+        toast.success("Your goals have been saved successfully!", {
+          description: "Your fresh journey is ready to begin!",
         });
-        toast.success("Your goals have been saved successfully!");
       }
+      
+      // Haptic feedback on success
+      impact(HapticImpact.MEDIUM);
     } catch (error) {
       console.error("Error saving goals:", error);
-      toast.error("Failed to save your goals. Please try again.");
+      setError("Failed to save your goals. Please try again.");
+      toast.error("Failed to save your goals");
     } finally {
       setLoading(false);
     }
@@ -115,12 +147,21 @@ const Goals = () => {
           Define and customize your path to success
         </p>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6">
           <GoalTypeSelector 
             value={goalType} 
-            onChange={(value) => setGoalType(value as "afresh" | "fresher")} 
+            onChange={(value) => setGoalType(value as "afresh" | "fresher")}
+            error={validationErrors.goalType}
           />
           
           <MethodSelector 
@@ -132,11 +173,25 @@ const Goals = () => {
             setReduction={setReduction}
             timeline={timeline}
             setTimeline={setTimeline}
+            errors={{
+              method: validationErrors.method,
+              quitDate: validationErrors.quitDate,
+              reduction: validationErrors.reduction,
+              timeline: validationErrors.timeline
+            }}
           />
           
-          <ProductSelector product={product} setProduct={setProduct} />
+          <ProductSelector 
+            product={product} 
+            setProduct={setProduct}
+            error={validationErrors.product}
+          />
           
-          <MotivationInput value={motivation} onChange={(e) => setMotivation(e.target.value)} />
+          <MotivationInput 
+            value={motivation} 
+            onChange={(e) => setMotivation(e.target.value)}
+            error={validationErrors.motivation}
+          />
           
           <Button 
             type="submit" 
@@ -145,7 +200,7 @@ const Goals = () => {
           >
             {loading ? (
               <>
-                <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
               </>
             ) : existingGoal ? "Update Goals" : "Save Goals"}
