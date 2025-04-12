@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Card,
@@ -29,7 +28,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Medicinal, CirclePlus, Gauge, Clock, AlertCircle, ShieldCheck, DollarSign, Pills, CheckCircle, XCircle } from "lucide-react";
+import { Pill, CirclePlus, Gauge, Clock, AlertCircle, ShieldCheck, DollarSign, Pill as PillIcon, CheckCircle, XCircle } from "lucide-react";
 
 const NRTGuide = () => {
   return (
@@ -46,7 +45,7 @@ const NRTGuide = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
               <div className="bg-blue-50 p-2.5 rounded-full">
-                <Medicinal className="h-5 w-5 text-blue-500" />
+                <Pill className="h-5 w-5 text-blue-500" />
               </div>
               <CardTitle className="text-lg">What is NRT?</CardTitle>
             </div>
@@ -601,7 +600,7 @@ const NRTGuide = () => {
               <Card>
                 <CardContent className="pt-6">
                   <h4 className="font-medium mb-2 flex items-center">
-                    <Pills className="h-4 w-4 mr-2 text-fresh-500" />
+                    <PillIcon className="h-4 w-4 mr-2 text-fresh-500" />
                     Physical Considerations
                   </h4>
                   <p className="text-sm text-muted-foreground">
