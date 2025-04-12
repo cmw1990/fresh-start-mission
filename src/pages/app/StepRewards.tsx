@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,16 +16,13 @@ import {
   recordStepCount, 
   getTotalPoints, 
   getRewardHistory,
-  type RewardHistory 
+  getAvailableRewards, // Import new function
+  claimSpecificReward, // Import new function
+  type RewardHistory,
+  // type Reward // Import Reward type from lib/supabase now - Corrected below
 } from "@/services/rewardsService";
+import { Reward } from "@/lib/supabase"; // Corrected import path for Reward type
 import { Progress } from "@/components/ui/progress";
-
-interface Reward {
-  id: string;
-  name: string;
-  description: string;
-  points_required: number;
-}
 
 // Extended RewardHistory type to ensure steps property exists
 interface ExtendedRewardHistory extends RewardHistory {
@@ -35,7 +31,7 @@ interface ExtendedRewardHistory extends RewardHistory {
 
 const StepRewards = () => {
   const [steps, setSteps] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingManualSteps, setIsSubmittingManualSteps] = useState(false);
   const { impact } = useHaptics();
   const queryClient = useQueryClient();
 
@@ -46,7 +42,6 @@ const StepRewards = () => {
     hasPermission,
     requestPermissions,
     fetchSteps,
-    logManualSteps
   } = useStepTracking();
 
   // Fetch total points
@@ -57,7 +52,7 @@ const StepRewards = () => {
   } = useQuery({
     queryKey: ['total-points'],
     queryFn: getTotalPoints,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 1 * 60 * 1000, // 1 minute stale time for points
   });
 
   // Fetch reward history
@@ -71,12 +66,20 @@ const StepRewards = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Claim reward mutation
+  // Fetch available rewards - Uses the new service function
+  const { 
+    data: availableRewards = [], 
+    isLoading: rewardsLoading,
+    error: rewardsError
+  } = useQuery<Reward[]>({
+    queryKey: ['available-rewards'],
+    queryFn: getAvailableRewards,
+    staleTime: 15 * 60 * 1000, // Cache rewards for 15 minutes
+  });
+
+  // Claim reward mutation - Uses the new service function
   const claimRewardMutation = useMutation({
-    mutationFn: (rewardId: string) => {
-      toast.error("This feature is coming soon!");
-      return Promise.resolve(); // Placeholder
-    },
+    mutationFn: (rewardId: string) => claimSpecificReward(rewardId), 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['total-points'] });
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
@@ -108,17 +111,9 @@ const StepRewards = () => {
     },
   });
 
-  // Sample rewards - in a real app these would come from the backend
-  const availableRewards: Reward[] = [
-    { id: "1", name: "10% Off Next Month", description: "Get 10% off your next monthly subscription", points_required: 1000 },
-    { id: "2", name: "Free Premium Month", description: "One month of premium features for free", points_required: 5000 },
-    { id: "3", name: "Exclusive Badge", description: "Unlock a special badge for your profile", points_required: 2500 },
-    { id: "4", name: "Custom Theme", description: "Access to exclusive app color themes", points_required: 3000 },
-  ];
-
   const handleManualStepSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!steps || isSubmitting) return;
+    if (!steps || isSubmittingManualSteps) return;
     
     const stepsNumber = parseInt(steps);
     if (isNaN(stepsNumber) || stepsNumber < 0) {
@@ -126,16 +121,18 @@ const StepRewards = () => {
       return;
     }
     
-    setIsSubmitting(true);
+    setIsSubmittingManualSteps(true);
     try {
       const today = new Date().toISOString().split('T')[0];
       await recordStepsMutation.mutateAsync({ steps: stepsNumber, date: today });
     } finally {
-      setIsSubmitting(false);
+      setIsSubmittingManualSteps(false);
     }
   };
 
+  // Updated to use the mutation correctly
   const handleClaimReward = async (rewardId: string, pointsRequired: number) => {
+    // Client-side check for immediate feedback
     if ((points === undefined || points < pointsRequired) && typeof points === 'number') {
       toast.error("Not enough points", { 
         description: `You need ${pointsRequired} points to claim this reward` 
@@ -143,8 +140,12 @@ const StepRewards = () => {
       return;
     }
     
-    await claimRewardMutation.mutateAsync(rewardId);
+    // Call the mutation which handles backend logic and error/success states
+    claimRewardMutation.mutate(rewardId); 
   };
+
+  const isLoadingOverall = pointsLoading || historyLoading || rewardsLoading;
+  const queryErrorOverall = pointsError || historyError || rewardsError;
 
   return (
     <div className="container py-8">
@@ -154,6 +155,17 @@ const StepRewards = () => {
           Earn points by staying active and claim rewards
         </p>
       </div>
+
+      {queryErrorOverall && (
+         <Alert variant="destructive" className="mb-6">
+           <AlertCircle className="h-4 w-4" />
+           <AlertTitle>Error Loading Data</AlertTitle>
+           <AlertDescription>
+             There was an error loading rewards data. Please refresh the page. 
+             {(queryErrorOverall as Error)?.message && ` Details: ${(queryErrorOverall as Error).message}`}
+           </AlertDescription>
+         </Alert>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Step tracking card */}
@@ -246,9 +258,9 @@ const StepRewards = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-fresh-500 hover:bg-fresh-600"
-                  disabled={isSubmitting}
+                  disabled={isSubmittingManualSteps || recordStepsMutation.isPending}
                 >
-                  {isSubmitting ? (
+                  {isSubmittingManualSteps || recordStepsMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
@@ -287,46 +299,47 @@ const StepRewards = () => {
               )}
             </div>
 
-            {pointsError && (
-              <Alert variant="destructive" className="my-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  Failed to load your points. Please try refreshing the page.
-                </AlertDescription>
-              </Alert>
-            )}
-
             <div>
               <h3 className="font-medium mb-2">Available Rewards</h3>
-              <div className="space-y-3">
-                {availableRewards.map((reward) => (
-                  <div 
-                    key={reward.id}
-                    className="bg-white border rounded-lg p-3 flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="font-medium">{reward.name}</p>
-                      <p className="text-sm text-muted-foreground">{reward.description}</p>
+              {rewardsLoading ? (
+                 <div className="space-y-3">
+                   <Skeleton className="h-16 w-full" />
+                   <Skeleton className="h-16 w-full" />
+                 </div>
+              ) : availableRewards.length > 0 ? (
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                  {availableRewards.map((reward) => (
+                    <div 
+                      key={reward.id}
+                      className="bg-white border rounded-lg p-3 flex justify-between items-center"
+                    >
+                      <div className="flex-1 mr-2">
+                        <p className="font-medium text-sm">{reward.name}</p>
+                        <p className="text-xs text-muted-foreground">{reward.description}</p>
+                      </div>
+                      <div className="flex items-center flex-shrink-0">
+                        <p className="text-xs font-medium mr-2 whitespace-nowrap">{reward.points_required.toLocaleString()} pts</p>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          // Disable if not enough points OR if the claim mutation is pending
+                          disabled={points < reward.points_required || claimRewardMutation.isPending} 
+                          onClick={() => handleClaimReward(reward.id, reward.points_required)}
+                        >
+                          {/* Show loader specifically for the reward being claimed */}
+                          {claimRewardMutation.isPending && claimRewardMutation.variables === reward.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Claim"
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <p className="text-sm font-medium mr-3">{reward.points_required.toLocaleString()} pts</p>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        disabled={!points || points < reward.points_required || claimRewardMutation.isPending}
-                        onClick={() => handleClaimReward(reward.id, reward.points_required)}
-                      >
-                        {claimRewardMutation.isPending && claimRewardMutation.variables === reward.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          "Claim"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                 <p className="text-sm text-muted-foreground text-center py-4">No rewards available currently.</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -345,14 +358,6 @@ const StepRewards = () => {
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
             </div>
-          ) : historyError ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                Failed to load your reward history. Please try refreshing the page.
-              </AlertDescription>
-            </Alert>
           ) : history && history.length > 0 ? (
             <Table>
               <TableHeader>

@@ -3,72 +3,69 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-// Assume getLogEntries fetches data matching LogEntry interface
-// import { getLogEntries } from "@/services/logService"; 
+// Import the actual service function
+import { getLogAnalytics } from "@/services/logService"; 
+// Import goal service and type
+import { getUserGoal } from "@/services/goalService";
+import { UserGoal } from "@/lib/supabase"; 
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format, subDays, startOfDay, isWithinInterval, parseISO } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 // Import Loader2
 import { AlertCircle, TrendingUp, Award, HeartPulse, Loader2 } from "lucide-react"; 
+import { NicotineLog } from "@/lib/supabase"; // Import the type
+// Import the new HealthTimeline component
+import HealthTimeline from "@/components/app/progress/HealthTimeline"; 
+// Import the new AchievementsList component
+import AchievementsList from "@/components/app/progress/AchievementsList";
+// Import user preferences service
+import { getUserPreferences } from "@/services/userPreferencesService";
 
 // --- Types ---
-// Define a more accurate LogEntry type based on expected data
-interface LogEntry {
-  id: string;
-  user_id: string;
-  date: string; // Assuming ISO string format e.g., "2023-10-27T10:00:00Z"
-  used_nicotine?: boolean | null;
-  nicotine_product?: string | null; // e.g., 'cigarette', 'vape', 'pouch'
-  nicotine_quantity?: number | null; // e.g., number of cigarettes, puffs, pouches
-  craving_intensity?: number | null; // Scale 1-10
-  craving_trigger?: string | null;
-  mood?: number | null; // Scale 1-5
-  energy?: number | null; // Scale 1-5
-  focus?: number | null; // Scale 1-5
-  sleep_quality?: number | null; // Scale 1-5
-  sleep_hours?: number | null;
-}
+// Using NicotineLog type directly from lib/supabase
 
 // Type for processed data points used in charts
 interface ChartDataPoint {
   date: string; // Formatted date string (e.g., 'Mon', 'Oct 27')
   fullDate: string; // yyyy-MM-dd
-  nicotineUsage: number; // 1 for used, 0 for not used (or quantity if available)
+  nicotineUsage: number; // Quantity if used, 0 if not
   cravingIntensityAvg?: number | null;
   cravingCount: number;
   moodAvg?: number | null;
   energyAvg?: number | null;
   focusAvg?: number | null;
   sleepQualityAvg?: number | null;
+  cumulativeSavings?: number; // Added for savings chart
 }
-
-// Placeholder fetch function - replace with actual service call
-const getLogEntries = async (): Promise<LogEntry[]> => {
-  // Simulate fetching data
-  await new Promise(resolve => setTimeout(resolve, 500)); 
-  // Return sample data matching the LogEntry interface for demonstration
-  const today = new Date();
-  return [
-    { id: '1', user_id: 'user1', date: subDays(today, 6).toISOString(), used_nicotine: true, nicotine_product: 'cigarette', nicotine_quantity: 5, craving_intensity: 7, craving_trigger: 'Stress', mood: 2, energy: 2, focus: 3, sleep_quality: 3 },
-    { id: '2', user_id: 'user1', date: subDays(today, 5).toISOString(), used_nicotine: true, nicotine_product: 'cigarette', nicotine_quantity: 3, craving_intensity: 6, craving_trigger: 'Boredom', mood: 3, energy: 3, focus: 4, sleep_quality: 4 },
-    { id: '3', user_id: 'user1', date: subDays(today, 4).toISOString(), used_nicotine: false, craving_intensity: 4, craving_trigger: 'Social', mood: 4, energy: 4, focus: 4, sleep_quality: 5 },
-    { id: '4', user_id: 'user1', date: subDays(today, 3).toISOString(), used_nicotine: false, craving_intensity: 3, craving_trigger: 'Coffee', mood: 4, energy: 5, focus: 5, sleep_quality: 4 },
-    { id: '5', user_id: 'user1', date: subDays(today, 2).toISOString(), used_nicotine: false, craving_intensity: 2, mood: 5, energy: 4, focus: 5, sleep_quality: 5 },
-    { id: '6', user_id: 'user1', date: subDays(today, 1).toISOString(), used_nicotine: false, craving_intensity: 1, mood: 5, energy: 5, focus: 5, sleep_quality: 5 },
-    { id: '7', user_id: 'user1', date: today.toISOString(), used_nicotine: false, craving_intensity: 1, mood: 5, energy: 5, focus: 5, sleep_quality: 5 },
-    // Add more sample data for month/quarter if needed
-  ];
-};
 
 const COLORS = ['#9b87f5', '#38B2AC', '#805AD5', '#4FD1C5', '#B794F4', '#F6AD55', '#ED8936'];
 
-const ProgressPage = () => { // Renamed component
+const ProgressPage = () => { 
   const [timeRange, setTimeRange] = useState("week");
-  const { data: logs = [], isLoading, error } = useQuery<LogEntry[]>({
-    queryKey: ['logs', timeRange], // Include timeRange in queryKey if fetching depends on it
-    queryFn: getLogEntries, // Ideally, pass timeRange to fetch function
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  
+  // Fetch logs
+  const { data: logs = [], isLoading: isLoadingLogs, error: logsError } = useQuery<NicotineLog[]>({
+    queryKey: ['logs', timeRange], 
+    queryFn: () => getLogAnalytics(timeRange === 'week' ? 7 : timeRange === 'month' ? 30 : 90), 
+    staleTime: 5 * 60 * 1000, 
   });
+
+  // Fetch user goal for timeline and achievements
+  const { data: goal, isLoading: isLoadingGoal, error: goalError } = useQuery<UserGoal | null>({
+    queryKey: ['user-goal-progress'], 
+    queryFn: getUserGoal,
+    staleTime: 10 * 60 * 1000, 
+  });
+
+  // Fetch user preferences for cost calculation
+  const { data: userPreferences, isLoading: isLoadingPrefs, error: prefsError } = useQuery({
+    queryKey: ['user-preferences-progress'],
+    queryFn: getUserPreferences,
+    staleTime: 15 * 60 * 1000, 
+  });
+
+  const isLoading = isLoadingLogs || isLoadingGoal || isLoadingPrefs;
+  const queryError = logsError || goalError || prefsError;
 
   const processedData = useMemo(() => {
     const days = timeRange === 'week' ? 7 : timeRange === 'month' ? 30 : 90;
@@ -76,7 +73,7 @@ const ProgressPage = () => { // Renamed component
     const startDate = startOfDay(subDays(endDate, days - 1));
     const interval = { start: startDate, end: endDate };
     
-    const dailyData: Record<string, Partial<ChartDataPoint> & { entries: LogEntry[] }> = {};
+    const dailyData: Record<string, Partial<ChartDataPoint> & { entries: NicotineLog[] }> = {};
 
     // Initialize data points for the range
     for (let i = 0; i < days; i++) {
@@ -94,7 +91,8 @@ const ProgressPage = () => { // Renamed component
 
     // Populate with log data
     logs.forEach(log => {
-      const logDate = startOfDay(parseISO(log.date));
+      const logDateStr = typeof log.date === 'string' ? log.date : new Date(log.date).toISOString();
+      const logDate = startOfDay(parseISO(logDateStr));
       if (isWithinInterval(logDate, interval)) {
         const dateString = format(logDate, 'yyyy-MM-dd');
         if (dailyData[dateString]) {
@@ -103,41 +101,59 @@ const ProgressPage = () => { // Renamed component
       }
     });
 
-    // Calculate aggregates
-    const chartData = Object.values(dailyData).map(day => {
-      const { entries } = day;
-      const nicotineUsage = entries.some(e => e.used_nicotine) ? 1 : 0; // Simple Yes/No for now
-      
-      const cravings = entries.filter(e => e.craving_intensity !== null && e.craving_intensity !== undefined);
-      const cravingCount = cravings.length;
-      const cravingIntensitySum = cravings.reduce((sum, e) => sum + (e.craving_intensity || 0), 0);
-      const cravingIntensityAvg = cravingCount > 0 ? cravingIntensitySum / cravingCount : null;
+    // Calculate aggregates and cumulative savings
+    let cumulativeSavings = 0;
+    const costPerProduct = userPreferences?.cost_per_product || {};
+    const defaultCost = 10; // Default daily cost if not specified
 
-      const moods = entries.map(e => e.mood).filter(m => m !== null && m !== undefined) as number[];
-      const energies = entries.map(e => e.energy).filter(e => e !== null && e !== undefined) as number[];
-      const focuses = entries.map(e => e.focus).filter(f => f !== null && f !== undefined) as number[];
-      const sleepQualities = entries.map(e => e.sleep_quality).filter(s => s !== null && s !== undefined) as number[];
+    const chartData = Object.values(dailyData)
+      .sort((a, b) => new Date(a.fullDate!).getTime() - new Date(b.fullDate!).getTime()) // Sort chronologically first
+      .map(day => {
+        const { entries } = day;
+        const usedEntry = entries.find(e => e.used_nicotine);
+        const nicotineUsage = usedEntry ? (usedEntry.quantity || 1) : 0; 
+        
+        // Calculate daily savings
+        let dailySaving = 0;
+        if (!usedEntry) {
+          // If no nicotine used, estimate savings based on primary product or default
+          const primaryProduct = goal?.product_type || 'cigarette'; // Default to cigarette if no goal
+          dailySaving = costPerProduct[primaryProduct as keyof typeof costPerProduct] || defaultCost;
+        }
+        cumulativeSavings += dailySaving;
 
-      const moodAvg = moods.length > 0 ? moods.reduce((a, b) => a + b, 0) / moods.length : null;
-      const energyAvg = energies.length > 0 ? energies.reduce((a, b) => a + b, 0) / energies.length : null;
-      const focusAvg = focuses.length > 0 ? focuses.reduce((a, b) => a + b, 0) / focuses.length : null;
-      const sleepQualityAvg = sleepQualities.length > 0 ? sleepQualities.reduce((a, b) => a + b, 0) / sleepQualities.length : null;
+        const cravings = entries.filter(e => e.craving_intensity !== null && e.craving_intensity !== undefined);
+        const cravingCount = cravings.length;
+        const cravingIntensitySum = cravings.reduce((sum, e) => sum + (e.craving_intensity || 0), 0);
+        const cravingIntensityAvg = cravingCount > 0 ? cravingIntensitySum / cravingCount : null;
 
-      return {
-        ...day,
-        nicotineUsage,
-        cravingCount,
-        cravingIntensityAvg,
-        moodAvg,
-        energyAvg,
-        focusAvg,
-        sleepQualityAvg,
-      };
-    }).sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime()); // Sort chronologically
+        const moods = entries.map(e => e.mood).filter(m => m !== null && m !== undefined) as number[];
+        const energies = entries.map(e => e.energy).filter(e => e !== null && e !== undefined) as number[];
+        const focuses = entries.map(e => e.focus).filter(f => f !== null && f !== undefined) as number[];
+        const sleepQualities = entries.map(e => e.sleep_quality).filter(s => s !== null && s !== undefined) as number[];
+
+        const moodAvg = moods.length > 0 ? moods.reduce((a, b) => a + b, 0) / moods.length : null;
+        const energyAvg = energies.length > 0 ? energies.reduce((a, b) => a + b, 0) / energies.length : null;
+        const focusAvg = focuses.length > 0 ? focuses.reduce((a, b) => a + b, 0) / focuses.length : null;
+        const sleepQualityAvg = sleepQualities.length > 0 ? sleepQualities.reduce((a, b) => a + b, 0) / sleepQualities.length : null;
+
+        return {
+          ...day,
+          nicotineUsage,
+          cravingCount,
+          cravingIntensityAvg,
+          moodAvg,
+          energyAvg,
+          focusAvg,
+          sleepQualityAvg,
+          cumulativeSavings, // Add cumulative savings to data point
+        };
+      }); 
 
     // Process trigger data separately
     const triggerCounts = logs.reduce((acc: Record<string, number>, log) => {
-       const logDate = startOfDay(parseISO(log.date));
+       const logDateStr = typeof log.date === 'string' ? log.date : new Date(log.date).toISOString();
+       const logDate = startOfDay(parseISO(logDateStr));
        if (isWithinInterval(logDate, interval) && log.craving_trigger) {
          acc[log.craving_trigger] = (acc[log.craving_trigger] || 0) + 1;
        }
@@ -145,29 +161,20 @@ const ProgressPage = () => { // Renamed component
      }, {});
     const triggerData = Object.entries(triggerCounts).map(([name, value]) => ({ name, value }));
 
-    return { chartData, triggerData };
+    return { chartData, triggerData, totalSavings: cumulativeSavings }; // Return total savings as well
 
-  }, [logs, timeRange]);
+  }, [logs, timeRange, userPreferences, goal]);
 
-  const { chartData, triggerData } = processedData;
-
-  // Placeholder Savings Calculation (Needs user cost input)
-  const calculateSavings = () => {
-    const dailySaving = 10; // Placeholder
-    const daysNicotineFree = chartData.filter(d => d.nicotineUsage === 0).length; // Simple count for demo
-    const totalSaved = daysNicotineFree * dailySaving;
-    return { totalSaved, daysNicotineFree };
-  };
-  const savings = calculateSavings();
+  const { chartData, triggerData, totalSavings } = processedData;
 
   // --- Render ---
   
-  if (error) {
+  if (queryError) {
     return (
       <div className="container py-8 text-center text-red-600">
         <AlertCircle className="mx-auto h-12 w-12 mb-4" />
         <h2 className="text-xl font-semibold">Error Loading Progress Data</h2>
-        <p>{(error as Error).message}</p>
+        <p>{(queryError as Error).message}</p>
       </div>
     );
   }
@@ -215,10 +222,10 @@ const ProgressPage = () => { // Renamed component
           <Card>
             <CardHeader>
               <CardTitle>Nicotine Usage</CardTitle>
-              <CardDescription>Days you used nicotine vs. stayed afresh ({timeRange} view).</CardDescription>
+              <CardDescription>Your nicotine consumption over time ({timeRange} view).</CardDescription>
             </CardHeader>
             <CardContent className="h-96">
-              {isLoading ? renderChartLoading() : (
+              {isLoadingLogs ? renderChartLoading() : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <defs>
@@ -229,8 +236,8 @@ const ProgressPage = () => { // Renamed component
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
-                    <YAxis ticks={[0, 1]} domain={[0, 1]} tickFormatter={(tick) => tick === 1 ? 'Used' : 'Afresh'} />
-                    <Tooltip formatter={(value) => [value === 1 ? 'Used Nicotine' : 'Stayed Afresh', 'Status']} />
+                    <YAxis label={{ value: 'Quantity/Count', angle: -90, position: 'insideLeft' }} /> 
+                    <Tooltip formatter={(value) => [value, 'Usage Count']} />
                     <Area type="monotone" dataKey="nicotineUsage" stroke="#ef4444" fillOpacity={1} fill="url(#colorUsage)" name="Nicotine Use" />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -248,7 +255,7 @@ const ProgressPage = () => { // Renamed component
                 <CardDescription>Average intensity and number of cravings logged ({timeRange} view).</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
-                {isLoading ? renderChartLoading() : (
+                {isLoadingLogs ? renderChartLoading() : (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -270,7 +277,7 @@ const ProgressPage = () => { // Renamed component
                 <CardDescription>Most common triggers logged ({timeRange} view).</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
-                {isLoading ? renderChartLoading() : triggerData.length > 0 ? (
+                {isLoadingLogs ? renderChartLoading() : triggerData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie data={triggerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
@@ -298,7 +305,7 @@ const ProgressPage = () => { // Renamed component
               <CardDescription>Average mood, energy, focus, and sleep quality ({timeRange} view).</CardDescription>
             </CardHeader>
             <CardContent className="h-96">
-              {isLoading ? renderChartLoading() : (
+              {isLoadingLogs ? renderChartLoading() : (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -322,20 +329,35 @@ const ProgressPage = () => { // Renamed component
            <Card>
              <CardHeader>
                <CardTitle>Financial Savings</CardTitle>
-               <CardDescription>Estimated savings from staying nicotine-free (based on $10/day placeholder).</CardDescription>
+               <CardDescription>Estimated savings based on your logged nicotine-free days and product costs.</CardDescription>
              </CardHeader>
              <CardContent>
                 <div className="text-center mb-8">
-                  <p className="text-sm text-muted-foreground">Total Estimated Savings</p>
-                  <p className="text-4xl font-bold text-green-600">${savings.totalSaved.toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Across {savings.daysNicotineFree} nicotine-free {savings.daysNicotineFree === 1 ? 'day' : 'days'} logged
+                  <p className="text-sm text-muted-foreground">Total Estimated Savings ({timeRange} view)</p>
+                  <p className="text-4xl font-bold text-green-600">${totalSavings.toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Based on costs entered in Settings. Update them for accuracy.
                   </p>
-                  <p className="text-xs text-muted-foreground mt-2">(Note: Based on a $10/day placeholder. Update your spending in Settings for accuracy.)</p>
                 </div>
-                {/* Placeholder for Savings Graph */}
-                 <div className="h-64 bg-muted rounded-md flex items-center justify-center text-muted-foreground">
-                    <TrendingUp className="h-8 w-8 mr-2"/> Cumulative Savings Chart (Coming Soon)
+                {/* Savings Graph */}
+                 <div className="h-64">
+                   {isLoading ? renderChartLoading() : (
+                     <ResponsiveContainer width="100%" height="100%">
+                       <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                         <defs>
+                           <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
+                             <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                           </linearGradient>
+                         </defs>
+                         <CartesianGrid strokeDasharray="3 3" />
+                         <XAxis dataKey="date" />
+                         <YAxis label={{ value: 'Cumulative Savings ($)', angle: -90, position: 'insideLeft' }} />
+                         <Tooltip formatter={(value: number) => [`$${value.toFixed(2)}`, 'Savings']} />
+                         <Area type="monotone" dataKey="cumulativeSavings" stroke="#10b981" fillOpacity={1} fill="url(#colorSavings)" name="Cumulative Savings" />
+                       </AreaChart>
+                     </ResponsiveContainer>
+                   )}
                  </div>
              </CardContent>
            </Card>
@@ -348,8 +370,9 @@ const ProgressPage = () => { // Renamed component
                <CardTitle>Health Timeline</CardTitle>
                <CardDescription>See key health recovery milestones based on your quit date.</CardDescription>
              </CardHeader>
-             <CardContent className="h-96 flex items-center justify-center text-muted-foreground">
-                <HeartPulse className="h-8 w-8 mr-2"/> Health Timeline Feature (Coming Soon)
+             <CardContent>
+                {/* Integrate HealthTimeline component */}
+                <HealthTimeline goal={goal} isLoading={isLoadingGoal} />
              </CardContent>
            </Card>
          </TabsContent>
@@ -361,8 +384,9 @@ const ProgressPage = () => { // Renamed component
                <CardTitle>Achievements & Milestones</CardTitle>
                <CardDescription>Celebrate your progress and accomplishments!</CardDescription>
              </CardHeader>
-             <CardContent className="h-96 flex items-center justify-center text-muted-foreground">
-                <Award className="h-8 w-8 mr-2"/> Achievements Feature (Coming Soon)
+             <CardContent>
+                {/* Integrate AchievementsList component */}
+                <AchievementsList goal={goal} logs={logs} isLoading={isLoading} />
              </CardContent>
            </Card>
          </TabsContent>
@@ -372,4 +396,4 @@ const ProgressPage = () => { // Renamed component
   );
 };
 
-export default ProgressPage; // Corrected export name
+export default ProgressPage;

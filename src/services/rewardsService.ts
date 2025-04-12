@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Reward } from "@/lib/supabase"; // Import Reward type from lib/supabase instead
 
 /**
  * Types that match our database schema
@@ -11,6 +12,7 @@ export type StepReward = {
   steps: number;
   points_earned: number;
   created_at: string;
+  updated_at?: string; // Added optional updated_at
 };
 
 /**
@@ -23,6 +25,8 @@ export type ClaimedReward = {
   claimed_at: string;
   status: string;
   points_redeemed: number;
+  // Include relation to rewards table if needed for history display
+  rewards?: { name: string | null } | null; 
 };
 
 /**
@@ -36,6 +40,27 @@ export type RewardHistory = {
   steps?: number;
   name?: string;
 };
+
+/**
+ * Fetch the list of available rewards
+ */
+export const getAvailableRewards = async (): Promise<Reward[]> => {
+  const { data, error } = await supabase
+    .from('rewards')
+    .select('*')
+    .eq('active', true) // Only fetch active rewards
+    .order('points_required', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching available rewards', error);
+    toast.error("Failed to load available rewards.");
+    throw error;
+  }
+
+  // Cast to Reward[] from lib/supabase
+  return data as Reward[]; 
+};
+
 
 /**
  * Fetch the user's step history and rewards
@@ -56,9 +81,10 @@ export const getRewardHistory = async (): Promise<RewardHistory[]> => {
     throw stepError;
   }
 
+  // Fetch claimed rewards and join with rewards table to get the name
   const { data: rewardData, error: rewardError } = await supabase
     .from('claimed_rewards')
-    .select('*, rewards(name)')
+    .select('*, rewards(name)') // Join with rewards table
     .eq('user_id', user.id)
     .order('claimed_at', { ascending: false });
 
@@ -77,13 +103,17 @@ export const getRewardHistory = async (): Promise<RewardHistory[]> => {
   }));
 
   // Format reward data
-  const rewardHistory: RewardHistory[] = (rewardData || []).map(item => ({
-    id: item.id,
-    date: new Date(item.claimed_at).toISOString().split('T')[0],
-    type: 'reward',
-    points: -item.points_redeemed, // Negative because points are spent
-    name: item.rewards?.name || 'Unknown Reward'
-  }));
+  const rewardHistory: RewardHistory[] = (rewardData || []).map(item => {
+     // Explicitly cast item to include the nested rewards relation
+     const typedItem = item as unknown as ClaimedReward & { rewards: { name: string | null } | null };
+     return {
+        id: typedItem.id,
+        date: new Date(typedItem.claimed_at).toISOString().split('T')[0],
+        type: 'reward',
+        points: -typedItem.points_redeemed, // Negative because points are spent
+        name: typedItem.rewards?.name || 'Unknown Reward' // Access nested name safely
+     }
+  });
 
   // Combine and sort by date, most recent first
   return [...stepHistory, ...rewardHistory]
@@ -152,67 +182,46 @@ export const recordStepCount = async (steps: number, date: string): Promise<Step
 };
 
 /**
- * Claim points for rewards
+ * Claim a specific reward by its ID using a Supabase function
  */
-export const claimRewardPoints = async (pointsToRedeem: number) => {
+export const claimSpecificReward = async (rewardId: string): Promise<ClaimedReward> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    
     if (!user) throw new Error("User not authenticated");
-    
-    // Get total available points from step_rewards table
-    const { data: rewardsData, error: rewardsError } = await supabase
-      .from('step_rewards')
-      .select('points_earned')
-      .eq('user_id', user.id);
-    
-    if (rewardsError) throw rewardsError;
-    
-    const earnedPoints = rewardsData.reduce((sum, item) => sum + (item.points_earned || 0), 0);
-    
-    // Get already claimed points
-    const { data: claimedRewards, error: claimedError } = await supabase
-      .from('claimed_rewards')
-      .select('*')
-      .eq('user_id', user.id);
-    
-    if (claimedError) throw claimedError;
-    
-    // Calculate claimed points - ensure we handle the case where points_redeemed might not exist in older data
-    const claimedPoints = claimedRewards?.reduce((sum, item) => {
-      // Cast to our type which includes points_redeemed
-      const reward = item as unknown as ClaimedReward;
-      return sum + (reward.points_redeemed || 0);
-    }, 0) || 0;
-    
-    // Calculate available points
-    const availablePoints = earnedPoints - claimedPoints;
-    
-    if (availablePoints < pointsToRedeem) {
-      throw new Error(`Not enough points. You have ${availablePoints} points available.`);
+
+    // Call the Supabase database function 'claim_reward'
+    const { data, error } = await supabase.rpc('claim_reward', {
+      reward_id_to_claim: rewardId,
+      user_id_to_check: user.id
+    });
+
+    if (error) {
+      console.error('Supabase RPC error claiming reward:', error);
+      // Check for specific error message from the function
+      if (error.message.includes('Not enough points')) {
+         throw new Error('You do not have enough points to claim this reward.');
+      }
+      if (error.message.includes('Reward not found')) {
+         throw new Error('This reward could not be found or is inactive.');
+      }
+      throw new Error(`Failed to claim reward: ${error.message}`);
     }
-    
-    // Create a reward claim record
-    const { data, error } = await supabase
-      .from('claimed_rewards')
-      .insert({
-        user_id: user.id,
-        points_redeemed: pointsToRedeem,
-        claimed_at: new Date().toISOString(),
-        reward_id: null // Assuming this is a generic claim without a specific reward
-      })
-      .select()
-      .single();
-    
-    if (error) throw error;
-    
-    return data;
+
+    // The RPC function should return the newly created claimed_rewards record
+    if (!data) {
+        throw new Error("Claim reward function did not return the expected data.");
+    }
+
+    // Assuming the RPC returns the claimed reward record directly
+    return data as ClaimedReward; 
+
   } catch (error: any) {
-    console.error('Error claiming reward points:', error);
-    toast.error("Failed to claim rewards: " + (error.message || "Unknown error"));
-    throw error;
+    console.error('Error claiming specific reward:', error);
+    // Toast is handled in the mutation hook, just rethrow
+    throw error; 
   }
 };
+
 
 /**
  * Get the user's current point total
@@ -223,37 +232,23 @@ export const getTotalPoints = async (): Promise<number> => {
     
     if (!user) throw new Error("User not authenticated");
     
-    // Get total earned points from step_rewards
-    const { data: earned, error: earnedError } = await supabase
-      .from('step_rewards')
-      .select('points_earned')
-      .eq('user_id', user.id);
-    
-    if (earnedError) throw earnedError;
-    
-    // Get total spent points from claimed_rewards
-    const { data: claimed, error: claimedError } = await supabase
-      .from('claimed_rewards')
-      .select('*')
-      .eq('user_id', user.id);
-    
-    if (claimedError) throw claimedError;
-    
-    // Calculate balance
-    const totalEarned = earned?.reduce((sum, item) => sum + (item.points_earned || 0), 0) || 0;
-    
-    // Handle the case where points_redeemed might not exist in older data
-    const totalSpent = claimed?.reduce((sum, item) => {
-      // Cast to our type which includes points_redeemed
-      const reward = item as unknown as ClaimedReward;
-      return sum + (reward.points_redeemed || 0);
-    }, 0) || 0;
-    
-    return totalEarned - totalSpent;
+    // Call the Supabase database function 'get_user_points'
+    const { data, error } = await supabase.rpc('get_user_points', {
+        p_user_id: user.id
+    });
+
+    if (error) {
+        console.error('Supabase RPC error getting points:', error);
+        throw error;
+    }
+
+    // The function returns a single value which is the point balance
+    return data as number;
+
   } catch (error: any) {
     console.error('Error fetching total points', error);
     toast.error("Failed to fetch points: " + (error.message || "Unknown error"));
-    return 0;
+    return 0; // Return 0 on error
   }
 };
 
