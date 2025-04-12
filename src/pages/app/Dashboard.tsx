@@ -5,26 +5,22 @@ import HolisticMetrics from "@/components/app/dashboard/HolisticMetrics";
 import { Activity, Battery, Brain, Calendar, DollarSign, Flame, Clock, Loader2, AlertCircle, Quote } from "lucide-react"; 
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-// Assume these service functions exist and fetch relevant data
-// TODO: Implement actual service functions connecting to backend
 import { getLogEntries, getRecentLogStats } from "@/services/logService"; 
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton"; 
-// Ensure CardHeader and CardTitle are imported
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; 
-// Ensure Progress is imported
 import { Progress } from "@/components/ui/progress"; 
+import { NicotineLog } from "@/lib/supabase";
 
-// Placeholder type for stats - replace with actual type from service later
+// Interface for dashboard stats
 interface DashboardStats {
   daysAfresh: number;
   moneySaved: number;
-  lifeRegained: string; // Assuming string like "X hrs"
+  lifeRegained: string;
   recentCravings: number;
   avgMood: number;
   avgEnergy: number;
   avgFocus: number;
-  // TODO: Add goal related stats like reductionTargetMet: boolean, currentReduction: number etc.
 }
 
 // Placeholder type for logs - replace with actual type from service later

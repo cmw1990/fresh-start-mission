@@ -27,6 +27,14 @@ export const getUserLogs = async (limit: number = 100) => {
 };
 
 /**
+ * Get logs for the dashboard charts and displays
+ * This is an alias for getUserLogs to match the import in Dashboard.tsx
+ */
+export const getLogEntries = async (limit: number = 30) => {
+  return getUserLogs(limit);
+};
+
+/**
  * Get a specific log entry by date
  */
 export const getLogByDate = async (date: string) => {
@@ -118,4 +126,86 @@ export const getLogAnalytics = async (days: number = 30) => {
   }
 
   return data as NicotineLog[];
+};
+
+/**
+ * Get recent log statistics for the dashboard
+ */
+export const getRecentLogStats = async () => {
+  try {
+    const logs = await getLogAnalytics(30); // Get logs from the last 30 days
+
+    if (!logs || logs.length === 0) {
+      // Return default values if no logs are found
+      return {
+        daysAfresh: 0,
+        moneySaved: 0,
+        lifeRegained: "0 hrs",
+        recentCravings: 0,
+        avgMood: 0,
+        avgEnergy: 0,
+        avgFocus: 0
+      };
+    }
+
+    // Sort logs by date (newest first)
+    const sortedLogs = [...logs].sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    // Calculate days afresh (consecutive days without nicotine)
+    let daysAfresh = 0;
+    for (const log of sortedLogs) {
+      if (log.used_nicotine === false) {
+        daysAfresh++;
+      } else {
+        break;
+      }
+    }
+
+    // Calculate average mood, energy, and focus
+    const validMoodLogs = logs.filter(log => log.mood !== null && log.mood !== undefined);
+    const validEnergyLogs = logs.filter(log => log.energy !== null && log.energy !== undefined);
+    const validFocusLogs = logs.filter(log => log.focus !== null && log.focus !== undefined);
+    
+    const avgMood = validMoodLogs.length > 0 
+      ? validMoodLogs.reduce((sum, log) => sum + (log.mood || 0), 0) / validMoodLogs.length 
+      : 0;
+    
+    const avgEnergy = validEnergyLogs.length > 0 
+      ? validEnergyLogs.reduce((sum, log) => sum + (log.energy || 0), 0) / validEnergyLogs.length 
+      : 0;
+    
+    const avgFocus = validFocusLogs.length > 0 
+      ? validFocusLogs.reduce((sum, log) => sum + (log.focus || 0), 0) / validFocusLogs.length 
+      : 0;
+
+    // Calculate recent cravings (count of logs with craving_intensity > 5)
+    const recentCravings = logs
+      .filter(log => (log.craving_intensity || 0) > 5)
+      .length;
+
+    // Estimate money saved ($10/day for each day without nicotine)
+    const costPerDay = 10; // Placeholder, could be made dynamic based on user settings
+    const moneySaved = daysAfresh * costPerDay;
+
+    // Estimate life regained (15 min per cigarette, assuming 20/day)
+    const minPerDay = 20 * 15; // 20 cigarettes × 15 min each = 300 min
+    const totalMin = daysAfresh * minPerDay;
+    const hours = Math.floor(totalMin / 60);
+    const lifeRegained = `${hours} hrs`;
+
+    return {
+      daysAfresh,
+      moneySaved,
+      lifeRegained,
+      recentCravings,
+      avgMood,
+      avgEnergy,
+      avgFocus
+    };
+  } catch (error) {
+    console.error("Error calculating log statistics:", error);
+    throw error;
+  }
 };
