@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,7 +65,7 @@ const LogEntry = () => {
       toast({
         title: "Success!",
         description: "Your log entry has been saved successfully. Keep up the great work on your fresh journey!",
-        variant: "default"
+        variant: "success"
       });
       
       // Navigate back to dashboard after successful submission
