@@ -895,6 +895,7 @@ export type Database = {
         Row: {
           claimed_at: string
           id: string
+          points_redeemed: number
           reward_id: string
           status: string
           user_id: string
@@ -902,6 +903,7 @@ export type Database = {
         Insert: {
           claimed_at?: string
           id?: string
+          points_redeemed?: number
           reward_id: string
           status?: string
           user_id: string
@@ -909,6 +911,7 @@ export type Database = {
         Update: {
           claimed_at?: string
           id?: string
+          points_redeemed?: number
           reward_id?: string
           status?: string
           user_id?: string

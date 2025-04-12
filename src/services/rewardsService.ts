@@ -15,6 +15,18 @@ type StepReward = {
 };
 
 /**
+ * Type for claimed rewards with points_redeemed property
+ */
+type ClaimedReward = {
+  id: string;
+  user_id: string;
+  reward_id: string | null;
+  claimed_at: string;
+  status: string;
+  points_redeemed: number;
+};
+
+/**
  * Fetch the user's step history and rewards
  */
 export const getRewardHistory = async (): Promise<StepReward[]> => {
@@ -125,8 +137,12 @@ export const claimRewardPoints = async (pointsToRedeem: number) => {
     
     if (claimedError) throw claimedError;
     
-    // Calculate claimed points - this needs to match how points are stored in the claimed_rewards table
-    const claimedPoints = claimedRewards?.reduce((sum, item) => sum + (item.points_redeemed || 0), 0) || 0;
+    // Calculate claimed points - ensure we handle the case where points_redeemed might not exist in older data
+    const claimedPoints = claimedRewards?.reduce((sum, item) => {
+      // Cast to our type which includes points_redeemed
+      const reward = item as unknown as ClaimedReward;
+      return sum + (reward.points_redeemed || 0);
+    }, 0) || 0;
     
     // Calculate available points
     const availablePoints = earnedPoints - claimedPoints;
@@ -184,7 +200,13 @@ export const getTotalPoints = async () => {
     
     // Calculate balance
     const totalEarned = earned?.reduce((sum, item) => sum + (item.points_earned || 0), 0) || 0;
-    const totalSpent = claimed?.reduce((sum, item) => sum + (item.points_redeemed || 0), 0) || 0;
+    
+    // Handle the case where points_redeemed might not exist in older data
+    const totalSpent = claimed?.reduce((sum, item) => {
+      // Cast to our type which includes points_redeemed
+      const reward = item as unknown as ClaimedReward;
+      return sum + (reward.points_redeemed || 0);
+    }, 0) || 0;
     
     return totalEarned - totalSpent;
   } catch (error: any) {
