@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { isPlatform } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import { logSteps } from '@/services/rewardService';
 import { toast } from 'sonner';
 
@@ -21,7 +21,7 @@ export const useStepTracking = () => {
   // Check if running on native platform
   useEffect(() => {
     const checkPlatform = async () => {
-      const isMobile = isPlatform('ios') || isPlatform('android');
+      const isMobile = Capacitor.isNativePlatform();
       setIsNative(isMobile);
     };
     
