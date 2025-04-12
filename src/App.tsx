@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -12,6 +11,7 @@ import SmokelessDirectory from "@/pages/tools/SmokelessDirectory";
 import QuitMethods from "@/pages/tools/QuitMethods";
 import CalculatorsPage from "@/pages/tools/CalculatorsPage";
 import HolisticHealth from "@/pages/tools/HolisticHealth";
+import ProductDetails from "@/pages/tools/ProductDetails";
 
 // App pages (authenticated)
 import AppLayout from "@/components/layout/AppLayout";
@@ -48,6 +48,7 @@ function App() {
         <Route path="/tools" element={<WebToolsLayout />}>
           <Route path="nrt-guide" element={<NRTGuide />} />
           <Route path="smokeless-directory" element={<SmokelessDirectory />} />
+          <Route path="smokeless-directory/:productId" element={<ProductDetails />} />
           <Route path="quit-methods" element={<QuitMethods />} />
           <Route path="calculators" element={<CalculatorsPage />} />
           <Route path="holistic-health" element={<HolisticHealth />} />

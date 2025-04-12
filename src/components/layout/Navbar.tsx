@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, User } from "lucide-react";
+import { Menu, User, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -60,6 +59,9 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
     return user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
+  // TODO: Revisit anchor links (#how-it-works, #features) if these become separate pages.
+  // Currently assuming they are sections on the LandingPage as per t1.md.
+
   return (
     <header 
       className={cn(
@@ -69,53 +71,80 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
           : "bg-white/80 backdrop-blur-md border-b shadow-sm"
       )}
     >
-      <div className="container flex h-16 items-center justify-between">
+      <div className={cn(
+        "container flex h-16 items-center justify-between",
+        !(transparentAtTop && !scrolled) && "border-b" // Add border only when not transparent
+      )}>
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="Fresh" className="h-8 w-8" />
+            {/* Assuming logo.svg is in public folder */}
+            <img src="/logo.svg" alt="Mission Fresh Logo" className="h-8 w-8" /> 
             <span className={cn(
               "font-bold text-xl",
-              transparentAtTop && !scrolled ? "text-white" : "text-black"
-            )}>Fresh</span>
+              transparentAtTop && !scrolled ? "text-white" : "text-gray-900"
+            )}>Mission Fresh</span>
           </Link>
           
-          <nav className="hidden md:flex gap-6">
-            <Link 
-              to="/smokeless" 
+          <nav className="hidden md:flex gap-6 items-center">
+            <a 
+              href="/#how-it-works" // Ensure it links to landing page section
               className={cn(
                 "text-sm font-medium hover:text-primary transition-colors", 
-                transparentAtTop && !scrolled ? "text-white/90" : "text-gray-700"
+                transparentAtTop && !scrolled ? "text-white/90 hover:text-white" : "text-gray-700"
               )}
             >
-              Smokeless
-            </Link>
-            <Link 
-              to="/nrt" 
+              How It Works
+            </a>
+            <a 
+              href="/#features" // Ensure it links to landing page section
               className={cn(
                 "text-sm font-medium hover:text-primary transition-colors", 
-                transparentAtTop && !scrolled ? "text-white/90" : "text-gray-700"
+                transparentAtTop && !scrolled ? "text-white/90 hover:text-white" : "text-gray-700"
               )}
             >
-              NRT
-            </Link>
-            <Link 
-              to="/guides" 
+              Features
+            </a>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className={cn(
+                    "flex items-center text-sm font-medium hover:text-primary transition-colors outline-none", 
+                    transparentAtTop && !scrolled ? "text-white/90 hover:text-white" : "text-gray-700"
+                  )}
+                >
+                  Web Tools <ChevronDown className="ml-1 h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/nrt-guide">NRT Guide</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/smokeless-directory">Smokeless Directory</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/quit-methods">Quit Methods</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/holistic-health">Holistic Health</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/calculators">Calculators</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Pricing Link (Future) - Placeholder */}
+            <span 
               className={cn(
-                "text-sm font-medium hover:text-primary transition-colors", 
-                transparentAtTop && !scrolled ? "text-white/90" : "text-gray-700"
+                "text-sm font-medium transition-colors cursor-not-allowed", 
+                transparentAtTop && !scrolled ? "text-white/50" : "text-gray-400"
               )}
+              title="Coming Soon"
             >
-              Guides
-            </Link>
-            <Link 
-              to="/about" 
-              className={cn(
-                "text-sm font-medium hover:text-primary transition-colors", 
-                transparentAtTop && !scrolled ? "text-white/90" : "text-gray-700"
-              )}
-            >
-              About
-            </Link>
+              Pricing
+            </span>
           </nav>
         </div>
 
@@ -141,7 +170,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/app">Dashboard</Link>
+                  <Link to="/app/dashboard">Dashboard</Link> {/* Updated link */}
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/app/settings">Settings</Link>
@@ -167,7 +196,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                       : ""
                   )}
                 >
-                  Login
+                  Sign In {/* Updated Text */}
                 </Button>
               </Link>
               <Link to="/auth?mode=register" className="hidden sm:block">
@@ -176,15 +205,16 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                   className={cn(
                     transparentAtTop && !scrolled 
                       ? "bg-white text-black hover:bg-white/90" 
-                      : "bg-fresh-300 hover:bg-fresh-400 text-white"
+                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
                   )}
                 >
-                  Start Free
+                  Get Started
                 </Button>
               </Link>
             </>
           )}
           
+          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
               <Button 
@@ -201,33 +231,61 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
             </SheetTrigger>
             <SheetContent side="left">
               <Link to="/" className="flex items-center space-x-2 mb-8">
-                <img src="/logo.svg" alt="Fresh" className="h-8 w-8" />
-                <span className="font-bold text-xl">Fresh</span>
+                <img src="/logo.svg" alt="Mission Fresh Logo" className="h-8 w-8" />
+                <span className="font-bold text-xl">Mission Fresh</span>
               </Link>
               <nav className="flex flex-col gap-4">
-                <Link 
-                  to="/smokeless" 
+                <a 
+                  href="/#how-it-works" 
                   className="text-base font-medium hover:text-primary transition-colors"
                 >
-                  Smokeless
+                  How It Works
+                </a>
+                <a 
+                  href="/#features" 
+                  className="text-base font-medium hover:text-primary transition-colors"
+                >
+                  Features
+                </a>
+                {/* Pricing Link (Future) - Placeholder */}
+                <span 
+                  className="text-base font-medium text-muted-foreground cursor-not-allowed"
+                  title="Coming Soon"
+                >
+                  Pricing
+                </span>
+
+                <div className="h-px bg-border my-2" />
+                <span className="text-sm font-medium text-muted-foreground px-2">Web Tools</span>
+                <Link 
+                  to="/tools/nrt-guide" 
+                  className="text-base font-medium hover:text-primary transition-colors pl-4"
+                >
+                  NRT Guide
                 </Link>
                 <Link 
-                  to="/nrt" 
-                  className="text-base font-medium hover:text-primary transition-colors"
+                  to="/tools/smokeless-directory" 
+                  className="text-base font-medium hover:text-primary transition-colors pl-4"
                 >
-                  NRT
+                  Smokeless Directory
                 </Link>
                 <Link 
-                  to="/guides" 
-                  className="text-base font-medium hover:text-primary transition-colors"
+                  to="/tools/quit-methods" 
+                  className="text-base font-medium hover:text-primary transition-colors pl-4"
                 >
-                  Guides
+                  Quit Methods
                 </Link>
                 <Link 
-                  to="/about" 
-                  className="text-base font-medium hover:text-primary transition-colors"
+                  to="/tools/holistic-health" 
+                  className="text-base font-medium hover:text-primary transition-colors pl-4"
                 >
-                  About
+                  Holistic Health
+                </Link>
+                <Link 
+                  to="/tools/calculators" 
+                  className="text-base font-medium hover:text-primary transition-colors pl-4"
+                >
+                  Calculators
                 </Link>
                 
                 {!isAuthenticated && (
@@ -237,13 +295,13 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                       to="/auth?mode=login" 
                       className="text-base font-medium hover:text-primary transition-colors"
                     >
-                      Log in
+                      Sign In {/* Updated Text */}
                     </Link>
                     <Link 
                       to="/auth?mode=register" 
                       className="text-base font-medium hover:text-primary transition-colors"
                     >
-                      Sign up
+                      Get Started
                     </Link>
                   </>
                 )}
@@ -252,7 +310,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                   <>
                     <div className="h-px bg-border my-2" />
                     <Link 
-                      to="/app" 
+                      to="/app/dashboard" // Updated link
                       className="text-base font-medium hover:text-primary transition-colors"
                     >
                       Dashboard
