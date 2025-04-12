@@ -1,14 +1,17 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Footprints, RefreshCw, Download, Shield, ChevronUp } from "lucide-react";
+import { Footprints, RefreshCw, Download, Shield, ChevronUp, Award, Zap } from "lucide-react";
 import { useStepTracking } from '@/hooks/useStepTracking';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 import { useQuery } from '@tanstack/react-query';
 import { getUserPointsBalance } from '@/services/rewardService';
+import { motion } from 'framer-motion';
+import { Capacitor } from '@capacitor/core';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const EnhancedMobileStepTracker = () => {
   const { 
@@ -20,7 +23,9 @@ const EnhancedMobileStepTracker = () => {
     fetchSteps 
   } = useStepTracking();
   
-  const { impact } = useHaptics();
+  const { impact, notification } = useHaptics();
+  const isMobile = useIsMobile();
+  const [showStepAnimation, setShowStepAnimation] = useState(false);
   
   // Get user points for milestone tracking
   const { data: pointsBalance = 0 } = useQuery({
@@ -45,8 +50,17 @@ const EnhancedMobileStepTracker = () => {
   }, [isNative, hasPermission, fetchSteps, stepData.lastUpdated]);
   
   const handleRefresh = async () => {
+    setShowStepAnimation(true);
     await fetchSteps();
     impact(HapticImpact.LIGHT);
+    
+    // Check if steps reached a milestone (multiple of 1000)
+    const isThousandMilestone = stepData.steps % 1000 === 0 && stepData.steps > 0;
+    if (isThousandMilestone) {
+      notification('SUCCESS');
+    }
+    
+    setTimeout(() => setShowStepAnimation(false), 2000);
   };
 
   const handleRequestPermissions = async () => {
@@ -58,10 +72,20 @@ const EnhancedMobileStepTracker = () => {
     ? new Date(stepData.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
     : null;
 
+  // Detect platform for styling
+  const isIOS = Capacitor.getPlatform() === 'ios';
+  const platformClass = isIOS ? 'ios-style' : 'android-style';
+
   return (
-    <Card className="border-fresh-100 mt-4">
+    <Card className={`border-fresh-100 mt-4 ${platformClass} overflow-hidden`}>
       <CardHeader className="bg-fresh-50">
-        <Footprints className="h-6 w-6 text-fresh-500 mb-2" />
+        <motion.div 
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Footprints className="h-6 w-6 text-fresh-500 mb-2" />
+        </motion.div>
         <CardTitle>Step Tracker</CardTitle>
         <CardDescription>
           {isNative 
@@ -69,20 +93,32 @@ const EnhancedMobileStepTracker = () => {
             : "Steps are tracked automatically in our mobile app"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="pt-6 relative">
         {hasPermission ? (
           <div className="space-y-4">
-            <div className="text-center">
+            <motion.div 
+              className="text-center"
+              animate={showStepAnimation ? {
+                scale: [1, 1.1, 1],
+                transition: { duration: 0.5 }
+              } : {}}
+            >
               <p className="text-4xl font-bold text-fresh-500">{stepData.steps.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">steps today</p>
-            </div>
+            </motion.div>
             
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Daily Goal (10,000 steps)</span>
                 <span className="font-medium">{Math.round(dailyProgress)}%</span>
               </div>
-              <Progress value={dailyProgress} className="h-2" />
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 0.5 }}
+              >
+                <Progress value={dailyProgress} className="h-2" />
+              </motion.div>
             </div>
             
             <div className="space-y-2">
@@ -90,18 +126,33 @@ const EnhancedMobileStepTracker = () => {
                 <span>Next Step Milestone</span>
                 <span className="font-medium">{stepsToNextThousand} steps to go</span>
               </div>
-              <Progress value={progressToNextThousand} className="h-2" />
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Progress value={progressToNextThousand} className="h-2" />
+              </motion.div>
             </div>
             
-            <div className="bg-gray-50 p-3 rounded-lg flex justify-between items-center">
-              <div>
-                <p className="font-medium">{pointsBalance?.toString() || '0'} points available</p>
-                <p className="text-xs text-muted-foreground">
-                  {Math.floor(stepData.steps / 100)} points earned today
-                </p>
+            <motion.div
+              className="bg-gray-50 p-3 rounded-lg"
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-1">
+                    <p className="font-medium">{pointsBalance?.toString() || '0'} points available</p>
+                    <Award className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {Math.floor(stepData.steps / 100)} points earned today
+                  </p>
+                </div>
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
               </div>
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
-            </div>
+            </motion.div>
             
             {formattedDate && (
               <p className="text-center text-sm text-muted-foreground">
@@ -109,23 +160,25 @@ const EnhancedMobileStepTracker = () => {
               </p>
             )}
             
-            <Button 
-              onClick={handleRefresh} 
-              className="w-full bg-fresh-500 hover:bg-fresh-600"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Refresh Step Data
-                </>
-              )}
-            </Button>
+            <motion.div whileTap={{ scale: 0.95 }}>
+              <Button 
+                onClick={handleRefresh} 
+                className="w-full bg-fresh-500 hover:bg-fresh-600 flex items-center gap-2 touch-target"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Refresh Step Data
+                  </>
+                )}
+              </Button>
+            </motion.div>
             
             <Alert className="bg-fresh-50 border-fresh-200">
               <Shield className="h-4 w-4 text-fresh-500" />
@@ -137,25 +190,36 @@ const EnhancedMobileStepTracker = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-muted-foreground text-center">
-              {isNative 
-                ? "Enable step tracking to earn points and rewards based on your activity."
-                : "Install our mobile app to track steps and earn rewards while staying fresh!"}
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <p className="text-muted-foreground text-center">
+                {isNative 
+                  ? "Enable step tracking to earn points and rewards based on your activity."
+                  : "Install our mobile app to track steps and earn rewards while staying fresh!"}
+              </p>
+            </motion.div>
             
             {isNative ? (
-              <Button 
-                onClick={handleRequestPermissions}
-                className="w-full bg-fresh-500 hover:bg-fresh-600"
-                disabled={isLoading}
-              >
-                {isLoading ? "Requesting..." : "Enable Step Tracking"}
-              </Button>
+              <motion.div whileTap={{ scale: 0.95 }}>
+                <Button 
+                  onClick={handleRequestPermissions}
+                  className="w-full bg-fresh-500 hover:bg-fresh-600 touch-target"
+                  disabled={isLoading}
+                >
+                  <Zap className="mr-2 h-4 w-4" />
+                  {isLoading ? "Requesting..." : "Enable Step Tracking"}
+                </Button>
+              </motion.div>
             ) : (
-              <Button variant="outline" className="w-full flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                Learn How to Install
-              </Button>
+              <motion.div whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" className="w-full flex items-center gap-2 touch-target">
+                  <Download className="h-4 w-4" />
+                  Learn How to Install
+                </Button>
+              </motion.div>
             )}
             
             <Alert className={isNative ? "bg-blue-50 border-blue-200" : "bg-amber-50 border-amber-200"}>
@@ -169,9 +233,32 @@ const EnhancedMobileStepTracker = () => {
             </Alert>
           </div>
         )}
+
+        {/* Milestone achievement animation */}
+        {showStepAnimation && stepData.steps % 1000 === 0 && stepData.steps > 0 && (
+          <motion.div 
+            className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-b-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div 
+              className="bg-white p-4 rounded-xl shadow-lg text-center"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Award className="h-10 w-10 text-amber-500 mx-auto mb-2" />
+              <h3 className="text-xl font-bold">Step Milestone!</h3>
+              <p>You've reached {stepData.steps.toLocaleString()} steps</p>
+            </motion.div>
+          </motion.div>
+        )}
       </CardContent>
     </Card>
   );
 };
 
 export default EnhancedMobileStepTracker;
+
