@@ -891,6 +891,38 @@ export type Database = {
         }
         Relationships: []
       }
+      claimed_rewards: {
+        Row: {
+          claimed_at: string
+          id: string
+          reward_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          reward_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          reward_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claimed_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_activity_templates: {
         Row: {
           benefits: string[] | null
@@ -1632,6 +1664,60 @@ export type Database = {
         }
         Relationships: []
       }
+      nicotine_logs: {
+        Row: {
+          craving_intensity: number
+          craving_trigger: string | null
+          created_at: string
+          date: string
+          energy: number
+          focus: number
+          id: string
+          journal: string | null
+          mood: number
+          product_type: string | null
+          quantity: number | null
+          sleep_hours: number
+          sleep_quality: number
+          used_nicotine: boolean
+          user_id: string
+        }
+        Insert: {
+          craving_intensity: number
+          craving_trigger?: string | null
+          created_at?: string
+          date: string
+          energy: number
+          focus: number
+          id?: string
+          journal?: string | null
+          mood: number
+          product_type?: string | null
+          quantity?: number | null
+          sleep_hours: number
+          sleep_quality: number
+          used_nicotine: boolean
+          user_id: string
+        }
+        Update: {
+          craving_intensity?: number
+          craving_trigger?: string | null
+          created_at?: string
+          date?: string
+          energy?: number
+          focus?: number
+          id?: string
+          journal?: string | null
+          mood?: number
+          product_type?: string | null
+          quantity?: number | null
+          sleep_hours?: number
+          sleep_quality?: number
+          used_nicotine?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       patient_check_ins: {
         Row: {
           caregiver_notes: string | null
@@ -1821,6 +1907,60 @@ export type Database = {
         }
         Relationships: []
       }
+      rewards: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          name: string
+          points_required: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          points_required: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          points_required?: number
+        }
+        Relationships: []
+      }
+      step_rewards: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          points_earned: number
+          steps: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          points_earned: number
+          steps: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          points_earned?: number
+          steps?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -1935,6 +2075,48 @@ export type Database = {
           review_summary?: Json | null
           updated_at?: string
           url?: string
+        }
+        Relationships: []
+      }
+      user_goals: {
+        Row: {
+          created_at: string
+          goal_type: string
+          id: string
+          method: string
+          motivation: string | null
+          product_type: string
+          quit_date: string | null
+          reduction_percent: number | null
+          timeline_days: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal_type: string
+          id?: string
+          method: string
+          motivation?: string | null
+          product_type: string
+          quit_date?: string | null
+          reduction_percent?: number | null
+          timeline_days?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal_type?: string
+          id?: string
+          method?: string
+          motivation?: string | null
+          product_type?: string
+          quit_date?: string | null
+          reduction_percent?: number | null
+          timeline_days?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

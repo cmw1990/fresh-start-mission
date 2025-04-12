@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -13,6 +13,8 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getUserGoal, saveUserGoal, updateUserGoal } from "@/services/goalService";
+import { UserGoal } from "@/lib/supabase";
 
 const Goals = () => {
   const [goalType, setGoalType] = useState<"afresh" | "fresher">("afresh");
@@ -22,25 +24,78 @@ const Goals = () => {
   const [reduction, setReduction] = useState("50");
   const [timeline, setTimeline] = useState("30");
   const [motivation, setMotivation] = useState("");
+  const [existingGoal, setExistingGoal] = useState<UserGoal | null>(null);
+  const [loading, setLoading] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchGoal = async () => {
+      setLoading(true);
+      const goal = await getUserGoal();
+      if (goal) {
+        setExistingGoal(goal);
+        setGoalType(goal.goal_type as "afresh" | "fresher");
+        setMethod(goal.method);
+        setProduct(goal.product_type);
+        if (goal.quit_date) {
+          setQuitDate(new Date(goal.quit_date));
+        }
+        if (goal.reduction_percent) {
+          setReduction(goal.reduction_percent.toString());
+        }
+        if (goal.timeline_days) {
+          setTimeline(goal.timeline_days.toString());
+        }
+        if (goal.motivation) {
+          setMotivation(goal.motivation);
+        }
+      }
+      setLoading(false);
+    };
+    
+    fetchGoal();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
-    // Here we would save the goal to Supabase
-    console.log({
-      goalType,
-      method,
-      product,
-      quitDate,
-      reduction: parseInt(reduction),
-      timeline: parseInt(timeline),
-      motivation
-    });
-    
-    toast.success("Your goals have been updated!", {
-      description: "We'll use these to personalize your journey."
-    });
+    try {
+      const goalData = {
+        goal_type: goalType,
+        method,
+        product_type: product,
+        quit_date: quitDate ? quitDate.toISOString() : undefined,
+        reduction_percent: parseInt(reduction),
+        timeline_days: parseInt(timeline),
+        motivation
+      };
+      
+      if (existingGoal) {
+        await updateUserGoal(existingGoal.id, goalData);
+      } else {
+        const newGoal = await saveUserGoal(goalData);
+        if (newGoal) {
+          setExistingGoal(newGoal);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving goals:", error);
+      toast.error("Failed to save your goals. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+  
+  if (loading && !existingGoal) {
+    return (
+      <div className="container py-8 flex items-center justify-center min-h-[80vh]">
+        <div className="text-center">
+          <div className="h-12 w-12 rounded-full border-4 border-fresh-300 border-t-transparent animate-spin mx-auto mb-4"></div>
+          <p>Loading your goals...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="container py-8">
@@ -219,8 +274,17 @@ const Goals = () => {
             </CardContent>
           </Card>
           
-          <Button type="submit" className="w-full md:w-auto bg-fresh-300 hover:bg-fresh-400">
-            Save Goals
+          <Button 
+            type="submit" 
+            className="w-full md:w-auto bg-fresh-300 hover:bg-fresh-400"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                Saving...
+              </>
+            ) : existingGoal ? "Update Goals" : "Save Goals"}
           </Button>
         </div>
       </form>

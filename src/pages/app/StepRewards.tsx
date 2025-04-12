@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,41 +8,78 @@ import { Progress } from "@/components/ui/progress";
 import { Footprints, Gift, Trophy, Award } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { getUserPointsBalance, logSteps, getAvailableRewards, claimReward } from "@/services/rewardService";
+import { Reward } from "@/lib/supabase";
 
 const StepRewards = () => {
   const { user } = useAuth();
   const [steps, setSteps] = useState("0");
   const [stepsGoal, setStepsGoal] = useState(10000);
-  const [rewardPoints, setRewardPoints] = useState(125);
+  const [rewardPoints, setRewardPoints] = useState(0);
+  const [availableRewards, setAvailableRewards] = useState<Reward[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
   
-  const handleStepsSubmit = () => {
-    const stepsNum = parseInt(steps);
-    if (isNaN(stepsNum) || stepsNum < 0) {
-      toast.error("Please enter a valid number of steps");
-      return;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const points = await getUserPointsBalance();
+        setRewardPoints(points);
+        
+        const rewards = await getAvailableRewards();
+        setAvailableRewards(rewards);
+      } catch (error) {
+        console.error("Error loading rewards data:", error);
+        toast.error("Failed to load rewards data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (user) {
+      fetchData();
     }
-    
-    // Calculate points (1 point per 100 steps)
-    const pointsEarned = Math.floor(stepsNum / 100);
-    setRewardPoints(prev => prev + pointsEarned);
-    
-    toast.success(`${stepsNum} steps logged successfully!`, {
-      description: `You earned ${pointsEarned} points!`
-    });
-    
-    setSteps("0");
+  }, [user]);
+  
+  const handleStepsSubmit = async () => {
+    try {
+      setLoading(true);
+      const stepsNum = parseInt(steps);
+      if (isNaN(stepsNum) || stepsNum < 0) {
+        toast.error("Please enter a valid number of steps");
+        return;
+      }
+      
+      const result = await logSteps(stepsNum);
+      if (result) {
+        // Refresh points balance
+        const newBalance = await getUserPointsBalance();
+        setRewardPoints(newBalance);
+        setSteps("0");
+      }
+    } catch (error) {
+      console.error("Error logging steps:", error);
+      toast.error("Failed to log steps");
+    } finally {
+      setLoading(false);
+    }
   };
   
-  const claimReward = (points: number, description: string) => {
-    if (rewardPoints >= points) {
-      setRewardPoints(prev => prev - points);
-      toast.success(`Reward claimed successfully!`, {
-        description: `You've claimed: ${description}`
-      });
-    } else {
-      toast.error("Not enough points", {
-        description: `You need ${points - rewardPoints} more points to claim this reward`
-      });
+  const handleClaimReward = async (rewardId: string) => {
+    try {
+      setClaimingId(rewardId);
+      const result = await claimReward(rewardId);
+      if (result) {
+        // Refresh points balance
+        const newBalance = await getUserPointsBalance();
+        setRewardPoints(newBalance);
+      }
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+      toast.error("Failed to claim reward");
+    } finally {
+      setClaimingId(null);
     }
   };
   
@@ -85,8 +122,14 @@ const StepRewards = () => {
                     <Button 
                       onClick={handleStepsSubmit}
                       className="bg-fresh-300 hover:bg-fresh-400"
+                      disabled={loading}
                     >
-                      Log Steps
+                      {loading ? (
+                        <>
+                          <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                          Processing...
+                        </>
+                      ) : "Log Steps"}
                     </Button>
                   </div>
                 </div>
@@ -122,73 +165,42 @@ const StepRewards = () => {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Card>
-                  <CardHeader className="py-4">
-                    <CardTitle className="text-base">10% Off Next Month</CardTitle>
-                    <CardDescription>100 points</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="pt-0">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full"
-                      onClick={() => claimReward(100, "10% off next month's subscription")}
-                    >
-                      Claim Reward
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="py-4">
-                    <CardTitle className="text-base">Fresh Start Sticker Pack</CardTitle>
-                    <CardDescription>200 points</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="pt-0">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full"
-                      onClick={() => claimReward(200, "Fresh Start Sticker Pack")}
-                    >
-                      Claim Reward
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="py-4">
-                    <CardTitle className="text-base">Premium Tool Access</CardTitle>
-                    <CardDescription>250 points</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="pt-0">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full"
-                      onClick={() => claimReward(250, "One month of Premium Tool Access")}
-                    >
-                      Claim Reward
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="py-4">
-                    <CardTitle className="text-base">Wellness Starter Kit</CardTitle>
-                    <CardDescription>500 points</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="pt-0">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full"
-                      onClick={() => claimReward(500, "Wellness Starter Kit")}
-                    >
-                      Claim Reward
-                    </Button>
-                  </CardFooter>
-                </Card>
+                {loading && availableRewards.length === 0 ? (
+                  <div className="col-span-2 flex justify-center py-8">
+                    <div className="h-8 w-8 rounded-full border-4 border-fresh-300 border-t-transparent animate-spin"></div>
+                  </div>
+                ) : (
+                  availableRewards.map((reward) => (
+                    <Card key={reward.id}>
+                      <CardHeader className="py-4">
+                        <CardTitle className="text-base">{reward.name}</CardTitle>
+                        <CardDescription>{reward.points_required} points</CardDescription>
+                      </CardHeader>
+                      <CardFooter className="pt-0">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="w-full"
+                          disabled={rewardPoints < reward.points_required || claimingId === reward.id}
+                          onClick={() => handleClaimReward(reward.id)}
+                        >
+                          {claimingId === reward.id ? (
+                            <>
+                              <span className="h-3 w-3 mr-2 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
+                              Claiming...
+                            </>
+                          ) : "Claim Reward"}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))
+                )}
+
+                {availableRewards.length === 0 && !loading && (
+                  <div className="col-span-2 text-center py-8 text-muted-foreground">
+                    No rewards available at this time. Check back soon!
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
