@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { NicotineLog } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -92,7 +91,6 @@ export const saveLogEntry = async (log: Omit<NicotineLog, 'id' | 'created_at'>) 
         .single();
       
       if (error) throw error;
-      toast.success("Log entry updated successfully!");
       return data as NicotineLog;
     } else {
       // Create new log
@@ -103,12 +101,10 @@ export const saveLogEntry = async (log: Omit<NicotineLog, 'id' | 'created_at'>) 
         .single();
       
       if (error) throw error;
-      toast.success("Log entry saved successfully!");
       return data as NicotineLog;
     }
   } catch (error: any) {
     console.error('Error saving log entry', error);
-    toast.error(error.message || "Error saving log entry");
     throw error;
   }
 };

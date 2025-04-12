@@ -57,6 +57,7 @@ const LogEntry = () => {
         journal: journal || undefined,
       });
 
+      // Successfully saved entry
       toast.success("Your entry has been logged successfully!", {
         description: "Keep up the great work on your fresh journey!",
       });
