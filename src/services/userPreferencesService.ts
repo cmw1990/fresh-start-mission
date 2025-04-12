@@ -1,110 +1,102 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export type DashboardWidget = 'keyStats' | 'wellness' | 'milestone' | 'quote' | 'supportTools';
 
 export interface UserPreferences {
-  id?: string;
-  user_id?: string;
-  dashboard_widgets?: DashboardWidget[];
-  notification_cravings?: boolean;
-  notification_logs?: boolean;
-  notification_milestones?: boolean;
-  theme?: 'light' | 'dark' | 'system';
+  id: string;
+  user_id: string;
+  dashboard_widgets: DashboardWidget[];
+  notification_cravings: boolean;
+  notification_logs: boolean;
+  notification_milestones: boolean;
+  theme: 'light' | 'dark';
   created_at?: string;
   updated_at?: string;
 }
 
 /**
- * Get user preferences from Supabase
+ * Get the current user's preferences
+ * @returns User preferences
  */
-export const getUserPreferences = async (): Promise<UserPreferences> => {
-  const { user } = useAuth();
-  if (!user) throw new Error("User not authenticated");
-
+export const getUserPreferences = async (): Promise<UserPreferences | null> => {
   try {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) return null;
+
     const { data, error } = await supabase
       .from('user_preferences')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', user.user.id)
       .single();
 
     if (error) {
-      console.error("Error fetching user preferences:", error);
-      return getDefaultPreferences();
+      if (error.code === 'PGRST116') {
+        // Not found - create default preferences
+        return createDefaultUserPreferences();
+      }
+      throw error;
     }
 
-    return data as UserPreferences || getDefaultPreferences();
-  } catch (error) {
-    console.error("Error in getUserPreferences:", error);
-    return getDefaultPreferences();
+    return data as UserPreferences;
+  } catch (error: any) {
+    console.error("Error fetching user preferences:", error);
+    throw error;
   }
 };
 
 /**
- * Save user preferences to Supabase
+ * Create default user preferences if none exist
  */
-export const saveUserPreferences = async (preferences: UserPreferences): Promise<UserPreferences> => {
-  const { user } = useAuth();
-  if (!user) throw new Error("User not authenticated");
+const createDefaultUserPreferences = async (): Promise<UserPreferences> => {
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) throw new Error('User not authenticated');
 
-  // Ensure user_id is set
-  const prefsToSave = {
-    ...preferences,
-    user_id: user.id,
+  const defaultPreferences = {
+    user_id: user.user.id,
+    dashboard_widgets: ['keyStats', 'wellness', 'milestone', 'quote', 'supportTools'] as DashboardWidget[],
+    notification_cravings: true,
+    notification_logs: true,
+    notification_milestones: true,
+    theme: 'light' as const
   };
 
   try {
     const { data, error } = await supabase
       .from('user_preferences')
-      .upsert(prefsToSave, { onConflict: 'user_id' })
+      .insert([defaultPreferences])
       .select()
       .single();
 
-    if (error) {
-      console.error("Error saving user preferences:", error);
-      throw error;
-    }
-
+    if (error) throw error;
     return data as UserPreferences;
-  } catch (error) {
-    console.error("Error in saveUserPreferences:", error);
+  } catch (error: any) {
+    console.error("Error creating default user preferences:", error);
     throw error;
   }
 };
 
 /**
- * Update dashboard widgets order/visibility
+ * Update dashboard widget order
+ * @param widgets Array of dashboard widgets in the desired order
  */
-export const updateDashboardWidgets = async (widgets: DashboardWidget[]): Promise<UserPreferences> => {
-  const { user } = useAuth();
-  if (!user) throw new Error("User not authenticated");
-
+export const updateDashboardWidgets = async (widgets: DashboardWidget[]): Promise<void> => {
   try {
-    // First get current preferences
-    const currentPrefs = await getUserPreferences();
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('user_preferences')
+      .update({ dashboard_widgets: widgets })
+      .eq('user_id', user.user.id);
+
+    if (error) throw error;
     
-    // Update just the widgets
-    const updatedPrefs = {
-      ...currentPrefs,
-      dashboard_widgets: widgets,
-    };
-    
-    return saveUserPreferences(updatedPrefs);
-  } catch (error) {
+    toast.success("Dashboard layout saved");
+  } catch (error: any) {
     console.error("Error updating dashboard widgets:", error);
+    toast.error("Failed to save dashboard layout");
     throw error;
   }
 };
-
-/**
- * Get default preferences when none exist yet
- */
-export const getDefaultPreferences = (): UserPreferences => ({
-  dashboard_widgets: ['keyStats', 'wellness', 'milestone', 'quote', 'supportTools'],
-  notification_cravings: true,
-  notification_logs: true,
-  notification_milestones: true,
-  theme: 'light',
-});

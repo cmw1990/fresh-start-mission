@@ -45,16 +45,20 @@ export const getRandomQuote = async (): Promise<Quote> => {
     const { data, error } = await supabase
       .from('quotes')
       .select('*')
-      .order('random()')
+      .order('created_at', { ascending: false })
       .limit(1)
       .single();
     
-    if (error || !data) {
+    if (error || !data || !data.text || !data.author) {
       // If Supabase fails or returns no data, use a fallback quote
       return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
     }
     
-    return data as Quote;
+    return {
+      id: data.id,
+      text: data.text,
+      author: data.author
+    };
   } catch (error) {
     console.error("Error fetching quote:", error);
     // Return a random fallback quote

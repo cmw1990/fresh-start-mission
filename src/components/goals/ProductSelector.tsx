@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProductSelectorProps {
   product: string;
@@ -32,6 +33,7 @@ interface CustomProduct {
 }
 
 const ProductSelector = ({ product, setProduct }: ProductSelectorProps) => {
+  const { user } = useAuth();
   const [customProductName, setCustomProductName] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [recentProducts, setRecentProducts] = useState<string[]>([]);
@@ -40,6 +42,8 @@ const ProductSelector = ({ product, setProduct }: ProductSelectorProps) => {
   const { data: customProducts, refetch: refetchCustomProducts } = useQuery<CustomProduct[]>({
     queryKey: ['custom-products'],
     queryFn: async () => {
+      if (!user) return [];
+      
       const { data, error } = await supabase
         .from('custom_products')
         .select('*')
@@ -89,10 +93,19 @@ const ProductSelector = ({ product, setProduct }: ProductSelectorProps) => {
       return;
     }
     
+    if (!user) {
+      toast.error("You must be logged in to create custom products");
+      return;
+    }
+    
     try {
+      // Fixed: Include user_id in the insert
       const { data, error } = await supabase
         .from('custom_products')
-        .insert([{ name: customProductName.trim() }])
+        .insert([{ 
+          name: customProductName.trim(),
+          user_id: user.id 
+        }])
         .select()
         .single();
         

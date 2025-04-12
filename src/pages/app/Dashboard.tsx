@@ -1,29 +1,67 @@
+
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from "@tanstack/react-query";
-import { getUserPreferences } from "@/services/userPreferencesService";
+import { getUserPreferences, updateDashboardWidgets } from "@/services/userPreferencesService";
 import { DashboardWidget } from "@/services/userPreferencesService";
-import { updateDashboardWidgets } from "@/services/userPreferencesService";
-import { KeyStatsCard } from "@/components/app/dashboard/KeyStatsCard";
-import { WellnessCard } from "@/components/app/dashboard/WellnessCard";
-import { MilestoneCard } from "@/components/app/dashboard/MilestoneCard";
 import { QuoteCard } from "@/components/app/dashboard/QuoteCard";
-import { SupportToolsCard } from "@/components/app/dashboard/SupportToolsCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
+// Create placeholder dashboard widget components
+const KeyStatsCard = () => (
+  <div className="p-6 bg-white rounded-lg shadow-sm">
+    <h3 className="text-lg font-medium">Key Stats</h3>
+    <p className="text-sm text-muted-foreground">Your progress at a glance</p>
+    <div className="mt-4">
+      <Skeleton className="h-16 w-full" />
+    </div>
+  </div>
+);
+
+const WellnessCard = () => (
+  <div className="p-6 bg-white rounded-lg shadow-sm">
+    <h3 className="text-lg font-medium">Wellness Metrics</h3>
+    <p className="text-sm text-muted-foreground">How you're feeling</p>
+    <div className="mt-4">
+      <Skeleton className="h-16 w-full" />
+    </div>
+  </div>
+);
+
+const MilestoneCard = () => (
+  <div className="p-6 bg-white rounded-lg shadow-sm">
+    <h3 className="text-lg font-medium">Milestones</h3>
+    <p className="text-sm text-muted-foreground">Your achievements</p>
+    <div className="mt-4">
+      <Skeleton className="h-16 w-full" />
+    </div>
+  </div>
+);
+
+const SupportToolsCard = () => (
+  <div className="p-6 bg-white rounded-lg shadow-sm">
+    <h3 className="text-lg font-medium">Support Tools</h3>
+    <p className="text-sm text-muted-foreground">Help when you need it</p>
+    <div className="mt-4 space-y-2">
+      <Skeleton className="h-8 w-full" />
+      <Skeleton className="h-8 w-full" />
+    </div>
+  </div>
+);
+
 const Dashboard = () => {
   const { user, loading } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user && !loading) {
-      router.push('/login');
+      navigate('/login');
     }
-  }, [user, loading, router]);
+  }, [user, loading, navigate]);
 
-  // Replace the existing useQuery for preferences with this fixed version
+  // Use react-query for preferences
   const { data: preferences } = useQuery({
     queryKey: ['user-preferences'],
     queryFn: getUserPreferences,
