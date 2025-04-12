@@ -13,6 +13,8 @@ import QuitMethods from "@/pages/tools/QuitMethods";
 import CalculatorsPage from "@/pages/tools/CalculatorsPage";
 import HolisticHealth from "@/pages/tools/HolisticHealth";
 import ProductDetails from "@/pages/tools/ProductDetails";
+import HowItWorks from "@/pages/HowItWorks";
+import Features from "@/pages/Features";
 
 // App pages (authenticated)
 import AppLayout from "@/components/layout/AppLayout";
@@ -44,6 +46,8 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/sign-up" element={<AuthPage />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/features" element={<Features />} />
         
         {/* Public web tools routes */}
         <Route path="/tools" element={<WebToolsLayout />}>
