@@ -1,230 +1,167 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { Check, Plus, X } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter 
-} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProductSelectorProps {
-  product: string;
-  setProduct: (value: string) => void;
+  productType: string;
+  onProductTypeChange: (value: string) => void;
+  productOptions?: string[];
 }
 
-interface CustomProduct {
-  id: string;
-  name: string;
-  user_id: string;
-  created_at?: string;
-  updated_at?: string;
-}
+const getDefaultProductOptions = (productType: string) => {
+  switch (productType) {
+    case 'cigarette':
+      return ['Standard cigarettes', 'Hand-rolled cigarettes', 'Clove cigarettes', 'Light cigarettes'];
+    case 'vape':
+      return ['Disposable vape', 'Pod system', 'Box mod', 'Vape pen'];
+    case 'nicotine_pouch':
+      return ['Regular strength', 'Strong', 'Extra strong', 'Mini'];
+    case 'smokeless_tobacco':
+      return ['Snus', 'Chewing tobacco', 'Snuff', 'Dipping tobacco'];
+    default:
+      return [];
+  }
+};
 
-const ProductSelector = ({ product, setProduct }: ProductSelectorProps) => {
+export const ProductSelector = ({
+  productType,
+  onProductTypeChange,
+  productOptions = []
+}: ProductSelectorProps) => {
   const { user } = useAuth();
-  const [customProductName, setCustomProductName] = useState("");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [recentProducts, setRecentProducts] = useState<string[]>([]);
+  const defaultOptions = getDefaultProductOptions(productType);
+  const [options, setOptions] = useState<string[]>([...defaultOptions, ...productOptions]);
+  const [customProducts, setCustomProducts] = useState<{ name: string }[]>([]);
+  const [showAddCustom, setShowAddCustom] = useState(false);
+  const [customProductName, setCustomProductName] = useState('');
 
-  // Fetch user's custom products
-  const { data: customProducts, refetch: refetchCustomProducts } = useQuery<CustomProduct[]>({
-    queryKey: ['custom-products'],
-    queryFn: async () => {
-      if (!user) return [];
-      
+  // Fetch custom products from database on component mount
+  useEffect(() => {
+    if (user) {
+      fetchCustomProducts();
+    }
+  }, [user, productType]);
+
+  const fetchCustomProducts = async () => {
+    try {
       const { data, error } = await supabase
         .from('custom_products')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
+        .select('name')
+        .eq('user_id', user?.id);
+
       if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Get recently used products from local storage
-  useEffect(() => {
-    const storedProducts = localStorage.getItem('recentProducts');
-    if (storedProducts) {
-      try {
-        const parsed = JSON.parse(storedProducts);
-        setRecentProducts(Array.isArray(parsed) ? parsed : []);
-      } catch (e) {
-        console.error("Failed to parse recent products:", e);
-        localStorage.removeItem('recentProducts');
+      if (data && data.length > 0) {
+        // Add custom products to options if they're not already included
+        const customNames = data.map(product => product.name);
+        setCustomProducts(data);
+        
+        // Update options with custom products
+        setOptions(prev => {
+          const uniqueNames = new Set([...defaultOptions, ...prev, ...customNames]);
+          return Array.from(uniqueNames);
+        });
       }
+    } catch (error) {
+      console.error("Error fetching custom products:", error);
     }
-  }, []);
+  };
 
-  // Update recent products when product changes
-  useEffect(() => {
-    if (!product || product === "custom") return;
-    
-    setRecentProducts(prev => {
-      // Move selected product to the front, or add it if it doesn't exist
-      const filtered = prev.filter(p => p !== product);
-      const updated = [product, ...filtered].slice(0, 5); // Keep only 5 most recent
-      
-      try {
-        localStorage.setItem('recentProducts', JSON.stringify(updated));
-      } catch (e) {
-        console.error("Failed to store recent products:", e);
-      }
-      
-      return updated;
-    });
-  }, [product]);
-
-  const handleCreateCustomProduct = async () => {
+  const addCustomProduct = async () => {
     if (!customProductName.trim()) {
       toast.error("Please enter a product name");
       return;
     }
-    
+
     if (!user) {
-      toast.error("You must be logged in to create custom products");
+      toast.error("You must be logged in to add custom products");
       return;
     }
-    
+
     try {
-      // Fixed: Include user_id in the insert
-      const { data, error } = await supabase
+      // Add to database
+      const { error } = await supabase
         .from('custom_products')
-        .insert([{ 
-          name: customProductName.trim(),
+        .insert({ 
+          name: customProductName,
           user_id: user.id 
-        }])
-        .select()
-        .single();
-        
+        });
+
       if (error) throw error;
+
+      // Update local state
+      setOptions(prev => [...prev, customProductName]);
+      setCustomProducts(prev => [...prev, { name: customProductName }]);
+      setCustomProductName('');
+      setShowAddCustom(false);
       
-      toast.success(`Added "${customProductName}" to your products`);
-      setCustomProductName("");
-      setDialogOpen(false);
-      refetchCustomProducts();
+      // Select the newly added product
+      onProductTypeChange(customProductName);
       
-      // Select the new custom product
-      if (data) {
-        setProduct(data.id);
-      }
-    } catch (e) {
-      console.error("Error creating custom product:", e);
-      toast.error("Failed to create custom product. Please try again.");
+      toast.success("Custom product added!");
+    } catch (error) {
+      console.error("Error adding custom product:", error);
+      toast.error("Failed to add custom product");
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Product Details</CardTitle>
-        <CardDescription>Tell us what you're using</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Select value={product} onValueChange={setProduct}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select product type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="cigarette">Cigarette</SelectItem>
-            <SelectItem value="vape">Vape</SelectItem>
-            <SelectItem value="pouch">Nicotine Pouch</SelectItem>
-            <SelectItem value="gum">Nicotine Gum</SelectItem>
-            <SelectItem value="patch">Nicotine Patch</SelectItem>
-            <SelectItem value="cigar">Cigar</SelectItem>
-            <SelectItem value="pipe">Pipe</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-            
-            {/* Custom products section */}
-            {customProducts && customProducts.length > 0 && (
-              <>
-                <div className="py-1.5 px-2 text-sm font-semibold text-muted-foreground">
-                  Your Custom Products
-                </div>
-                {customProducts.map(p => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </>
-            )}
-            
-            {/* Add custom product option */}
-            <DialogTrigger asChild className="w-full" onClick={() => setDialogOpen(true)}>
-              <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                <Plus className="mr-2 h-4 w-4" />
-                <span>Add Custom Product</span>
-              </div>
-            </DialogTrigger>
-          </SelectContent>
-        </Select>
-        
-        {/* Recently used products */}
-        {recentProducts.length > 0 && (
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Recently used:</p>
-            <div className="flex flex-wrap gap-2">
-              {recentProducts.map((p) => (
-                <Button
-                  key={p}
-                  variant={product === p ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setProduct(p)}
-                  className="flex items-center gap-1"
-                >
-                  {product === p && <Check className="h-3 w-3" />}
-                  {p}
-                </Button>
-              ))}
-            </div>
+    <div className="space-y-4">
+      <Label htmlFor="product-type">Product Type</Label>
+      <RadioGroup
+        id="product-type"
+        value={productType}
+        onValueChange={onProductTypeChange}
+        className="flex flex-col space-y-3"
+      >
+        {options.map((option) => (
+          <div key={option} className="flex items-center space-x-2">
+            <RadioGroupItem value={option} id={`product-${option}`} />
+            <Label htmlFor={`product-${option}`} className="cursor-pointer">{option}</Label>
           </div>
-        )}
-        
-        {/* Custom Product Dialog */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Custom Product</DialogTitle>
-              <DialogDescription>
-                Create a custom product type that isn't in the standard list.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4">
-              <Input
-                placeholder="Product name (e.g., Brand X Slim Pouches)"
-                value={customProductName}
-                onChange={(e) => setCustomProductName(e.target.value)}
-              />
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                <X className="h-4 w-4 mr-1" />
-                Cancel
-              </Button>
-              <Button onClick={handleCreateCustomProduct}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add Product
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </CardContent>
-    </Card>
+        ))}
+      </RadioGroup>
+
+      {showAddCustom ? (
+        <div className="flex items-center space-x-2 mt-4">
+          <Input
+            placeholder="Enter custom product name"
+            value={customProductName}
+            onChange={(e) => setCustomProductName(e.target.value)}
+            className="flex-1"
+            onKeyDown={(e) => e.key === 'Enter' && addCustomProduct()}
+          />
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="icon" 
+            onClick={() => setShowAddCustom(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <Button 
+            type="button"
+            onClick={addCustomProduct}
+          >
+            Add
+          </Button>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          className="flex items-center gap-1 mt-2"
+          onClick={() => setShowAddCustom(true)}
+        >
+          <PlusCircle className="h-4 w-4" /> Add Custom Product
+        </Button>
+      )}
+    </div>
   );
 };
-
-export default ProductSelector;

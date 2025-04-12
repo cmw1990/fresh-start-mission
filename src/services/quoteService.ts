@@ -41,15 +41,16 @@ const fallbackQuotes: Quote[] = [
  */
 export const getRandomQuote = async (): Promise<Quote> => {
   try {
-    // First attempt to get a quote from Supabase, if we have a quotes table
+    // First attempt to get a random quote from the quotes table in Supabase
     const { data, error } = await supabase
       .from('quotes')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order(() => 'RANDOM()')  // Get a random quote
       .limit(1)
       .single();
     
-    if (error || !data || !data.text || !data.author) {
+    if (error || !data) {
+      console.log("Falling back to pre-defined quotes:", error);
       // If Supabase fails or returns no data, use a fallback quote
       return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
     }
