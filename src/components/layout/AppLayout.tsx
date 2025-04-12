@@ -1,5 +1,6 @@
+
 import React from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Sidebar from '@/components/app/Sidebar';
 import MobileNav from '@/components/app/MobileNav';
 import { ErrorBoundary } from 'react-error-boundary';
 import OfflineIndicator from '@/components/common/OfflineIndicator';
@@ -16,7 +17,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
           <main className="flex-1 overflow-y-auto">
             <div className="container py-4">
               <PageBreadcrumb />
-              <ErrorBoundary>
+              <ErrorBoundary fallback={<div>Something went wrong</div>}>
                 {children}
               </ErrorBoundary>
             </div>

@@ -28,7 +28,7 @@ const Settings = () => {
     queryKey: ['user-preferences'],
     queryFn: getUserPreferences,
     enabled: !!user,
-    onSuccess: (data) => {
+    onSettled: (data) => {
       if (data?.cost_per_product) {
         setCigaretteCost(data.cost_per_product.cigarette?.toString() || "");
         setVapeCost(data.cost_per_product.vape?.toString() || "");

@@ -12,6 +12,21 @@ type UserPreferences = {
   show_welcome?: boolean;
 };
 
+// This type represents what actually comes from the database
+type UserPreferencesDB = {
+  id: string;
+  user_id: string;
+  theme: string;
+  dashboard_widgets: string[];
+  created_at: string;
+  updated_at: string;
+  notification_cravings: boolean;
+  notification_logs: boolean;
+  notification_milestones: boolean;
+  cost_per_product?: Record<string, number>;
+  show_welcome?: boolean;
+};
+
 export async function getUserPreferences(): Promise<UserPreferences | null> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -31,13 +46,19 @@ export async function getUserPreferences(): Promise<UserPreferences | null> {
     // Return the preferences or null if none exist
     if (!data) return null;
     
-    // Make sure to convert theme to the correct type
+    // Convert database format to our service format
+    const dbData = data as UserPreferencesDB;
+    
     const preferences: UserPreferences = {
-      theme: data.theme as 'light' | 'dark' | 'system',
-      notifications: data.notifications,
-      dashboard_widgets: data.dashboard_widgets as DashboardWidget[],
-      cost_per_product: data.cost_per_product,
-      show_welcome: data.show_welcome
+      theme: dbData.theme as 'light' | 'dark' | 'system',
+      notifications: {
+        daily_reminders: dbData.notification_logs,
+        milestone_alerts: dbData.notification_milestones,
+        craving_support: dbData.notification_cravings
+      },
+      dashboard_widgets: dbData.dashboard_widgets as DashboardWidget[],
+      cost_per_product: dbData.cost_per_product,
+      show_welcome: dbData.show_welcome
     };
     
     return preferences;
@@ -47,18 +68,37 @@ export async function getUserPreferences(): Promise<UserPreferences | null> {
   }
 }
 
-export async function saveUserPreferences(preferences: Partial<{
-  theme?: 'light' | 'dark' | 'system';
-  notifications?: Record<string, boolean>;
-  dashboard_widgets?: DashboardWidget[];
-  cost_per_product?: Record<string, number>;
-  show_welcome?: boolean;
-}>): Promise<void> {
+export async function saveUserPreferences(preferences: Partial<UserPreferences>): Promise<void> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
+    }
+    
+    // Convert our service format to database format
+    const dbPreferences: Partial<UserPreferencesDB> = {};
+    
+    if (preferences.theme) {
+      dbPreferences.theme = preferences.theme;
+    }
+    
+    if (preferences.notifications) {
+      dbPreferences.notification_logs = preferences.notifications.daily_reminders || false;
+      dbPreferences.notification_milestones = preferences.notifications.milestone_alerts || false;
+      dbPreferences.notification_cravings = preferences.notifications.craving_support || false;
+    }
+    
+    if (preferences.dashboard_widgets) {
+      dbPreferences.dashboard_widgets = preferences.dashboard_widgets;
+    }
+    
+    if (preferences.cost_per_product) {
+      dbPreferences.cost_per_product = preferences.cost_per_product;
+    }
+    
+    if (preferences.show_welcome !== undefined) {
+      dbPreferences.show_welcome = preferences.show_welcome;
     }
     
     // First check if the user has existing preferences
@@ -74,7 +114,7 @@ export async function saveUserPreferences(preferences: Partial<{
       // Update existing preferences
       const { error: updateError } = await supabase
         .from('user_preferences')
-        .update(preferences)
+        .update(dbPreferences)
         .eq('user_id', user.id);
       
       if (updateError) throw updateError;
@@ -84,7 +124,7 @@ export async function saveUserPreferences(preferences: Partial<{
         .from('user_preferences')
         .insert({ 
           user_id: user.id,
-          ...preferences
+          ...dbPreferences
         });
       
       if (insertError) throw insertError;
