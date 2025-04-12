@@ -1,6 +1,6 @@
 
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -10,6 +10,17 @@ import AuthForm from "@/components/auth/AuthForm";
 const AuthPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<string>("login");
+  
+  // Parse query params to determine initial tab
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get("tab");
+    if (tab === "signup") {
+      setActiveTab("signup");
+    }
+  }, [location]);
   
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -23,7 +34,7 @@ const AuthPage = () => {
       <Navbar />
       <div className="flex-1 flex items-center justify-center bg-background py-12 px-4">
         <div className="w-full max-w-md">
-          <Tabs defaultValue="login">
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>

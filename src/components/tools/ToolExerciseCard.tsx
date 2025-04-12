@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Star, Play } from "lucide-react";
@@ -26,8 +26,18 @@ const ToolExerciseCard = ({
   className,
   popular = false,
 }: ToolExerciseProps) => {
+  const [isHovering, setIsHovering] = useState(false);
+  
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card 
+      className={cn(
+        "overflow-hidden transition-all duration-200", 
+        isHovering ? "shadow-md transform -translate-y-1" : "",
+        className
+      )}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
@@ -76,9 +86,15 @@ const ToolExerciseCard = ({
       <CardFooter>
         <Button
           onClick={onStart}
-          className="w-full bg-fresh-300 hover:bg-fresh-400 text-white"
+          className={cn(
+            "w-full transition-all duration-200",
+            isHovering 
+              ? "bg-fresh-400 hover:bg-fresh-500 text-white" 
+              : "bg-fresh-300 hover:bg-fresh-400 text-white"
+          )}
         >
-          <Play className="h-4 w-4 mr-2" /> Start Exercise
+          <Play className={cn("h-4 w-4 mr-2", isHovering ? "animate-pulse" : "")} /> 
+          Start Exercise
         </Button>
       </CardFooter>
     </Card>
