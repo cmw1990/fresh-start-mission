@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         transparentAtTop && !scrolled 
-          ? "bg-white/95 backdrop-blur-md"
+          ? "bg-white/80 backdrop-blur-md" // Changed from bg-white/95 to bg-white/80 for better visibility
           : "bg-white/80 backdrop-blur-md border-b shadow-sm"
       )}
     >
@@ -75,28 +76,19 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center space-x-2">
             <img src="/logo.svg" alt="Mission Fresh Logo" className="h-8 w-8" /> 
-            <span className={cn(
-              "font-bold text-xl",
-              transparentAtTop && !scrolled ? "text-gray-900" : "text-gray-900"
-            )}>Mission Fresh</span>
+            <span className="font-bold text-xl text-gray-900">Mission Fresh</span>
           </Link>
           
           <nav className="hidden md:flex gap-6 items-center">
             <a 
               href="/#how-it-works"
-              className={cn(
-                "text-sm font-medium hover:text-primary transition-colors",
-                transparentAtTop && !scrolled ? "text-gray-700" : "text-gray-700"
-              )}
+              className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
             >
               How It Works
             </a>
             <a 
               href="/#features"
-              className={cn(
-                "text-sm font-medium hover:text-primary transition-colors",
-                transparentAtTop && !scrolled ? "text-gray-700" : "text-gray-700"
-              )}
+              className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
             >
               Features
             </a>
@@ -104,10 +96,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className={cn(
-                    "flex items-center text-sm font-medium hover:text-primary transition-colors outline-none",
-                    transparentAtTop && !scrolled ? "text-gray-700" : "text-gray-700"
-                  )}
+                  className="flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors outline-none"
                 >
                   Web Tools <ChevronDown className="ml-1 h-4 w-4" />
                 </button>
@@ -132,10 +121,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
             </DropdownMenu>
 
             <span 
-              className={cn(
-                "text-sm font-medium transition-colors cursor-not-allowed",
-                transparentAtTop && !scrolled ? "text-gray-400" : "text-gray-400"
-              )}
+              className="text-sm font-medium text-gray-400 transition-colors cursor-not-allowed"
               title="Coming Soon"
             >
               Pricing
@@ -183,7 +169,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
             <>
               <Link to="/auth?mode=login">
                 <Button 
-                  variant={transparentAtTop && !scrolled ? "ghost" : "ghost"} 
+                  variant="ghost" 
                   size="sm"
                 >
                   Sign In
@@ -192,11 +178,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
               <Link to="/auth?mode=register" className="hidden sm:block">
                 <Button 
                   size="sm" 
-                  className={cn(
-                    transparentAtTop && !scrolled 
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
-                  )}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Get Started
                 </Button>
@@ -212,10 +194,7 @@ const Navbar = ({ transparentAtTop = false }: NavbarProps) => {
                 className="md:hidden"
                 aria-label="Menu"
               >
-                <Menu className={cn(
-                  "h-5 w-5",
-                  transparentAtTop && !scrolled ? "" : ""
-                )} />
+                <Menu className="h-5 w-5 text-gray-700" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
