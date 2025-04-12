@@ -22,13 +22,11 @@ function useToast() {
   return {
     toast: (props: ToastProps) => toast(props),
     dismiss: sonnerToast.dismiss,
-    toast: {
-      ...sonnerToast,
-      error: (title: string, options?: any) => sonnerToast.error(title, options),
-      success: (title: string, options?: any) => sonnerToast.success(title, options),
-      info: (title: string, options?: any) => sonnerToast.info(title, options),
-      warning: (title: string, options?: any) => sonnerToast.warning(title, options),
-    },
+    // Fixed: Removed duplicate "toast" property and used direct methods instead
+    error: (title: string, options?: any) => sonnerToast.error(title, options),
+    success: (title: string, options?: any) => sonnerToast.success(title, options),
+    info: (title: string, options?: any) => sonnerToast.info(title, options),
+    warning: (title: string, options?: any) => sonnerToast.warning(title, options),
   };
 }
 

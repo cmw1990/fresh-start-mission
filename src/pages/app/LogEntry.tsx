@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { saveLogEntry } from "@/services/logService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,7 +30,11 @@ const LogEntry = () => {
     e.preventDefault();
     
     if (!user) {
-      toast.error("You must be logged in to submit a log entry");
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to submit a log entry",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -58,15 +61,21 @@ const LogEntry = () => {
       });
 
       // Successfully saved entry
-      toast.success("Your entry has been logged successfully!", {
-        description: "Keep up the great work on your fresh journey!",
+      toast({
+        title: "Success!",
+        description: "Your log entry has been saved successfully. Keep up the great work on your fresh journey!",
+        variant: "default"
       });
       
       // Navigate back to dashboard after successful submission
       navigate('/app/dashboard');
     } catch (error) {
       console.error("Error saving log entry:", error);
-      toast.error("Failed to save your entry. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to save your entry. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }

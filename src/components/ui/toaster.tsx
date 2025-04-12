@@ -1,3 +1,28 @@
 
 // Use sonner's Toaster directly
-export { Toaster } from "sonner";
+import { Toaster as SonnerToaster } from "sonner";
+import { useTheme } from "next-themes";
+
+const Toaster = () => {
+  const { theme = "system" } = useTheme();
+  
+  return (
+    <SonnerToaster 
+      theme={theme as "light" | "dark" | "system"}
+      position="top-center" 
+      richColors
+      closeButton
+      className="toaster group"
+      toastOptions={{
+        classNames: {
+          toast: "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+          description: "group-[.toast]:text-muted-foreground",
+          actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+          cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+        },
+      }}
+    />
+  );
+};
+
+export { Toaster };

@@ -1,6 +1,5 @@
-
 import { Routes, Route } from "react-router-dom";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Landing pages and web tools (public)
@@ -38,7 +37,7 @@ import NotFoundPage from "@/pages/NotFoundPage";
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-center" richColors />
+      <Toaster />
       
       <Routes>
         {/* Public routes */}
