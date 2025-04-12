@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,10 +13,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, LogOut, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
+  const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
 
   const closeSheet = () => setIsOpen(false);
 
@@ -69,14 +72,42 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link to="/app/dashboard" className="text-sm font-medium story-link">
-            Sign In
-          </Link>
-          <Link to="/sign-up">
-            <Button className="bg-fresh-300 hover:bg-fresh-400 text-white">
-              Get Started
-            </Button>
-          </Link>
+          
+          {user ? (
+            <div className="flex items-center gap-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <User className="h-4 w-4" />
+                    <span>{user.name || "Account"}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <>
+              <Link to="/auth" className="text-sm font-medium story-link">
+                Sign In
+              </Link>
+              <Link to="/auth?tab=signup">
+                <Button className="bg-fresh-300 hover:bg-fresh-400 text-white">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Mobile Nav */}
@@ -111,14 +142,39 @@ const Navbar = () => {
                   </Link>
                 </div>
               </div>
-              <Link to="/app/dashboard" className="text-lg font-medium" onClick={closeSheet}>
-                Sign In
-              </Link>
-              <Link to="/sign-up" onClick={closeSheet}>
-                <Button className="bg-fresh-300 hover:bg-fresh-400 text-white w-full mt-2">
-                  Get Started
-                </Button>
-              </Link>
+              
+              {user ? (
+                <>
+                  <Link to="/app/dashboard" className="text-lg font-medium" onClick={closeSheet}>
+                    Dashboard
+                  </Link>
+                  <Link to="/app/settings" className="text-lg font-medium" onClick={closeSheet}>
+                    Settings
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    className="mt-2 justify-start gap-2"
+                    onClick={() => {
+                      signOut();
+                      closeSheet();
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" className="text-lg font-medium" onClick={closeSheet}>
+                    Sign In
+                  </Link>
+                  <Link to="/auth?tab=signup" onClick={closeSheet}>
+                    <Button className="bg-fresh-300 hover:bg-fresh-400 text-white w-full mt-2">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </nav>
           </SheetContent>
         </Sheet>

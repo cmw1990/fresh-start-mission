@@ -5,14 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import AppLayout from "./components/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
 import LogEntry from "./pages/app/LogEntry";
 import CravingTools from "./pages/app/tools/CravingTools";
 import { AuthProvider } from "./contexts/AuthContext";
-import Login from "./pages/Login";
 import Goals from "./pages/app/Goals";
 import Progress from "./pages/app/Progress";
 import EnergyTools from "./pages/app/tools/EnergyTools";
@@ -31,6 +29,7 @@ import WebToolsIndex from "./pages/tools/WebToolsIndex";
 import HolisticHealth from "./pages/tools/HolisticHealth";
 import HowItWorks from "./pages/HowItWorks";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+import AuthPage from "./pages/AuthPage";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +41,7 @@ const AppRoutes = () => {
       <Route path="/" element={<LandingPage />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/features" element={<Features />} />
-      <Route path="/sign-up" element={<SignUp />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/auth" element={<AuthPage />} />
       
       {/* Web Tools Routes */}
       <Route path="/tools" element={<WebToolsLayout />}>
@@ -76,6 +74,10 @@ const AppRoutes = () => {
         <Route path="rewards" element={<StepRewards />} />
         <Route path="settings" element={<Settings />} />
       </Route>
+      
+      {/* Redirects */}
+      <Route path="/login" element={<Navigate to="/auth" />} />
+      <Route path="/sign-up" element={<Navigate to="/auth?tab=signup" />} />
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

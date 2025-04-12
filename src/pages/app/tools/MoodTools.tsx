@@ -1,453 +1,316 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Heart, Music, Sun, BookOpen } from "lucide-react";
+import { Sparkles, Heart, Smile, Pencil, Music, FlowerIcon, BrainCircuit, SunMedium } from "lucide-react";
+import ToolExerciseCard from "@/components/tools/ToolExerciseCard";
+import QuickToolCard from "@/components/tools/QuickToolCard";
+import ExerciseModal from "@/components/tools/ExerciseModal";
+import { ExerciseStep } from "@/components/tools/ExerciseModal";
 import { toast } from "sonner";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
+// Exercise definitions
+const gratitudeExercise = {
+  title: "Gratitude Practice",
+  description: "A guided exercise to identify and appreciate positive aspects of your life, shifting your mood toward positivity.",
+  steps: [
+    {
+      title: "Settle In",
+      instructions: "Find a comfortable position. Take three slow, deep breaths to center yourself.",
+      duration: 15,
+    },
+    {
+      title: "Present Moment",
+      instructions: "Bring your attention to the present moment. Notice small things around you that you can appreciate right now.",
+      duration: 20,
+    },
+    {
+      title: "Simple Pleasures",
+      instructions: "Think of one simple pleasure you've experienced today. Perhaps a warm drink, a kind word, or a moment of comfort. Allow yourself to feel genuine appreciation for it.",
+      duration: 30,
+    },
+    {
+      title: "People Connection",
+      instructions: "Bring to mind someone who has helped you on your fresh journey or in life generally. Feel gratitude for their presence or support.",
+      duration: 30,
+    },
+    {
+      title: "Personal Strength",
+      instructions: "Acknowledge one personal strength or quality that has helped you progress on your fresh journey. Be grateful for this aspect of yourself.",
+      duration: 30,
+    },
+    {
+      title: "Body Appreciation",
+      instructions: "Express gratitude for your body's resilience during this challenging process. Your body is working hard to heal and adapt.",
+      duration: 30,
+    },
+    {
+      title: "Note Your Feelings",
+      instructions: "Notice how focusing on gratitude affects your emotional state. Has your mood shifted at all?",
+      duration: 15,
+    },
+    {
+      title: "Optional Journaling",
+      instructions: "After this exercise, consider writing down 3-5 things you're grateful for to reinforce the practice.",
+      duration: 10,
+    },
+  ] as ExerciseStep[],
+};
+
+const selfCompassionExercise = {
+  title: "Self-Compassion Break",
+  description: "A brief practice to cultivate kindness toward yourself during difficult moments in your journey.",
+  steps: [
+    {
+      title: "Acknowledge Difficulty",
+      instructions: "Take a moment to acknowledge that you're experiencing a difficult emotion or situation. Simply notice it without judgment.",
+      duration: 15,
+    },
+    {
+      title: "Common Humanity",
+      instructions: "Remind yourself that struggling with nicotine withdrawal is a common human experience. Thousands of others are feeling similar challenges right now.",
+      duration: 20,
+    },
+    {
+      title: "Physical Comfort",
+      instructions: "Place your hand over your heart or another spot that feels soothing. Feel the warmth and gentle pressure of your hand.",
+      duration: 15,
+    },
+    {
+      title: "Self-Kindness Phrase",
+      instructions: "Silently repeat: 'This is a moment of difficulty. May I be kind to myself in this moment.'",
+      duration: 30,
+    },
+    {
+      title: "Giving Yourself Support",
+      instructions: "Ask yourself: 'What do I need to hear right now to feel supported?' Offer yourself those words of kindness.",
+      duration: 30,
+    },
+    {
+      title: "Soothing Touch",
+      instructions: "Continue with your hand over your heart. Breathe gently and feel the sensation of touch and support.",
+      duration: 30,
+    },
+    {
+      title: "Compassionate Message",
+      instructions: "Repeat to yourself: 'I'm doing the best I can. This challenge is temporary, and I can move through it with kindness.'",
+      duration: 20,
+    },
+    {
+      title: "Reflection",
+      instructions: "Notice how you feel now. Remember you can return to this practice whenever needed throughout your day.",
+      duration: 15,
+    },
+  ] as ExerciseStep[],
+};
+
+const positiveMemoryExercise = {
+  title: "Positive Memory Anchor",
+  description: "Create a mental anchor to a positive memory that you can return to whenever you need a mood boost.",
+  steps: [
+    {
+      title: "Relaxed Position",
+      instructions: "Find a comfortable position and close your eyes or soften your gaze.",
+      duration: 10,
+    },
+    {
+      title: "Select a Memory",
+      instructions: "Think of a positive, happy memory - a time when you felt joyful, peaceful, proud, or loved. Choose one that feels vivid and emotionally powerful.",
+      duration: 20,
+    },
+    {
+      title: "Enter the Scene",
+      instructions: "Mentally place yourself back in that moment. Where are you? Who is with you? What's happening around you?",
+      duration: 30,
+    },
+    {
+      title: "Visual Details",
+      instructions: "Notice the visual details of this memory. Colors, light, surroundings, faces. Make the image as clear as possible.",
+      duration: 30,
+    },
+    {
+      title: "Sounds and Smells",
+      instructions: "Add in any sounds, music, voices, or smells that were part of this memory. Engage all your senses.",
+      duration: 20,
+    },
+    {
+      title: "Physical Sensations",
+      instructions: "Feel the physical sensations associated with this memory - perhaps warmth, lightness, relaxation, or excitement in your body.",
+      duration: 20,
+    },
+    {
+      title: "Emotional Response",
+      instructions: "Let yourself fully experience the positive emotions of this moment. Allow them to grow stronger.",
+      duration: 30,
+    },
+    {
+      title: "Create an Anchor",
+      instructions: "While feeling these positive emotions, create a physical anchor - perhaps touching your thumb and finger together, or placing your hand over your heart.",
+      duration: 20,
+    },
+    {
+      title: "Seal the Practice",
+      instructions: "Take three deep breaths while maintaining your anchor gesture. This gesture can now help you recall these positive feelings anytime.",
+      duration: 15,
+    },
+  ] as ExerciseStep[],
+};
 
 const MoodTools = () => {
-  const [currentMood, setCurrentMood] = useState<string>("neutral");
-  const [journalEntry, setJournalEntry] = useState<string>("");
-  const [gratitudeItems, setGratitudeItems] = useState<string[]>(["", "", ""]);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeExercise, setActiveExercise] = useState<any | null>(null);
+  const [exerciseModalOpen, setExerciseModalOpen] = useState(false);
 
-  const handleGratitudeChange = (index: number, value: string) => {
-    const newItems = [...gratitudeItems];
-    newItems[index] = value;
-    setGratitudeItems(newItems);
+  const startExercise = (exercise: any) => {
+    setActiveExercise(exercise);
+    setExerciseModalOpen(true);
   };
 
-  const saveJournal = () => {
-    if (journalEntry.trim()) {
-      toast.success("Journal entry saved!", {
-        description: "Your thoughts have been recorded."
-      });
-      setJournalEntry("");
-    } else {
-      toast.error("Entry cannot be empty", {
-        description: "Please write something before saving."
-      });
-    }
-  };
-
-  const saveGratitude = () => {
-    if (gratitudeItems.some(item => item.trim())) {
-      toast.success("Gratitude list saved!", {
-        description: "Thank you for practicing gratitude."
-      });
-    } else {
-      toast.error("List cannot be empty", {
-        description: "Please add at least one item."
-      });
-    }
+  const handleQuickTool = (toolName: string) => {
+    // For now just show a toast - these could be expanded into mini-exercises later
+    toast.success(`${toolName} activated!`, {
+      description: "This mood tool would provide immediate support."
+    });
   };
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Mood Lifters</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Mood Tools</h1>
         <p className="text-muted-foreground">
-          Tools and exercises to stabilize mood swings and enhance emotional wellbeing
+          Elevate your mood and cultivate emotional balance during your fresh journey
         </p>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-lg font-medium mb-4">How are you feeling right now?</h2>
-        <RadioGroup 
-          value={currentMood} 
-          onValueChange={setCurrentMood} 
-          className="grid grid-cols-3 sm:grid-cols-5 gap-4"
-        >
-          <div className="flex flex-col items-center gap-2">
-            <Label 
-              htmlFor="sad" 
-              className={`h-16 w-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                currentMood === "sad" ? "border-fresh-300 bg-fresh-50" : "border-gray-200"
-              } cursor-pointer hover:bg-fresh-50`}
-            >
-              😔
-            </Label>
-            <RadioGroupItem value="sad" id="sad" className="sr-only" />
-            <span className="text-sm">Sad</span>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Label 
-              htmlFor="anxious" 
-              className={`h-16 w-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                currentMood === "anxious" ? "border-fresh-300 bg-fresh-50" : "border-gray-200"
-              } cursor-pointer hover:bg-fresh-50`}
-            >
-              😰
-            </Label>
-            <RadioGroupItem value="anxious" id="anxious" className="sr-only" />
-            <span className="text-sm">Anxious</span>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Label 
-              htmlFor="neutral" 
-              className={`h-16 w-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                currentMood === "neutral" ? "border-fresh-300 bg-fresh-50" : "border-gray-200"
-              } cursor-pointer hover:bg-fresh-50`}
-            >
-              😐
-            </Label>
-            <RadioGroupItem value="neutral" id="neutral" className="sr-only" />
-            <span className="text-sm">Neutral</span>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Label 
-              htmlFor="content" 
-              className={`h-16 w-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                currentMood === "content" ? "border-fresh-300 bg-fresh-50" : "border-gray-200"
-              } cursor-pointer hover:bg-fresh-50`}
-            >
-              🙂
-            </Label>
-            <RadioGroupItem value="content" id="content" className="sr-only" />
-            <span className="text-sm">Content</span>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Label 
-              htmlFor="happy" 
-              className={`h-16 w-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                currentMood === "happy" ? "border-fresh-300 bg-fresh-50" : "border-gray-200"
-              } cursor-pointer hover:bg-fresh-50`}
-            >
-              😄
-            </Label>
-            <RadioGroupItem value="happy" id="happy" className="sr-only" />
-            <span className="text-sm">Happy</span>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <Tabs defaultValue="practices" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="practices">Mood Practices</TabsTrigger>
-          <TabsTrigger value="journal">Journaling</TabsTrigger>
-          <TabsTrigger value="sounds">Relaxing Sounds</TabsTrigger>
+      <Tabs defaultValue="exercises">
+        <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsTrigger value="exercises">Guided Exercises</TabsTrigger>
+          <TabsTrigger value="quick-tools">Quick Lifters</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="practices" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="bg-fresh-50">
-                <Heart className="h-6 w-6 text-fresh-500 mb-2" />
-                <CardTitle>Gratitude Practice</CardTitle>
-                <CardDescription>
-                  Shift your focus to what's going well in your life
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <p className="mb-6">
-                  Practicing gratitude has been shown to increase positive emotions, reduce stress, 
-                  and improve overall well-being, making it especially helpful during nicotine withdrawal.
-                </p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      1. What's something in nature you're grateful for today?
-                    </label>
-                    <Textarea 
-                      value={gratitudeItems[0]} 
-                      onChange={(e) => handleGratitudeChange(0, e.target.value)} 
-                      placeholder="E.g., The sunshine, trees outside my window..."
-                      className="h-20"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      2. What's a person or relationship you're grateful for?
-                    </label>
-                    <Textarea 
-                      value={gratitudeItems[1]} 
-                      onChange={(e) => handleGratitudeChange(1, e.target.value)} 
-                      placeholder="E.g., My friend who called yesterday, my supportive partner..."
-                      className="h-20"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      3. What's something about yourself you're grateful for?
-                    </label>
-                    <Textarea 
-                      value={gratitudeItems[2]} 
-                      onChange={(e) => handleGratitudeChange(2, e.target.value)} 
-                      placeholder="E.g., My determination to break free from nicotine, my creativity..."
-                      className="h-20"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  onClick={saveGratitude} 
-                  className="w-full bg-fresh-300 hover:bg-fresh-400"
-                >
-                  Save Gratitude List
-                </Button>
-              </CardFooter>
-            </Card>
+        <TabsContent value="exercises" className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ToolExerciseCard
+              title={gratitudeExercise.title}
+              description={gratitudeExercise.description}
+              duration="3 minutes"
+              difficulty="easy"
+              tags={["Gratitude", "Positivity"]}
+              popular={true}
+              onStart={() => startExercise(gratitudeExercise)}
+            />
             
-            <Card>
-              <CardHeader className="bg-fresh-50">
-                <Sun className="h-6 w-6 text-fresh-500 mb-2" />
-                <CardTitle>Positive Affirmations</CardTitle>
-                <CardDescription>
-                  Statements to reinforce positive thinking during your fresh journey
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <p className="mb-6">
-                  Positive affirmations can help combat negative thoughts that often accompany nicotine 
-                  withdrawal. Repeat these affirmations aloud or mentally throughout your day.
-                </p>
-                <div className="space-y-4">
-                  <div className="bg-fresh-50 p-4 rounded-md">
-                    <h4 className="font-medium mb-2">For Cravings:</h4>
-                    <ul className="list-disc list-inside space-y-2 text-sm pl-2">
-                      <li>"This craving is temporary and will pass."</li>
-                      <li>"Each time I overcome a craving, I grow stronger."</li>
-                      <li>"I am in control of my choices, not nicotine."</li>
-                    </ul>
-                  </div>
-                  <div className="bg-fresh-50 p-4 rounded-md">
-                    <h4 className="font-medium mb-2">For Energy & Mood:</h4>
-                    <ul className="list-disc list-inside space-y-2 text-sm pl-2">
-                      <li>"Every day without nicotine, my energy improves."</li>
-                      <li>"I deserve to feel good naturally, without substances."</li>
-                      <li>"My body is healing and getting stronger each day."</li>
-                    </ul>
-                  </div>
-                  <div className="bg-fresh-50 p-4 rounded-md">
-                    <h4 className="font-medium mb-2">For Motivation:</h4>
-                    <ul className="list-disc list-inside space-y-2 text-sm pl-2">
-                      <li>"I am committed to my fresh journey, one day at a time."</li>
-                      <li>"I am proud of every step I take toward better health."</li>
-                      <li>"I am worthy of a healthy, nicotine-free life."</li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  onClick={() => {
-                    toast.success("Daily affirmations activated!", {
-                      description: "We'll send you a positive affirmation each day."
-                    });
-                  }} 
-                  className="w-full bg-fresh-300 hover:bg-fresh-400"
-                >
-                  Set Daily Affirmation Reminder
-                </Button>
-              </CardFooter>
-            </Card>
+            <ToolExerciseCard
+              title={selfCompassionExercise.title}
+              description={selfCompassionExercise.description}
+              duration="3 minutes"
+              difficulty="easy"
+              tags={["Self-care", "Compassion"]}
+              onStart={() => startExercise(selfCompassionExercise)}
+            />
+            
+            <ToolExerciseCard
+              title={positiveMemoryExercise.title}
+              description={positiveMemoryExercise.description}
+              duration="4 minutes"
+              difficulty="moderate"
+              tags={["Visualization", "Memory"]}
+              onStart={() => startExercise(positiveMemoryExercise)}
+            />
+
+            <ToolExerciseCard
+              title="Mood Tracking Reflection"
+              description="Review your mood patterns and identify triggers for low moods as well as effective mood boosters."
+              duration="5 minutes"
+              difficulty="moderate"
+              tags={["Self-awareness", "Analysis"]}
+              onStart={() => toast.info("This exercise will be available soon!")}
+            />
+
+            <ToolExerciseCard
+              title="Progressive Relaxation"
+              description="Systematically relax each part of your body to release tension and improve your mood."
+              duration="6 minutes"
+              difficulty="easy"
+              tags={["Relaxation", "Physical"]}
+              onStart={() => toast.info("This exercise will be available soon!")}
+            />
           </div>
         </TabsContent>
 
-        <TabsContent value="journal" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Guided Journal</CardTitle>
-              <CardDescription>
-                Express your thoughts and feelings to process emotions during your fresh journey
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Today's Prompt</h3>
-                <p className="p-4 bg-fresh-50 rounded-md">
-                  {currentMood === "sad" && "What small thing could bring you a moment of joy today?"}
-                  {currentMood === "anxious" && "What are you worried about? What's one small step you can take to address it?"}
-                  {currentMood === "neutral" && "What are you looking forward to in the coming days?"}
-                  {currentMood === "content" && "What's something that went well today, and why do you think it happened?"}
-                  {currentMood === "happy" && "What's contributing to your happiness today? How can you create more of these moments?"}
-                </p>
-              </div>
-              <Textarea 
-                placeholder="Start writing your thoughts here..." 
-                className="min-h-[200px]"
-                value={journalEntry}
-                onChange={(e) => setJournalEntry(e.target.value)}
-              />
-            </CardContent>
-            <CardFooter>
-              <Button 
-                onClick={saveJournal} 
-                className="w-full bg-fresh-300 hover:bg-fresh-400"
-              >
-                Save Journal Entry
-              </Button>
-            </CardFooter>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <BookOpen className="h-6 w-6 text-fresh-500 mb-2" />
-              <CardTitle>Journal Prompts Library</CardTitle>
-              <CardDescription>
-                Additional writing prompts to explore your emotions and journey
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 border rounded-md">
-                  <h4 className="font-medium mb-1">Processing Cravings</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Describe your most recent craving in detail. What triggered it? How did it feel physically? 
-                    How did you respond? What might you try next time?
-                  </p>
-                </div>
-                <div className="p-4 border rounded-md">
-                  <h4 className="font-medium mb-1">Celebrating Wins</h4>
-                  <p className="text-sm text-muted-foreground">
-                    What's a victory you've experienced in your fresh journey, no matter how small? 
-                    How did it make you feel? Who can you share this win with?
-                  </p>
-                </div>
-                <div className="p-4 border rounded-md">
-                  <h4 className="font-medium mb-1">Future Self</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Write a letter to yourself one year from now. What do you hope to tell them about 
-                    your journey? What questions would you ask them?
-                  </p>
-                </div>
-                <div className="p-4 border rounded-md">
-                  <h4 className="font-medium mb-1">Values Reflection</h4>
-                  <p className="text-sm text-muted-foreground">
-                    How does staying nicotine-free align with your core values? What's one value 
-                    that's particularly motivating for you right now?
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sounds" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="bg-fresh-50">
-                <Music className="h-6 w-6 text-fresh-500 mb-2" />
-                <CardTitle>Relaxing Sounds</CardTitle>
-                <CardDescription>
-                  Audio tracks to help calm your mind and lift your mood
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <p className="mb-6">
-                  Sound therapy can help reduce stress and anxiety that often accompany nicotine withdrawal. 
-                  Choose from our curated selection of calming sounds.
-                </p>
-                <div className="space-y-4">
-                  <div 
-                    className={`p-4 rounded-md cursor-pointer flex items-center justify-between ${isPlaying ? 'bg-fresh-100' : 'bg-fresh-50'}`}
-                    onClick={() => setIsPlaying(!isPlaying)}
-                  >
-                    <div>
-                      <h4 className="font-medium">Gentle Rain</h4>
-                      <p className="text-sm text-muted-foreground">10 minutes</p>
-                    </div>
-                    <div className={`h-3 w-3 rounded-full ${isPlaying ? 'bg-fresh-500 animate-pulse' : 'bg-gray-300'}`}></div>
-                  </div>
-                  <div 
-                    className="p-4 rounded-md cursor-pointer flex items-center justify-between bg-fresh-50"
-                    onClick={() => toast.info("Coming soon!", { description: "This track will be available soon." })}
-                  >
-                    <div>
-                      <h4 className="font-medium">Ocean Waves</h4>
-                      <p className="text-sm text-muted-foreground">15 minutes</p>
-                    </div>
-                    <div className="h-3 w-3 rounded-full bg-gray-300"></div>
-                  </div>
-                  <div 
-                    className="p-4 rounded-md cursor-pointer flex items-center justify-between bg-fresh-50"
-                    onClick={() => toast.info("Coming soon!", { description: "This track will be available soon." })}
-                  >
-                    <div>
-                      <h4 className="font-medium">Forest Ambience</h4>
-                      <p className="text-sm text-muted-foreground">12 minutes</p>
-                    </div>
-                    <div className="h-3 w-3 rounded-full bg-gray-300"></div>
-                  </div>
-                  <div 
-                    className="p-4 rounded-md cursor-pointer flex items-center justify-between bg-fresh-50"
-                    onClick={() => toast.info("Coming soon!", { description: "This track will be available soon." })}
-                  >
-                    <div>
-                      <h4 className="font-medium">Meditation Bells</h4>
-                      <p className="text-sm text-muted-foreground">8 minutes</p>
-                    </div>
-                    <div className="h-3 w-3 rounded-full bg-gray-300"></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <TabsContent value="quick-tools">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <QuickToolCard
+              title="Smile Practice"
+              description="Hold a genuine smile for 30 seconds to trigger positive neural circuits."
+              icon={Smile}
+              iconColor="text-yellow-500"
+              iconBgColor="bg-yellow-50"
+              onClick={() => handleQuickTool("Smile Practice")}
+            />
             
-            <Card>
-              <CardHeader className="bg-fresh-50">
-                <Activity className="h-6 w-6 text-fresh-500 mb-2" />
-                <CardTitle>Mood-Lifting Activities</CardTitle>
-                <CardDescription>
-                  Quick actions to improve your mood during challenging moments
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <p className="mb-6">
-                  When you're feeling down during your nicotine withdrawal journey, these evidence-based 
-                  activities can help lift your mood quickly.
-                </p>
-                <div className="space-y-4">
-                  <div className="border-l-4 border-fresh-300 pl-4 py-2">
-                    <h4 className="font-medium">Take a Green Break (10 min)</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Step outside and find a spot with trees or plants. Research shows just 10 minutes in nature 
-                      can significantly improve mood.
-                    </p>
-                  </div>
-                  <div className="border-l-4 border-fresh-300 pl-4 py-2">
-                    <h4 className="font-medium">Movement Snack (3-5 min)</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Do a quick set of jumping jacks, dance to one song, or take a brisk walk around the block. 
-                      Physical activity releases endorphins that boost mood.
-                    </p>
-                  </div>
-                  <div className="border-l-4 border-fresh-300 pl-4 py-2">
-                    <h4 className="font-medium">Reach Out (5 min)</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Send a quick message or make a brief call to someone who supports your journey. 
-                      Social connection is one of the strongest mood elevators.
-                    </p>
-                  </div>
-                  <div className="border-l-4 border-fresh-300 pl-4 py-2">
-                    <h4 className="font-medium">Sensory Reset (2 min)</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Engage your senses with a pleasant scent (like an essential oil), a piece of fruit, 
-                      or a quick cold shower. Sensory experiences can interrupt negative mood cycles.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  onClick={() => {
-                    toast.success("Activity logged!", {
-                      description: "Great job taking action for your mood!"
-                    });
-                  }} 
-                  className="w-full bg-fresh-300 hover:bg-fresh-400"
-                >
-                  Log Completed Activity
-                </Button>
-              </CardFooter>
-            </Card>
+            <QuickToolCard
+              title="3 Good Things"
+              description="Quickly list three positive things that have happened today, no matter how small."
+              icon={Heart}
+              iconColor="text-red-500"
+              iconBgColor="bg-red-50"
+              onClick={() => handleQuickTool("3 Good Things")}
+            />
+            
+            <QuickToolCard
+              title="Mood Playlist"
+              description="Access a curated list of mood-boosting songs for an instant lift."
+              icon={Music}
+              iconColor="text-purple-500"
+              iconBgColor="bg-purple-50"
+              onClick={() => handleQuickTool("Mood Playlist")}
+            />
+            
+            <QuickToolCard
+              title="Nature Connection"
+              description="Step outside or look at nature photos to improve your mood."
+              icon={FlowerIcon}
+              iconColor="text-green-500"
+              iconBgColor="bg-green-50"
+              onClick={() => handleQuickTool("Nature Connection")}
+            />
+            
+            <QuickToolCard
+              title="One-Minute Journal"
+              description="Express your feelings briefly to acknowledge and process emotions."
+              icon={Pencil}
+              iconColor="text-blue-500"
+              iconBgColor="bg-blue-50"
+              onClick={() => handleQuickTool("One-Minute Journal")}
+            />
+            
+            <QuickToolCard
+              title="Mood Mantra"
+              description="Repeat a personalized positive phrase to shift your mindset."
+              icon={BrainCircuit}
+              iconColor="text-indigo-500"
+              iconBgColor="bg-indigo-50"
+              onClick={() => handleQuickTool("Mood Mantra")}
+            />
+            
+            <QuickToolCard
+              title="Light Therapy"
+              description="Spend 2 minutes in bright natural light to boost mood neurotransmitters."
+              icon={SunMedium}
+              iconColor="text-amber-500"
+              iconBgColor="bg-amber-50"
+              onClick={() => handleQuickTool("Light Therapy")}
+            />
           </div>
         </TabsContent>
       </Tabs>
+
+      {activeExercise && (
+        <ExerciseModal
+          exercise={activeExercise}
+          open={exerciseModalOpen}
+          onClose={() => setExerciseModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,22 +1,15 @@
 
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { CheckIcon, FilterIcon, Search, ArrowLeft, SlidersHorizontal, X, Star } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetClose,
-} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -24,477 +17,398 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Star, Search, Filter, Droplets, ArrowRight } from "lucide-react";
 
-// Sample product data (in a real app, this would come from the database)
-const products = [
+interface Product {
+  id: string;
+  name: string;
+  brand: string;
+  category: string;
+  type: string;
+  nicotineStrength: string;
+  flavors: string[];
+  price: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  imageUrl?: string;
+}
+
+// Sample data for the directory
+const sampleProducts: Product[] = [
   {
     id: "1",
     name: "ZYN Cool Mint",
     brand: "ZYN",
-    type: "Nicotine Pouch",
-    nicotineStrength: 6,
+    category: "Nicotine Pouch",
+    type: "Pouch",
+    nicotineStrength: "6mg",
     flavors: ["Mint", "Menthol"],
-    image: "https://via.placeholder.com/100x100",
+    price: "$4.99",
     rating: 4.5,
-    reviewCount: 128,
-    description: "Slim portion, fresh mint flavor, moderate nicotine strength.",
+    reviewCount: 124,
+    description: "ZYN Cool Mint provides a refreshing minty experience with a satisfying nicotine kick. Tobacco-free and discreet."
   },
   {
     id: "2",
     name: "VELO Citrus",
     brand: "VELO",
-    type: "Nicotine Pouch",
-    nicotineStrength: 4,
+    category: "Nicotine Pouch",
+    type: "Pouch",
+    nicotineStrength: "4mg",
     flavors: ["Citrus", "Orange"],
-    image: "https://via.placeholder.com/100x100",
+    price: "$4.49",
     rating: 4.2,
-    reviewCount: 94,
-    description: "All white portion with refreshing citrus flavor.",
+    reviewCount: 87,
+    description: "VELO Citrus offers a bright, zesty flavor with a mild nicotine strength. Perfect for those seeking a fruity alternative."
   },
   {
     id: "3",
-    name: "JUUL Virginia Tobacco",
-    brand: "JUUL",
-    type: "E-cigarette Pod",
-    nicotineStrength: 5,
-    flavors: ["Tobacco"],
-    image: "https://via.placeholder.com/100x100",
+    name: "NJOY Daily",
+    brand: "NJOY",
+    category: "Vape",
+    type: "Disposable",
+    nicotineStrength: "50mg",
+    flavors: ["Tobacco", "Menthol"],
+    price: "$7.99",
     rating: 3.8,
-    reviewCount: 215,
-    description: "Classic tobacco flavor pod for JUUL device.",
+    reviewCount: 156,
+    description: "NJOY Daily is a ready-to-use disposable e-cigarette that requires no charging or refilling. Ideal for those seeking simplicity."
   },
   {
     id: "4",
-    name: "JUUL Mint",
-    brand: "JUUL",
-    type: "E-cigarette Pod",
-    nicotineStrength: 3,
-    flavors: ["Mint"],
-    image: "https://via.placeholder.com/100x100",
+    name: "Nicorette Gum",
+    brand: "Nicorette",
+    category: "NRT",
+    type: "Gum",
+    nicotineStrength: "2mg",
+    flavors: ["Original", "Mint"],
+    price: "$9.99",
     rating: 4.0,
-    reviewCount: 178,
-    description: "Refreshing mint flavor pod for JUUL device.",
+    reviewCount: 203,
+    description: "Nicorette Gum helps manage cravings through controlled nicotine release. Clinically proven to double your chances of quitting."
   },
   {
     id: "5",
-    name: "VUSE Alto Rich Tobacco",
-    brand: "VUSE",
-    type: "E-cigarette Pod",
-    nicotineStrength: 5.8,
-    flavors: ["Tobacco"],
-    image: "https://via.placeholder.com/100x100",
+    name: "JUUL Pods",
+    brand: "JUUL",
+    category: "Vape",
+    type: "Pod System",
+    nicotineStrength: "5%",
+    flavors: ["Virginia Tobacco", "Menthol"],
+    price: "$15.99",
     rating: 4.1,
-    reviewCount: 142,
-    description: "Rich tobacco flavor pod for VUSE Alto device.",
+    reviewCount: 312,
+    description: "JUUL pods are designed for use with the JUUL device, offering a simple and clean nicotine delivery experience."
   },
   {
     id: "6",
-    name: "ON! Mint",
+    name: "ON! Coffee",
     brand: "ON!",
-    type: "Nicotine Pouch",
-    nicotineStrength: 4,
-    flavors: ["Mint"],
-    image: "https://via.placeholder.com/100x100",
-    rating: 4.3,
-    reviewCount: 87,
-    description: "Small, discreet nicotine pouch with mint flavor.",
+    category: "Nicotine Pouch",
+    type: "Pouch",
+    nicotineStrength: "3mg",
+    flavors: ["Coffee"],
+    price: "$3.99",
+    rating: 3.9,
+    reviewCount: 68,
+    description: "ON! Coffee nicotine pouches offer a unique coffee-inspired flavor with a mild nicotine strength. No tobacco, no spitting required."
   },
   {
     id: "7",
-    name: "White Fox Full Charge",
-    brand: "White Fox",
-    type: "Nicotine Pouch",
-    nicotineStrength: 16,
-    flavors: ["Mint"],
-    image: "https://via.placeholder.com/100x100",
-    rating: 4.7,
-    reviewCount: 64,
-    description: "Strong nicotine pouch with intense mint flavor.",
+    name: "NicoDerm CQ Patch",
+    brand: "NicoDerm",
+    category: "NRT",
+    type: "Patch",
+    nicotineStrength: "21mg",
+    flavors: ["None"],
+    price: "$38.99",
+    rating: 4.4,
+    reviewCount: 176,
+    description: "NicoDerm CQ patches provide a steady flow of nicotine all day long, helping to prevent cravings before they start."
   },
   {
     id: "8",
-    name: "Nordic Spirit Bergamot Wildberry",
-    brand: "Nordic Spirit",
-    type: "Nicotine Pouch",
-    nicotineStrength: 9,
-    flavors: ["Berry", "Citrus"],
-    image: "https://via.placeholder.com/100x100",
-    rating: 4.4,
-    reviewCount: 52,
-    description: "Premium nicotine pouch with unique bergamot and wildberry flavor.",
+    name: "Vuse Alto",
+    brand: "Vuse",
+    category: "Vape",
+    type: "Pod System",
+    nicotineStrength: "5%",
+    flavors: ["Golden Tobacco", "Menthol", "Rich Tobacco"],
+    price: "$19.99",
+    rating: 4.3,
+    reviewCount: 245,
+    description: "The Vuse Alto device features a sleek design and prefilled pods for a hassle-free vaping experience."
   },
 ];
 
-const brands = [...new Set(products.map(product => product.brand))];
-const types = [...new Set(products.map(product => product.type))];
-const flavors = [...new Set(products.flatMap(product => product.flavors))];
-
 const SmokelessDirectory = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    brands: [] as string[],
-    types: [] as string[],
-    flavors: [] as string[],
-    nicotineRange: [0, 20],
-    rating: 0,
-  });
-  
-  const toggleFilter = (category: 'brands' | 'types' | 'flavors', value: string) => {
-    setFilters(prev => {
-      if (prev[category].includes(value)) {
-        return {
-          ...prev,
-          [category]: prev[category].filter(item => item !== value)
-        };
-      } else {
-        return {
-          ...prev,
-          [category]: [...prev[category], value]
-        };
-      }
-    });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [nicotineFilter, setNicotineFilter] = useState<string | null>(null);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const applyFilters = () => {
+    let result = sampleProducts;
+    
+    // Apply search term
+    if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      result = result.filter(product => 
+        product.name.toLowerCase().includes(lowerSearchTerm) ||
+        product.brand.toLowerCase().includes(lowerSearchTerm) ||
+        product.description.toLowerCase().includes(lowerSearchTerm)
+      );
+    }
+    
+    // Apply category filter
+    if (categoryFilter) {
+      result = result.filter(product => product.category === categoryFilter);
+    }
+    
+    // Apply nicotine strength filter
+    if (nicotineFilter) {
+      result = result.filter(product => {
+        if (nicotineFilter === "low") {
+          return product.nicotineStrength.includes("2mg") || 
+                 product.nicotineStrength.includes("3mg") || 
+                 product.nicotineStrength.includes("4mg");
+        } else if (nicotineFilter === "medium") {
+          return product.nicotineStrength.includes("5mg") || 
+                 product.nicotineStrength.includes("6mg") || 
+                 product.nicotineStrength.includes("8mg");
+        } else if (nicotineFilter === "high") {
+          return parseInt(product.nicotineStrength) > 8 || 
+                 product.nicotineStrength.includes("%");
+        }
+        return true;
+      });
+    }
+    
+    setFilteredProducts(result);
+    setDrawerOpen(false);
   };
-  
-  const clearFilters = () => {
-    setFilters({
-      brands: [],
-      types: [],
-      flavors: [],
-      nicotineRange: [0, 20],
-      rating: 0,
-    });
+
+  const resetFilters = () => {
+    setCategoryFilter(null);
+    setNicotineFilter(null);
+    setSearchTerm("");
+    setFilteredProducts(sampleProducts);
+    setDrawerOpen(false);
   };
-  
-  const filteredProducts = products.filter(product => {
-    // Search query filter
-    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !product.brand.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
+
+  const renderStars = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
     
-    // Brand filter
-    if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
-      return false;
-    }
-    
-    // Type filter
-    if (filters.types.length > 0 && !filters.types.includes(product.type)) {
-      return false;
-    }
-    
-    // Flavor filter
-    if (filters.flavors.length > 0 && !product.flavors.some(flavor => filters.flavors.includes(flavor))) {
-      return false;
-    }
-    
-    // Nicotine strength filter
-    if (product.nicotineStrength < filters.nicotineRange[0] || 
-        product.nicotineStrength > filters.nicotineRange[1]) {
-      return false;
-    }
-    
-    // Rating filter
-    if (filters.rating > 0 && product.rating < filters.rating) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  const activeFilterCount = 
-    filters.brands.length + 
-    filters.types.length + 
-    filters.flavors.length + 
-    (filters.nicotineRange[0] > 0 || filters.nicotineRange[1] < 20 ? 1 : 0) + 
-    (filters.rating > 0 ? 1 : 0);
-  
+    return (
+      <div className="flex items-center">
+        {[...Array(fullStars)].map((_, i) => (
+          <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+        ))}
+        {hasHalfStar && (
+          <Star className="h-4 w-4 fill-amber-400 text-amber-400 fill-half" />
+        )}
+        {[...Array(5 - fullStars - (hasHalfStar ? 1 : 0))].map((_, i) => (
+          <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
+        ))}
+        <span className="ml-2 text-sm text-muted-foreground">
+          ({rating.toFixed(1)})
+        </span>
+      </div>
+    );
+  };
+
   return (
-    <div className="container py-12">
-      <Link to="/" className="inline-flex items-center text-fresh-500 hover:text-fresh-600 mb-6">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Home
-      </Link>
-      
+    <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-4">Smokeless Nicotine Directory</h1>
-        <p className="text-lg text-muted-foreground">
-          Explore and compare smokeless nicotine products to find options that fit your needs
+        <h1 className="text-3xl font-bold tracking-tight">Smokeless Nicotine Directory</h1>
+        <p className="text-muted-foreground mt-2">
+          Browse smokeless alternatives to help with your fresh journey
         </p>
       </div>
       
-      <div className="flex flex-wrap gap-4 items-center mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search products or brands..."
-            className="pl-10"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search by name, brand, or keywords..."
+            className="pl-9"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && applyFilters()}
           />
-          {searchQuery && (
-            <button 
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              onClick={() => setSearchQuery("")}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
-        
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <FilterIcon className="h-4 w-4" />
-              <span>Filter</span>
-              {activeFilterCount > 0 && (
-                <Badge variant="secondary" className="ml-1 h-6 w-6 p-0 flex items-center justify-center rounded-full">
-                  {activeFilterCount}
-                </Badge>
-              )}
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          <DrawerTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
             </Button>
-          </SheetTrigger>
-          <SheetContent className="w-[320px] sm:w-[540px] overflow-y-auto">
-            <SheetHeader className="mb-6">
-              <SheetTitle>Filter Products</SheetTitle>
-              <SheetDescription>
-                Refine your search with specific criteria
-              </SheetDescription>
-            </SheetHeader>
-            
-            {activeFilterCount > 0 && (
-              <Button 
-                variant="link" 
-                className="text-muted-foreground py-0 h-auto mb-4"
-                onClick={clearFilters}
-              >
-                Clear all filters
-              </Button>
-            )}
-            
-            <div className="space-y-6">
-              {/* Product Type Filter */}
-              <div>
-                <h3 className="font-medium mb-3">Product Type</h3>
-                <div className="flex flex-wrap gap-2">
-                  {types.map(type => (
-                    <Button 
-                      key={type}
-                      variant={filters.types.includes(type) ? "default" : "outline"}
-                      size="sm"
-                      className={filters.types.includes(type) ? "bg-fresh-300 hover:bg-fresh-400" : ""}
-                      onClick={() => toggleFilter('types', type)}
-                    >
-                      {type}
-                      {filters.types.includes(type) && <CheckIcon className="ml-2 h-3 w-3" />}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Brand Filter */}
-              <div>
-                <h3 className="font-medium mb-3">Brand</h3>
-                <div className="flex flex-wrap gap-2">
-                  {brands.map(brand => (
-                    <Button 
-                      key={brand}
-                      variant={filters.brands.includes(brand) ? "default" : "outline"}
-                      size="sm"
-                      className={filters.brands.includes(brand) ? "bg-fresh-300 hover:bg-fresh-400" : ""}
-                      onClick={() => toggleFilter('brands', brand)}
-                    >
-                      {brand}
-                      {filters.brands.includes(brand) && <CheckIcon className="ml-2 h-3 w-3" />}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Flavor Filter */}
-              <div>
-                <h3 className="font-medium mb-3">Flavor</h3>
-                <div className="flex flex-wrap gap-2">
-                  {flavors.map(flavor => (
-                    <Button 
-                      key={flavor}
-                      variant={filters.flavors.includes(flavor) ? "default" : "outline"}
-                      size="sm"
-                      className={filters.flavors.includes(flavor) ? "bg-fresh-300 hover:bg-fresh-400" : ""}
-                      onClick={() => toggleFilter('flavors', flavor)}
-                    >
-                      {flavor}
-                      {filters.flavors.includes(flavor) && <CheckIcon className="ml-2 h-3 w-3" />}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Nicotine Strength Filter */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-medium">Nicotine Strength</h3>
-                  <span className="text-sm text-muted-foreground">
-                    {filters.nicotineRange[0]}mg - {filters.nicotineRange[1]}mg
-                  </span>
-                </div>
-                <Slider
-                  defaultValue={[0, 20]}
-                  min={0}
-                  max={20}
-                  step={1}
-                  value={filters.nicotineRange}
-                  onValueChange={(value) => setFilters(prev => ({...prev, nicotineRange: value as [number, number]}))}
-                  className="mb-6"
-                />
-              </div>
-              
-              {/* Minimum Rating Filter */}
-              <div>
-                <h3 className="font-medium mb-3">Minimum Rating</h3>
-                <Select
-                  value={filters.rating.toString()}
-                  onValueChange={(value) => setFilters(prev => ({...prev, rating: Number(value)}))}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any rating" />
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader className="text-left">
+              <DrawerTitle>Filter Products</DrawerTitle>
+              <DrawerDescription>Refine the product list to find what you're looking for.</DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 space-y-6 py-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Product Category</label>
+                <Select value={categoryFilter || ""} onValueChange={(val) => setCategoryFilter(val || null)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Any rating</SelectItem>
-                    <SelectItem value="3">3+ stars</SelectItem>
-                    <SelectItem value="3.5">3.5+ stars</SelectItem>
-                    <SelectItem value="4">4+ stars</SelectItem>
-                    <SelectItem value="4.5">4.5+ stars</SelectItem>
+                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="Nicotine Pouch">Nicotine Pouch</SelectItem>
+                    <SelectItem value="Vape">Vape</SelectItem>
+                    <SelectItem value="NRT">NRT</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
-              <SheetClose asChild>
-                <Button className="w-full mt-6 bg-fresh-300 hover:bg-fresh-400">
-                  View {filteredProducts.length} Products
-                </Button>
-              </SheetClose>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nicotine Strength</label>
+                <Select value={nicotineFilter || ""} onValueChange={(val) => setNicotineFilter(val || null)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Strengths" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Strengths</SelectItem>
+                    <SelectItem value="low">Low (2-4mg)</SelectItem>
+                    <SelectItem value="medium">Medium (5-8mg)</SelectItem>
+                    <SelectItem value="high">High (8mg+)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* More filter options could be added here */}
             </div>
-          </SheetContent>
-        </Sheet>
-        
-        <Select defaultValue="popularity">
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="popularity">Popularity</SelectItem>
-            <SelectItem value="rating-high">Highest Rating</SelectItem>
-            <SelectItem value="rating-low">Lowest Rating</SelectItem>
-            <SelectItem value="nicotine-high">Highest Nicotine</SelectItem>
-            <SelectItem value="nicotine-low">Lowest Nicotine</SelectItem>
-          </SelectContent>
-        </Select>
+            <DrawerFooter>
+              <Button onClick={applyFilters}>Apply Filters</Button>
+              <DrawerClose asChild>
+                <Button variant="outline" onClick={resetFilters}>Reset</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+        <Button onClick={applyFilters}>Search</Button>
       </div>
       
-      {activeFilterCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mb-6 pb-4 border-b">
-          <span className="text-sm text-muted-foreground">Active filters:</span>
-          {filters.brands.map(brand => (
-            <Badge key={brand} variant="outline" className="flex items-center gap-1 bg-background">
-              {brand}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => toggleFilter('brands', brand)} />
-            </Badge>
+      {filteredProducts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProducts.map((product) => (
+            <Card key={product.id} className="overflow-hidden">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{product.name}</CardTitle>
+                    <CardDescription className="text-sm">
+                      {product.brand}
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline" className="text-fresh-500 border-fresh-200 bg-fresh-50">
+                    {product.category}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <div className="mb-3">
+                  {renderStars(product.rating)}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {product.reviewCount} reviews
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <Badge variant="secondary" className="text-xs">
+                    {product.nicotineStrength}
+                  </Badge>
+                  {product.flavors.map(flavor => (
+                    <Badge key={flavor} variant="outline" className="text-xs">
+                      {flavor}
+                    </Badge>
+                  ))}
+                </div>
+                
+                <p className="text-sm line-clamp-3 mb-4 text-muted-foreground">
+                  {product.description}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{product.price}</span>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/tools/smokeless-directory/${product.id}`} className="flex items-center gap-1">
+                      <span>View Details</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ))}
-          {filters.types.map(type => (
-            <Badge key={type} variant="outline" className="flex items-center gap-1 bg-background">
-              {type}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => toggleFilter('types', type)} />
-            </Badge>
-          ))}
-          {filters.flavors.map(flavor => (
-            <Badge key={flavor} variant="outline" className="flex items-center gap-1 bg-background">
-              {flavor}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => toggleFilter('flavors', flavor)} />
-            </Badge>
-          ))}
-          {(filters.nicotineRange[0] > 0 || filters.nicotineRange[1] < 20) && (
-            <Badge variant="outline" className="flex items-center gap-1 bg-background">
-              {filters.nicotineRange[0]}-{filters.nicotineRange[1]}mg nicotine
-              <X className="h-3 w-3 cursor-pointer" onClick={() => setFilters(prev => ({...prev, nicotineRange: [0, 20]}))} />
-            </Badge>
-          )}
-          {filters.rating > 0 && (
-            <Badge variant="outline" className="flex items-center gap-1 bg-background">
-              {filters.rating}+ stars
-              <X className="h-3 w-3 cursor-pointer" onClick={() => setFilters(prev => ({...prev, rating: 0}))} />
-            </Badge>
-          )}
-          <Button variant="ghost" size="sm" className="text-sm h-7" onClick={clearFilters}>
-            Clear all
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <Droplets className="mx-auto h-12 w-12 text-muted-foreground opacity-30" />
+          <h3 className="mt-4 text-lg font-semibold">No products found</h3>
+          <p className="text-muted-foreground mt-2">Try adjusting your search or filters</p>
+          <Button variant="outline" className="mt-4" onClick={resetFilters}>
+            Reset Filters
           </Button>
         </div>
       )}
       
-      {filteredProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-lg text-muted-foreground mb-4">No products match your filters</p>
-          <Button variant="outline" onClick={clearFilters}>Clear all filters</Button>
-        </div>
-      ) : (
-        <>
-          <div className="text-sm text-muted-foreground mb-6">
-            Showing {filteredProducts.length} products
-          </div>
+      <div className="mt-12">
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="about">
+            <AccordionTrigger>About Smokeless Alternatives</AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              <p className="mb-4">
+                Smokeless nicotine alternatives provide ways to consume nicotine without the harmful combustion process of traditional smoking. They can be part of a harm reduction approach or aid in the transition away from smoking entirely.
+              </p>
+              <p className="mb-4">
+                Common categories include nicotine pouches (tobacco-free pouches placed between the lip and gum), vaping products (electronic devices that heat liquid containing nicotine), and nicotine replacement therapies (medically approved products like gum, patches, and lozenges).
+              </p>
+              <p>
+                While no nicotine product is completely risk-free, smokeless alternatives generally eliminate the dangers associated with inhaling combusted tobacco, which contains thousands of harmful chemicals.
+              </p>
+            </AccordionContent>
+          </AccordionItem>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map(product => (
-              <Link key={product.id} to={`/tools/smokeless-directory/${product.id}`}>
-                <Card className="h-full hover:shadow-md transition-shadow">
-                  <CardHeader className="p-4 pb-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{product.name}</CardTitle>
-                        <CardDescription>{product.brand}</CardDescription>
-                      </div>
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-2">
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <Badge variant="outline">{product.type}</Badge>
-                      <Badge variant="outline">{product.nicotineStrength}mg</Badge>
-                      {product.flavors.map(flavor => (
-                        <Badge key={flavor} variant="secondary">{flavor}</Badge>
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {product.description}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0 flex justify-between">
-                    <div className="flex items-center">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
-                          />
-                        ))}
-                      </div>
-                      <span className="ml-2 text-sm font-medium">{product.rating}</span>
-                      <span className="ml-1 text-xs text-muted-foreground">
-                        ({product.reviewCount})
-                      </span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-fresh-500">
-                      View Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </>
-      )}
+          <AccordionItem value="disclaimer">
+            <AccordionTrigger>Disclaimer & Information</AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              <p className="mb-4">
+                This directory is provided for informational purposes only. Mission Fresh does not manufacture, distribute, or endorse any specific products listed here. 
+              </p>
+              <p className="mb-4">
+                All products containing nicotine are addictive. Nicotine-free alternatives are always the healthiest choice. Consult with a healthcare professional before using any nicotine product, especially if you have health concerns or are pregnant.
+              </p>
+              <p>
+                Some links may be affiliate links, meaning Mission Fresh may earn a commission if you make a purchase. This helps support our services at no extra cost to you.
+              </p>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
     </div>
   );
 };
