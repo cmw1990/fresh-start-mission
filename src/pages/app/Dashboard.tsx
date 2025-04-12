@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +9,6 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import { getRecentLogStats } from "@/services/logService";
 import { getUserGoal } from "@/services/goalService";
 
-// Create stats card component
 const KeyStatsCard = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['log-stats'],
@@ -91,7 +89,6 @@ const WellnessCard = () => {
     );
   }
 
-  // Helper function to render wellness metric
   const renderMetric = (label: string, value: number, max: number = 5) => {
     const percentage = (value / max) * 100;
     return (
@@ -129,7 +126,6 @@ const MilestoneCard = () => {
     queryFn: getRecentLogStats,
   });
 
-  // Calculate next milestone
   const calculateNextMilestone = (daysAfresh: number) => {
     const milestones = [1, 3, 7, 14, 30, 60, 90, 180, 365];
     const nextMilestone = milestones.find(m => m > daysAfresh) || (daysAfresh + 30);
@@ -137,7 +133,6 @@ const MilestoneCard = () => {
     return { days: nextMilestone, daysToGo };
   };
 
-  // Format date for next milestone
   const getNextMilestoneDate = (daysToGo: number) => {
     const date = new Date();
     date.setDate(date.getDate() + daysToGo);
@@ -237,14 +232,12 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Use react-query for preferences
   const { data: preferences } = useQuery({
     queryKey: ['user-preferences'],
     queryFn: getUserPreferences,
   });
 
   const onDragEnd = (result: DropResult) => {
-    // dropped outside the list
     if (!result.destination) {
       return;
     }
