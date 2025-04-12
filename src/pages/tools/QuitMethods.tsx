@@ -1,289 +1,568 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, TrendingDown, Cigarette, Zap, CircleSlash2, Minus, Timer, Droplet, Award, Info } from "lucide-react";
-import FeaturesIntro from "@/components/home/FeaturesIntro";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { 
+  Calendar, Clock, ArrowDownToLine, BarChart4, BookOpen, Lightbulb, 
+  CheckCircle, XCircle, AlertCircle, Flame
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const quitMethods = [
-  {
-    id: "cold-turkey",
-    name: "Cold Turkey",
-    icon: <CircleSlash2 className="h-5 w-5 text-fresh-500" />,
-    description: "Stopping abruptly without any aids or gradually reducing. Often considered the most challenging but also the quickest way to eliminate nicotine from your system.",
-    details: [
-      {
-        title: "What to Expect",
-        content: "When quitting cold turkey, expect more intense withdrawal symptoms in the first 72 hours, including irritability, anxiety, difficulty concentrating, headaches, increased appetite, and strong cravings. These symptoms typically peak within the first week and gradually subside over 2-4 weeks, though some psychological cravings may persist longer."
-      },
-      {
-        title: "Who It's Best For",
-        content: "Cold turkey works best for people with strong willpower, those who prefer a clean break approach, individuals with good support systems in place, and those who have successfully used this method for other habits. It's often effective for people who are highly motivated by a specific trigger event or health scare."
-      },
-      {
-        title: "Preparation",
-        content: "Before quitting cold turkey: 1) Set a specific quit date, ideally during a less stressful period. 2) Remove all nicotine products and triggers from your environment. 3) Stock up on healthy snacks and distractions. 4) Inform friends and family for support. 5) Prepare coping strategies for cravings and withdrawal. 6) Consider downloading a quit-tracking app like Mission Fresh to monitor your progress."
-      },
-      {
-        title: "Success Strategies",
-        content: "To succeed with cold turkey: 1) Practice the 4 Ds when cravings hit (Delay, Deep breathe, Drink water, Do something else). 2) Create a strong support network. 3) Avoid triggers and situations associated with nicotine use during the first few weeks. 4) Exercise regularly to manage stress and boost mood. 5) Use Mission Fresh's tools for managing energy, mood, and focus challenges. 6) Prepare for and accept that withdrawal will be challenging but temporary."
-      }
-    ],
-    successRate: "Success rate: Approximately 3-5% without additional support; can increase to 10-15% with proper preparation and support tools."
-  },
-  {
-    id: "gradual-reduction",
-    name: "Gradual Reduction",
-    icon: <TrendingDown className="h-5 w-5 text-fresh-500" />,
-    description: "Systematically reducing nicotine intake over time according to a schedule, helping to ease withdrawal symptoms by slowly decreasing dependency.",
-    details: [
-      {
-        title: "What to Expect",
-        content: "With gradual reduction, you'll experience less severe withdrawal symptoms spread over a longer period. You may notice mild irritability, occasional headaches, and periodic cravings as you step down your nicotine intake. Many people report better success managing mood and energy using this method, though it requires longer commitment and discipline to follow your reduction schedule."
-      },
-      {
-        title: "Who It's Best For",
-        content: "Gradual reduction works best for: 1) People who've tried and struggled with cold turkey. 2) Those with high daily nicotine consumption. 3) Individuals who prefer methodical approaches with clear milestones. 4) People who need to maintain focus and mood stability for work or family responsibilities. 5) Those who want to build confidence through progressive achievements."
-      },
-      {
-        title: "Creating a Reduction Schedule",
-        content: "To create an effective reduction plan: 1) Calculate your current daily nicotine intake. 2) Choose a reasonable timeline (typically 4-12 weeks). 3) Plan regular step-downs (e.g., reduce by 25% every 1-2 weeks). 4) Track each reduction milestone and adjust as needed. 5) Consider spacing out usage rather than just reducing quantity. For example, if you smoke 20 cigarettes daily, you might start by cutting to 15 for a week, then 10, then 5, before quitting completely."
-      },
-      {
-        title: "Success Strategies",
-        content: "To succeed with gradual reduction: 1) Keep a detailed log of every usage (the Mission Fresh app is perfect for this). 2) Create specific rules for when you can use nicotine, not just how much. 3) Don't compensate by inhaling more deeply or using more intensely. 4) Have a clear end date when you'll completely stop. 5) Pre-plan particularly challenging reduction steps with extra support or coping mechanisms. 6) Consider combining with NRT during final stages."
-      }
-    ],
-    successRate: "Success rate: Approximately 10-18% when following a structured program with proper tracking and support."
-  },
-  {
-    id: "nrt-assisted",
-    name: "NRT Assisted",
-    icon: <Droplet className="h-5 w-5 text-fresh-500" />,
-    description: "Using Nicotine Replacement Therapy products (patches, gum, lozenges, etc.) to deliver controlled amounts of nicotine while eliminating the harmful chemicals in cigarettes or vapes.",
-    details: [
-      {
-        title: "What to Expect",
-        content: "With NRT, you'll experience reduced withdrawal symptoms while still receiving controlled nicotine. You may notice mild side effects specific to your chosen NRT product (skin irritation from patches, mouth soreness from gum/lozenges, etc.). The process typically begins with a higher nicotine dose matched to your current usage, then gradually steps down over 8-12 weeks."
-      },
-      {
-        title: "Choosing the Right NRT",
-        content: "Different NRT options suit different preferences: 1) Patches provide steady, all-day nicotine delivery with once-daily application. 2) Gum offers flexible, on-demand relief for cravings. 3) Lozenges work similarly to gum but without chewing. 4) Inhalers satisfy the hand-to-mouth ritual. 5) Nasal/mouth sprays provide the quickest nicotine delivery for intense cravings. Many successful quitters combine a long-acting option (patch) with a quick-acting option (gum/lozenge) for breakthrough cravings."
-      },
-      {
-        title: "Using NRT Correctly",
-        content: "Common mistakes that reduce NRT effectiveness include: 1) Underdosing (not using enough to manage cravings). 2) Stopping too soon (NRT should typically be used for 8-12 weeks). 3) Improper use (e.g., chewing nicotine gum like regular gum). 4) Not tapering properly. 5) Continuing to smoke while using NRT (except in specific gradual reduction plans). Follow product instructions carefully and consult our detailed NRT Guide for proper usage techniques."
-      },
-      {
-        title: "Success Strategies",
-        content: "To maximize NRT success: 1) Be honest about your nicotine intake when selecting your starting strength. 2) Use NRT consistently according to the product instructions. 3) Don't stop NRT too early; complete the full recommended course. 4) Address the behavioral aspects of addiction alongside the physical dependence using Mission Fresh's holistic tools. 5) Use the Mission Fresh app to track both NRT usage and withdrawal symptoms. 6) Consider behavioral support alongside NRT."
-      }
-    ],
-    successRate: "Success rate: Approximately 15-25% with proper usage compared to 3-5% with willpower alone."
-  },
-  {
-    id: "tapering",
-    name: "Tapering",
-    icon: <Minus className="h-5 w-5 text-fresh-500" />,
-    description: "Methodically reducing nicotine strength while maintaining usage patterns, particularly effective with vaping or pouches where nicotine concentration can be precisely controlled.",
-    details: [
-      {
-        title: "What to Expect",
-        content: "With tapering, you'll maintain your usual usage patterns but gradually reduce the nicotine strength. This can be particularly effective with vaping, where you can precisely control nicotine concentration. You may experience mild withdrawal symptoms during each step-down, but they're typically less intense than cold turkey approaches."
-      },
-      {
-        title: "How Tapering Works",
-        content: "Unlike gradual reduction (which reduces frequency/quantity), tapering focuses on nicotine strength. For example: 1) If vaping 50mg nicotine e-liquid, you might switch to 35mg, then 20mg, then 10mg, then 3mg, and finally 0mg. 2) With nicotine pouches, you might go from extra strong (15mg) to regular (8mg) to mini (4mg) before stopping. This method allows your body to gradually adapt to lower nicotine levels while maintaining the habitual and behavioral aspects of use."
-      },
-      {
-        title: "Creating a Tapering Schedule",
-        content: "To create an effective tapering plan: 1) Identify your starting nicotine strength. 2) Research available lower strength options for your product. 3) Plan step-downs that reduce by roughly 25-50% each time. 4) Allow 1-2 weeks at each strength level before stepping down again. 5) Include a final phase with the lowest available strength before quitting completely. 6) Consider ending with nicotine-free products briefly to address the behavioral habit."
-      },
-      {
-        title: "Success Strategies",
-        content: "To succeed with tapering: 1) Use the Mission Fresh app to track each strength change and your body's response. 2) Don't compensate by using more frequently when stepping down. 3) Keep some of your previous strength product available for especially stressful situations (but track any usage). 4) Be patient at each level until cravings stabilize before stepping down further. 5) Combine with Mission Fresh's Mood, Energy, and Focus tools to address withdrawal effects. 6) Consider zero-nicotine products as a final step to break the physical addiction while maintaining the ritual."
-      }
-    ],
-    successRate: "Success rate: Approximately 15-20% when following a structured program with consistent step-downs."
-  },
-  {
-    id: "harm-reduction",
-    name: "Harm Reduction",
-    icon: <Zap className="h-5 w-5 text-fresh-500" />,
-    description: "Switching to potentially less harmful nicotine delivery methods while maintaining nicotine usage. Focus is on eliminating the most harmful aspects of nicotine use rather than eliminating nicotine itself.",
-    details: [
-      {
-        title: "What to Expect",
-        content: "With harm reduction, the goal is reducing harm rather than eliminating nicotine entirely. This typically involves switching from high-risk products (combustible cigarettes) to potentially lower-risk alternatives (pouches, certain vaping products). You may experience an adjustment period when switching delivery methods, but should not experience significant withdrawal since you'll maintain nicotine intake."
-      },
-      {
-        title: "Understanding the Approach",
-        content: "Harm reduction acknowledges that while no nicotine use is safest, switching to potentially less harmful products can significantly reduce health risks for those who cannot or will not stop completely. The harm reduction spectrum (from most to potentially less harmful) generally runs: combustible cigarettes → heated tobacco → certain vaping systems → nicotine pouches → pharmaceutical NRT. The primary benefit comes from eliminating combustion and the associated tar and carbon monoxide."
-      },
-      {
-        title: "Making Informed Choices",
-        content: "For effective harm reduction: 1) Research product options thoroughly using reliable sources (including our Smokeless Directory). 2) Consider all aspects including delivery method, ingredients, manufacturing standards, and regulatory oversight. 3) Be aware of the limitations of current research on newer products. 4) Understand that 'less harmful' doesn't mean 'harmless.' 5) Consider harm reduction as either a permanent choice or a step toward eventual cessation."
-      },
-      {
-        title: "Success Strategies",
-        content: "To succeed with harm reduction: 1) Commit fully to the switch without dual-use (using both old and new products). 2) Find satisfying alternatives that effectively manage cravings. 3) Be prepared for an adjustment period as you adapt to the new delivery method. 4) Use the Mission Fresh app to track your usage patterns and health markers over time. 5) Stay informed about emerging research on your chosen alternative products. 6) Consider a gradual transition to cessation as a potential long-term goal."
-      }
-    ],
-    successRate: "Success rate for complete switching: Approximately 25-30% when finding a satisfying alternative with proper education and support."
-  }
-];
+const QuitMethods = () => {
+  const [selectedTab, setSelectedTab] = useState("cold-turkey");
 
-const QuittingMethodsGuide = () => {
-  const [selectedMethod, setSelectedMethod] = useState("cold-turkey");
-  
   return (
-    <div className="container py-12">
-      <Link to="/tools" className="inline-flex items-center text-mint-500 hover:text-mint-600 mb-6">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Web Tools
-      </Link>
-      
-      <div className="max-w-4xl mx-auto">
-        <FeaturesIntro 
-          title="Quitting Methods Guide"
-          description="Explore different approaches to quitting or reducing nicotine use and find what works best for your unique journey"
-        />
+    <div className="max-w-5xl mx-auto py-8">
+      <div className="text-center mb-12">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-4">Quitting Method Guides</h1>
+        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          Explore different approaches to becoming nicotine-free. Each method has its own benefits and challenges – 
+          find the one that best matches your preferences and lifestyle.
+        </p>
+      </div>
+
+      <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-full">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-5 max-w-3xl mx-auto mb-8">
+          <TabsTrigger value="cold-turkey">Cold Turkey</TabsTrigger>
+          <TabsTrigger value="gradual">Gradual Reduction</TabsTrigger>
+          <TabsTrigger value="tapering">Tapering</TabsTrigger>
+          <TabsTrigger value="nrt">NRT Assisted</TabsTrigger>
+          <TabsTrigger value="harm-reduction">Harm Reduction</TabsTrigger>
+        </TabsList>
         
-        <Card className="mb-8">
-          <CardHeader className="bg-mint-50">
-            <CardTitle>Finding Your Fresh Path</CardTitle>
-            <CardDescription className="text-base">
-              There's no one-size-fits-all approach to quitting nicotine. The most effective method for you depends on your personal preferences, usage patterns, and previous quit attempts.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <p>
-              At Mission Fresh, we believe in supporting <strong>all</strong> paths to freedom from nicotine, whether you're aiming for complete cessation or significant reduction. Each method below has proven effective for different people. We recommend reading through all options before choosing your approach.
-            </p>
-          </CardContent>
-        </Card>
-        
-        <div className="grid gap-6 mb-8">
-          <Tabs value={selectedMethod} onValueChange={setSelectedMethod} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-2">
-              {quitMethods.map((method) => (
-                <TabsTrigger 
-                  key={method.id} 
-                  value={method.id}
-                  className="data-[state=active]:bg-mint-50 data-[state=active]:text-mint-700 data-[state=active]:border-b-2 data-[state=active]:border-mint-500"
-                >
-                  <span className="hidden md:inline mr-2">{method.icon}</span>
-                  <span className="truncate">{method.name}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            
-            {quitMethods.map((method) => (
-              <TabsContent key={method.id} value={method.id}>
-                <Card className="border-t-4 border-t-mint-500">
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      {method.icon}
-                      <CardTitle>{method.name}</CardTitle>
+        <TabsContent value="cold-turkey">
+          <div className="grid gap-6">
+            <Card>
+              <div className="md:flex">
+                <div className="md:w-1/3 bg-fresh-50 p-6 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="bg-white p-4 rounded-full inline-block mb-4 shadow-sm">
+                      <Calendar className="h-12 w-12 text-fresh-500" />
                     </div>
-                    <CardDescription className="text-base">
-                      {method.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {method.details.map((detail, index) => (
-                      <div key={index}>
-                        <h3 className="font-semibold mb-2 flex items-center">
-                          <Info className="h-4 w-4 text-mint-500 mr-2" />
-                          {detail.title}
-                        </h3>
-                        <p className="text-muted-foreground">{detail.content}</p>
-                      </div>
-                    ))}
+                    <h2 className="text-2xl font-bold text-fresh-700">Cold Turkey</h2>
+                    <p className="text-fresh-600 mt-2">Complete and immediate cessation</p>
+                  </div>
+                </div>
+                <div className="md:w-2/3 p-6">
+                  <p className="mb-4">
+                    The cold turkey approach involves stopping the use of nicotine products completely and immediately. 
+                    This method relies on willpower and determination to overcome withdrawal symptoms without gradually 
+                    reducing nicotine intake or using cessation aids.
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Timeline</p>
+                      <p className="font-medium">Immediate</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Success Rate</p>
+                      <p className="font-medium">3-5% per attempt</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Challenge Level</p>
+                      <p className="font-medium">High</p>
+                    </div>
+                  </div>
+                  <p>
+                    Cold turkey is often considered the most challenging method but can be effective for those with strong motivation 
+                    and determination. With proper preparation and support, many people successfully quit using this approach.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                    Advantages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>No prolonged withdrawal – symptoms peak and then begin to subside</li>
+                    <li>Avoids dependence on cessation aids or replacement products</li>
+                    <li>No cost for additional products or therapies</li>
+                    <li>Empowering sense of accomplishment</li>
+                    <li>Breaks both physical and psychological habits simultaneously</li>
+                    <li>Quick transition to a nicotine-free life</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center">
+                    <XCircle className="h-5 w-5 text-red-500 mr-2" />
+                    Challenges
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Intense withdrawal symptoms in the first 72 hours</li>
+                    <li>Higher potential for relapse during initial withdrawal</li>
+                    <li>Requires significant willpower and determination</li>
+                    <li>Can be particularly difficult for heavy or long-term users</li>
+                    <li>May cause temporary irritability affecting relationships</li>
+                    <li>Sleep disturbances and concentration issues may impact daily life</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="preparation">
+                <AccordionTrigger>How to Prepare</AccordionTrigger>
+                <AccordionContent>
+                  <ol className="list-decimal pl-5 space-y-4">
+                    <li>
+                      <strong>Set a firm quit date:</strong> Choose a specific date to stop using all nicotine products. Consider selecting a date with symbolic importance or a time when stress levels will be lower.
+                    </li>
+                    <li>
+                      <strong>Identify triggers:</strong> Spend a week noting when and why you use nicotine to identify your personal triggers (e.g., after meals, during breaks, while driving).
+                    </li>
+                    <li>
+                      <strong>Create a coping plan:</strong> Develop specific strategies for handling each trigger and the withdrawal symptoms you're likely to experience.
+                    </li>
+                    <li>
+                      <strong>Remove temptations:</strong> Discard all nicotine products, lighters, ashtrays, and other related items the night before your quit date.
+                    </li>
+                    <li>
+                      <strong>Build a support system:</strong> Inform friends and family about your plan, join support groups, or consider using a quit buddy or counselor.
+                    </li>
+                    <li>
+                      <strong>Stock up on substitutes:</strong> Have plenty of healthy snacks, sugar-free gum, toothpicks, or other oral substitutes available.
+                    </li>
+                    <li>
+                      <strong>Plan distractions:</strong> Schedule activities, especially during times when you would typically use nicotine, to keep your mind and hands busy.
+                    </li>
+                    <li>
+                      <strong>Prepare for withdrawal:</strong> Stock up on water, healthy food, and consider arranging lighter work schedules for the first few days if possible.
+                    </li>
+                  </ol>
+                </AccordionContent>
+              </AccordionItem>
+              
+              <AccordionItem value="first-week">
+                <AccordionTrigger>The First Week: What to Expect</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Physical Symptoms</h4>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>
+                        <strong>Days 1-3:</strong> Peak physical withdrawal symptoms including irritability, anxiety, headaches, increased appetite, insomnia, and difficulty concentrating. Cravings can be intense and frequent.
+                      </li>
+                      <li>
+                        <strong>Days 4-5:</strong> Physical symptoms begin to diminish, though cravings may still be strong. Energy levels may fluctuate, and some irritability often persists.
+                      </li>
+                      <li>
+                        <strong>Days 6-7:</strong> Physical withdrawal symptoms continue to subside. Cravings typically become less frequent but may still be intense when they occur.
+                      </li>
+                    </ul>
                     
-                    <div className="bg-mint-50 p-4 rounded-md">
-                      <p className="font-medium text-mint-800">
-                        {method.successRate}
+                    <h4 className="font-medium">Psychological Challenges</h4>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>
+                        <strong>Mood swings:</strong> Rapid changes in mood are common as your brain adjusts to functioning without nicotine.
+                      </li>
+                      <li>
+                        <strong>Mental fog:</strong> Difficulty concentrating is normal and typically improves after the first week.
+                      </li>
+                      <li>
+                        <strong>Cravings:</strong> Psychological cravings triggered by habits and associations rather than physical need.
+                      </li>
+                      <li>
+                        <strong>Sleep disturbances:</strong> Vivid dreams or nightmares are common as REM sleep patterns normalize.
+                      </li>
+                    </ul>
+                    
+                    <div className="bg-blue-50 p-4 rounded-md">
+                      <h4 className="font-medium text-blue-700 mb-2">Survival Strategies</h4>
+                      <ul className="list-disc pl-5 space-y-1 text-sm">
+                        <li>Follow the 4Ds: Delay, Deep breathe, Drink water, Do something else</li>
+                        <li>Use Mission Fresh's Craving Tools when urges hit</li>
+                        <li>Stay hydrated and maintain blood sugar levels with regular, healthy meals</li>
+                        <li>Exercise daily, even if just a short walk, to boost mood and reduce cravings</li>
+                        <li>Celebrate small wins - each hour and day nicotine-free is an achievement</li>
+                      </ul>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              
+              <AccordionItem value="success-stories">
+                <AccordionTrigger>Success Stories & Tips</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 p-4 rounded-md">
+                      <h4 className="font-medium">Michael, 42 - Quit after 20 years</h4>
+                      <p className="text-sm mb-2 italic">
+                        "The first three days were brutal, but I kept reminding myself that the discomfort was temporary and the benefits permanent. 
+                        I drank tons of water, went for walks whenever cravings hit hard, and used smartphone games to keep my hands busy. 
+                        By day 5, I started feeling significantly better, and after two weeks, I knew I could do this for good."
+                      </p>
+                      <p className="text-sm font-medium">Michael's Top Tip:</p>
+                      <p className="text-sm">
+                        Break each day into manageable chunks. Just focus on staying nicotine-free until lunch, then until dinner, then bedtime.
                       </p>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            ))}
-          </Tabs>
+                    
+                    <div className="bg-gray-50 p-4 rounded-md">
+                      <h4 className="font-medium">Sarah, 35 - Cold turkey success after multiple attempts</h4>
+                      <p className="text-sm mb-2 italic">
+                        "I tried cutting down gradually three times before, but it never worked for me - I'd always find excuses. 
+                        Going cold turkey was like ripping off a bandaid. Yes, it hurt more initially, but it was cleaner and more definitive. 
+                        What made the difference was preparation - I spent two weeks planning every aspect of my quit before my actual quit date."
+                      </p>
+                      <p className="text-sm font-medium">Sarah's Top Tip:</p>
+                      <p className="text-sm">
+                        Change your routines completely for the first week. Different driving routes, different break locations at work, even rearranging furniture can help break associations.
+                      </p>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <h4 className="font-medium mb-2">Community-Sourced Tips</h4>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>
+                          <strong>The toothbrush technique:</strong> Brush your teeth when a strong craving hits. The clean feeling and mint taste can diminish the urge.
+                        </li>
+                        <li>
+                          <strong>The water challenge:</strong> Drink a full glass of water slowly during each craving - by the time you finish, the peak intensity often passes.
+                        </li>
+                        <li>
+                          <strong>Sensory replacement:</strong> Use strong mints, cinnamon sticks, or lemon slices to stimulate your senses during cravings.
+                        </li>
+                        <li>
+                          <strong>The money jar:</strong> Put the money you would have spent on nicotine products in a visible jar each day and watch it grow.
+                        </li>
+                        <li>
+                          <strong>The craving journal:</strong> Write down every craving - the time, trigger, intensity, and how long it lasted. This helps identify patterns and shows that cravings do pass.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <div className="mt-6">
+              <div className="flex items-center mb-4">
+                <AlertCircle className="h-5 w-5 text-amber-500 mr-2" />
+                <h3 className="font-medium">Who This Method Is Best For</h3>
+              </div>
+              <ul className="list-disc pl-8 space-y-2">
+                <li>People with high motivation and strong determination</li>
+                <li>Those who prefer a clean break rather than prolonged withdrawal</li>
+                <li>Individuals who have tried other methods without success</li>
+                <li>Those who respond well to challenging themselves</li>
+                <li>People with supportive environments and lower stress levels</li>
+                <li>Individuals who are well-prepared with coping strategies</li>
+              </ul>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="gradual">
+          <div className="grid gap-6">
+            <Card>
+              <div className="md:flex">
+                <div className="md:w-1/3 bg-fresh-50 p-6 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="bg-white p-4 rounded-full inline-block mb-4 shadow-sm">
+                      <ArrowDownToLine className="h-12 w-12 text-fresh-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-fresh-700">Gradual Reduction</h2>
+                    <p className="text-fresh-600 mt-2">Step-by-step decrease in usage</p>
+                  </div>
+                </div>
+                <div className="md:w-2/3 p-6">
+                  <p className="mb-4">
+                    Gradual reduction involves systematically decreasing your nicotine use over time. This method allows your body to slowly adjust to lower nicotine levels, potentially making the withdrawal process less intense than cold turkey.
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Timeline</p>
+                      <p className="font-medium">2-8 weeks</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Success Rate</p>
+                      <p className="font-medium">5-7% per attempt</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Challenge Level</p>
+                      <p className="font-medium">Moderate</p>
+                    </div>
+                  </div>
+                  <p>
+                    With gradual reduction, you set specific targets to progressively reduce your nicotine consumption until you reach zero. This approach requires careful tracking and disciplined adherence to your reduction schedule.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                    Advantages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Less intense withdrawal symptoms</li>
+                    <li>Time to develop coping strategies</li>
+                    <li>Builds confidence through incremental successes</li>
+                    <li>More gradual adjustment for your body and brain</li>
+                    <li>Can be more manageable around work/life commitments</li>
+                    <li>Multiple opportunities to identify and address triggers</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center">
+                    <XCircle className="h-5 w-5 text-red-500 mr-2" />
+                    Challenges
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Prolonged period of withdrawal symptoms</li>
+                    <li>Requires careful tracking and discipline</li>
+                    <li>Easy to stall at a certain level of consumption</li>
+                    <li>Risk of rationalization to delay further reduction</li>
+                    <li>Each reduction step can trigger renewed cravings</li>
+                    <li>Final step to zero can still be challenging</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center">
+                    <Lightbulb className="h-5 w-5 text-amber-500 mr-2" />
+                    Effective Approaches
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>
+                      <strong>Percentage method:</strong> Reduce by a set percentage each week (e.g., 25%)
+                    </li>
+                    <li>
+                      <strong>Unit reduction:</strong> Decrease by a specific number of cigarettes/vape sessions each day
+                    </li>
+                    <li>
+                      <strong>Delayed first use:</strong> Progressively delay your first nicotine use of the day
+                    </li>
+                    <li>
+                      <strong>Scheduled use:</strong> Only use at predetermined times, gradually increasing the gaps
+                    </li>
+                    <li>
+                      <strong>Brand switching:</strong> Transition to progressively lower nicotine content products
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Additional content for gradual reduction could go here */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-center text-muted-foreground">
+                More detailed guidance for the Gradual Reduction method coming soon! Check back for complete implementation strategies and success stories.
+              </p>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="tapering">
+          <div className="grid gap-6">
+            <Card>
+              <div className="md:flex">
+                <div className="md:w-1/3 bg-fresh-50 p-6 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="bg-white p-4 rounded-full inline-block mb-4 shadow-sm">
+                      <BarChart4 className="h-12 w-12 text-fresh-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-fresh-700">Tapering Schedule</h2>
+                    <p className="text-fresh-600 mt-2">Structured nicotine reduction</p>
+                  </div>
+                </div>
+                <div className="md:w-2/3 p-6">
+                  <p className="mb-4">
+                    Tapering involves following a precise schedule that gradually reduces your nicotine intake over a specified period. This structured approach uses careful planning to minimize withdrawal symptoms while progressing toward cessation.
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Timeline</p>
+                      <p className="font-medium">3-12 weeks</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Success Rate</p>
+                      <p className="font-medium">7-9% per attempt</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Challenge Level</p>
+                      <p className="font-medium">Moderate</p>
+                    </div>
+                  </div>
+                  <p>
+                    Unlike general gradual reduction, tapering uses a specific, often personalized schedule with clear milestones. This approach works well for those who benefit from structure and measurable progress tracking.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Additional content for tapering could go here */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-center text-muted-foreground">
+                More detailed guidance for the Tapering Schedule method coming soon! Check back for complete implementation strategies and sample tapering plans.
+              </p>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="nrt">
+          <div className="grid gap-6">
+            <Card>
+              <div className="md:flex">
+                <div className="md:w-1/3 bg-fresh-50 p-6 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="bg-white p-4 rounded-full inline-block mb-4 shadow-sm">
+                      <BookOpen className="h-12 w-12 text-fresh-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-fresh-700">NRT Assisted</h2>
+                    <p className="text-fresh-600 mt-2">Using approved replacement therapies</p>
+                  </div>
+                </div>
+                <div className="md:w-2/3 p-6">
+                  <p className="mb-4">
+                    Nicotine Replacement Therapy (NRT) uses FDA-approved products like patches, gum, lozenges, inhalers, or sprays to provide controlled amounts of nicotine without the harmful chemicals found in tobacco or vapes.
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Timeline</p>
+                      <p className="font-medium">8-12 weeks</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Success Rate</p>
+                      <p className="font-medium">15-20% per attempt</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Challenge Level</p>
+                      <p className="font-medium">Low-Moderate</p>
+                    </div>
+                  </div>
+                  <p>
+                    NRT helps manage physical withdrawal symptoms while you work on breaking the psychological habit. This method has strong scientific evidence supporting its effectiveness, particularly when combined with behavioral support.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <div className="flex justify-center">
+              <Button 
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => window.location.href = '/tools/nrt-guide'}
+              >
+                <BookOpen size={16} />
+                View Detailed NRT Guide
+              </Button>
+            </div>
+            
+            {/* Additional content for NRT could go here */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-center text-muted-foreground">
+                For comprehensive information on NRT options, please visit our <a href="/tools/nrt-guide" className="text-fresh-500 hover:underline">NRT Guide</a> page, which provides detailed information on each type of nicotine replacement therapy.
+              </p>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="harm-reduction">
+          <div className="grid gap-6">
+            <Card>
+              <div className="md:flex">
+                <div className="md:w-1/3 bg-fresh-50 p-6 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="bg-white p-4 rounded-full inline-block mb-4 shadow-sm">
+                      <Flame className="h-12 w-12 text-fresh-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-fresh-700">Harm Reduction</h2>
+                    <p className="text-fresh-600 mt-2">Reducing harm while maintaining nicotine use</p>
+                  </div>
+                </div>
+                <div className="md:w-2/3 p-6">
+                  <p className="mb-4">
+                    Harm reduction focuses on minimizing the negative health impacts of nicotine use rather than complete cessation. This often involves switching from high-risk products (like cigarettes) to potentially less harmful alternatives.
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Timeline</p>
+                      <p className="font-medium">Ongoing</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Harm Reduction</p>
+                      <p className="font-medium">50-95%</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">Challenge Level</p>
+                      <p className="font-medium">Variable</p>
+                    </div>
+                  </div>
+                  <p>
+                    While complete abstinence is the healthiest choice, harm reduction recognizes that not everyone is ready or able to quit entirely. This approach can be a step toward eventual cessation or a long-term strategy for those unable to quit.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <div className="flex justify-center">
+              <Button 
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => window.location.href = '/tools/smokeless-directory'}
+              >
+                <BookOpen size={16} />
+                Explore Smokeless Alternatives
+              </Button>
+            </div>
+            
+            {/* Additional content for harm reduction could go here */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-center text-muted-foreground">
+                For more information on smokeless nicotine alternatives, please visit our <a href="/tools/smokeless-directory" className="text-fresh-500 hover:underline">Smokeless Directory</a> page, which provides a comprehensive catalog of potentially less harmful nicotine products.
+              </p>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <div className="mt-12 p-6 bg-fresh-50 border border-fresh-100 rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Ready to start your fresh journey?</h2>
+        <div className="space-y-2">
+          <p>Mission Fresh can provide personalized support for whichever method you choose.</p>
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <a href="/app/dashboard" className="inline-flex items-center justify-center rounded-md bg-fresh-300 hover:bg-fresh-400 text-white px-4 py-2">
+              Get Started
+            </a>
+            <a href="/tools/nrt-guide" className="inline-flex items-center justify-center rounded-md border border-fresh-200 bg-white hover:bg-fresh-50 px-4 py-2">
+              NRT Guide
+            </a>
+            <a href="/tools/calculators" className="inline-flex items-center justify-center rounded-md border border-fresh-200 bg-white hover:bg-fresh-50 px-4 py-2">
+              Savings Calculator
+            </a>
+          </div>
         </div>
-        
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-mint-500" />
-              Recommended Combinations
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p>
-              Many successful quitters combine approaches for better results. Here are some effective combinations:
-            </p>
-            <ul className="list-disc pl-5 space-y-3">
-              <li>
-                <span className="font-medium">NRT + Behavioral Support:</span>{" "}
-                Using nicotine replacement therapy while also addressing the psychological aspects of addiction with Mission Fresh's Focus, Mood, and Energy tools.
-              </li>
-              <li>
-                <span className="font-medium">Tapering + Gradual Reduction:</span>{" "}
-                Reducing both the strength of nicotine and the frequency of use simultaneously for a comprehensive approach.
-              </li>
-              <li>
-                <span className="font-medium">Cold Turkey + Strong Support System:</span>{" "}
-                Quitting abruptly while leaning heavily on support from friends, family, and digital tools like Mission Fresh.
-              </li>
-              <li>
-                <span className="font-medium">Harm Reduction → Tapering → Cessation:</span>{" "}
-                A staged approach starting with switching to less harmful products, then gradually reducing nicotine strength, and finally achieving complete cessation.
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-mint-500" />
-              Ready to Start Your Fresh Journey?
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p>
-              Mission Fresh helps you implement any of these methods with personalized tracking, goal setting, and holistic tools for managing the real challenges that come with nicotine withdrawal.
-            </p>
-            
-            <div className="grid md:grid-cols-2 gap-4 mt-6">
-              <Button asChild className="w-full bg-mint-500 hover:bg-mint-600 text-white">
-                <Link to="/sign-up">
-                  Create a Free Account
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full border-mint-500 text-mint-700 hover:bg-mint-50">
-                <Link to="/tools/nrt-guide">
-                  <Droplet className="mr-2 h-4 w-4" />
-                  Explore NRT Options
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="flex justify-center mt-4">
-              <Link to="/tools/smokeless-directory" className="text-mint-600 hover:text-mint-700 inline-flex items-center">
-                View Our Smokeless Product Directory
-                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
 };
 
-export default QuittingMethodsGuide;
+export default QuitMethods;
