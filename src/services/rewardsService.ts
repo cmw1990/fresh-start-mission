@@ -120,11 +120,12 @@ export const claimRewardPoints = async (pointsToRedeem: number) => {
     // Get already claimed points
     const { data: claimedRewards, error: claimedError } = await supabase
       .from('claimed_rewards')
-      .select('points_redeemed')
+      .select('*')
       .eq('user_id', user.id);
     
     if (claimedError) throw claimedError;
     
+    // Calculate claimed points - this needs to match how points are stored in the claimed_rewards table
     const claimedPoints = claimedRewards?.reduce((sum, item) => sum + (item.points_redeemed || 0), 0) || 0;
     
     // Calculate available points
@@ -176,7 +177,7 @@ export const getTotalPoints = async () => {
     // Get total spent points from claimed_rewards
     const { data: claimed, error: claimedError } = await supabase
       .from('claimed_rewards')
-      .select('points_redeemed')
+      .select('*')
       .eq('user_id', user.id);
     
     if (claimedError) throw claimedError;
