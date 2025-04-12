@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { StepReward, ClaimedReward, Reward } from "@/lib/supabase";
 import { toast } from "sonner";
 
-// Get all step rewards for the current user
+/**
+ * Get all step rewards for the current user
+ */
 export const getStepRewards = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -24,6 +26,29 @@ export const getStepRewards = async () => {
 };
 
 /**
+ * Get a specific step reward by ID
+ */
+export const getStepRewardById = async (rewardId: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
+  const { data, error } = await supabase
+    .from('step_rewards')
+    .select('*')
+    .eq('id', rewardId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching step reward by ID', error);
+    throw error;
+  }
+
+  return data as StepReward;
+};
+
+/**
  * Logs user's daily steps
  */
 export const logSteps = async (steps: number): Promise<StepReward | null> => {
@@ -39,12 +64,16 @@ export const logSteps = async (steps: number): Promise<StepReward | null> => {
     const today = new Date().toISOString().split('T')[0];
 
     // Check if steps already logged for today
-    const { data: existingEntry } = await supabase
+    const { data: existingEntry, error: checkError } = await supabase
       .from('step_rewards')
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
-      .single();
+      .maybeSingle();
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw checkError;
+    }
 
     if (existingEntry) {
       // Update existing entry
@@ -86,6 +115,32 @@ export const logSteps = async (steps: number): Promise<StepReward | null> => {
 };
 
 /**
+ * Delete a step reward entry
+ */
+export const deleteStepReward = async (rewardId: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error("User not authenticated");
+
+    const { error } = await supabase
+      .from('step_rewards')
+      .delete()
+      .eq('id', rewardId)
+      .eq('user_id', user.id); // Ensure user can only delete their own entries
+    
+    if (error) throw error;
+    
+    toast.success("Step reward deleted successfully!");
+    return true;
+  } catch (error: any) {
+    console.error('Error deleting step reward:', error);
+    toast.error(error.message || "Error deleting step reward");
+    throw error;
+  }
+};
+
+/**
  * Gets available rewards
  */
 export const getAvailableRewards = async (): Promise<Reward[]> => {
@@ -101,6 +156,25 @@ export const getAvailableRewards = async (): Promise<Reward[]> => {
   } catch (error: any) {
     console.error('Error fetching rewards:', error);
     return [];
+  }
+};
+
+/**
+ * Get a specific reward by ID
+ */
+export const getRewardById = async (rewardId: string): Promise<Reward | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('rewards')
+      .select('*')
+      .eq('id', rewardId)
+      .single();
+
+    if (error) throw error;
+    return data as Reward;
+  } catch (error: any) {
+    console.error('Error fetching reward by ID:', error);
+    return null;
   }
 };
 
@@ -130,6 +204,32 @@ export const getClaimedRewards = async () => {
 };
 
 /**
+ * Get a specific claimed reward by ID
+ */
+export const getClaimedRewardById = async (claimedRewardId: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
+  const { data, error } = await supabase
+    .from('claimed_rewards')
+    .select(`
+      *,
+      reward:reward_id (name, description, points_required)
+    `)
+    .eq('id', claimedRewardId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching claimed reward by ID', error);
+    throw error;
+  }
+
+  return data as (ClaimedReward & { reward: Reward });
+};
+
+/**
  * Claims a reward
  */
 export const claimReward = async (rewardId: string): Promise<ClaimedReward | null> => {
@@ -141,7 +241,7 @@ export const claimReward = async (rewardId: string): Promise<ClaimedReward | nul
     }
 
     // Check if user has enough points
-    const userPoints = await getUserPointsBalance();
+    const pointsBalance = await getUserPointsBalance();
     const { data: reward, error: rewardError } = await supabase
       .from('rewards')
       .select('*')
@@ -150,7 +250,7 @@ export const claimReward = async (rewardId: string): Promise<ClaimedReward | nul
 
     if (rewardError) throw rewardError;
     
-    if (userPoints.available < reward.points_required) {
+    if (pointsBalance.available < reward.points_required) {
       toast.error('Not enough points to claim this reward');
       return null;
     }
@@ -175,6 +275,34 @@ export const claimReward = async (rewardId: string): Promise<ClaimedReward | nul
     console.error('Error claiming reward:', error);
     toast.error(error.message || 'Error claiming reward');
     return null;
+  }
+};
+
+/**
+ * Delete a claimed reward
+ */
+export const deleteClaimedReward = async (claimedRewardId: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error("User not authenticated");
+
+    // Only allow deletion if the status is 'pending'
+    const { error } = await supabase
+      .from('claimed_rewards')
+      .delete()
+      .eq('id', claimedRewardId)
+      .eq('user_id', user.id) 
+      .eq('status', 'pending'); // Can only delete pending claims
+    
+    if (error) throw error;
+    
+    toast.success("Claimed reward cancelled successfully!");
+    return true;
+  } catch (error: any) {
+    console.error('Error deleting claimed reward:', error);
+    toast.error(error.message || "Error cancelling claimed reward");
+    throw error;
   }
 };
 

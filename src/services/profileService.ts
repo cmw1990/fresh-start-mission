@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // Profile type for the user profile data
@@ -25,13 +25,33 @@ export const getUserProfile = async (): Promise<Profile | null> => {
       .from('profiles')
       .select('*')
       .eq('id', authData.user.id)
-      .single();
+      .maybeSingle();
       
     if (error) throw error;
     
     return data as Profile;
   } catch (error: any) {
     console.error('Error fetching user profile:', error);
+    return null;
+  }
+};
+
+/**
+ * Get a user's profile by ID (for admin or public profiles)
+ */
+export const getProfileById = async (userId: string): Promise<Profile | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+      
+    if (error) throw error;
+    
+    return data as Profile;
+  } catch (error: any) {
+    console.error('Error fetching profile by ID:', error);
     return null;
   }
 };
@@ -58,25 +78,85 @@ export const updateUserProfile = async (profileData: Partial<Profile>): Promise<
       if (updateAuthError) throw updateAuthError;
     }
     
-    // Then update the profiles table
-    const { data, error } = await supabase
+    // Check if profile exists
+    const { data: existingProfile } = await supabase
       .from('profiles')
-      .update({
-        ...profileData,
-        updated_at: new Date().toISOString()
-      })
+      .select('id')
       .eq('id', authData.user.id)
-      .select()
-      .single();
+      .maybeSingle();
       
-    if (error) throw error;
-    
-    toast.success('Profile updated successfully');
-    return data as Profile;
+    if (!existingProfile) {
+      // Create profile if it doesn't exist
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          ...profileData,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      toast.success('Profile created successfully');
+      return data as Profile;
+    } else {
+      // Update existing profile
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          ...profileData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', authData.user.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      toast.success('Profile updated successfully');
+      return data as Profile;
+    }
   } catch (error: any) {
     console.error('Error updating user profile:', error);
     toast.error(error.message || 'Error updating profile');
     return null;
+  }
+};
+
+/**
+ * Delete a user's profile (only for admin or account closure)
+ */
+export const deleteUserProfile = async (): Promise<boolean> => {
+  try {
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) {
+      toast.error('You must be logged in to delete your profile');
+      return false;
+    }
+    
+    // Delete profile
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', authData.user.id);
+      
+    if (profileError) throw profileError;
+    
+    // Delete user account
+    const { error: authError } = await supabase.auth.admin.deleteUser(
+      authData.user.id
+    );
+    
+    if (authError) throw authError;
+    
+    toast.success('Account deleted successfully');
+    return true;
+  } catch (error: any) {
+    console.error('Error deleting user profile:', error);
+    toast.error(error.message || 'Error deleting profile');
+    return false;
   }
 };
 

@@ -17,18 +17,14 @@ export const getUserGoal = async () => {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    if (error.code === 'PGRST116') {
-      // No goals found, return null
-      return null;
-    }
     console.error('Error fetching user goal:', error);
     throw error;
   }
 
-  return data as UserGoal;
+  return data as UserGoal | null;
 };
 
 /**
@@ -51,6 +47,29 @@ export const getUserGoals = async () => {
   }
 
   return data as UserGoal[];
+};
+
+/**
+ * Get a specific goal by ID
+ */
+export const getGoalById = async (goalId: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await supabase
+    .from('user_goals')
+    .select('*')
+    .eq('id', goalId)
+    .eq('user_id', user.id) // Ensure user can only access their own goals
+    .single();
+
+  if (error) {
+    console.error('Error fetching goal by ID:', error);
+    throw error;
+  }
+
+  return data as UserGoal;
 };
 
 /**
@@ -91,6 +110,22 @@ export const saveUserGoal = async (goal: Omit<UserGoal, 'id' | 'created_at' | 'u
  */
 export const updateUserGoal = async (goalId: string, updates: Partial<Omit<UserGoal, 'id' | 'created_at' | 'updated_at' | 'user_id'>>) => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error("User not authenticated");
+    
+    // Verify the goal belongs to the user before updating
+    const { data: existingGoal } = await supabase
+      .from('user_goals')
+      .select('id')
+      .eq('id', goalId)
+      .eq('user_id', user.id)
+      .single();
+      
+    if (!existingGoal) {
+      throw new Error("Goal not found or you don't have permission to update it");
+    }
+    
     const { data, error } = await supabase
       .from('user_goals')
       .update(updates)
@@ -107,6 +142,32 @@ export const updateUserGoal = async (goalId: string, updates: Partial<Omit<UserG
     return data as UserGoal;
   } catch (error: any) {
     toast.error(error.message || "Failed to update goal");
+    throw error;
+  }
+};
+
+/**
+ * Delete a goal
+ */
+export const deleteUserGoal = async (goalId: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error("User not authenticated");
+
+    const { error } = await supabase
+      .from('user_goals')
+      .delete()
+      .eq('id', goalId)
+      .eq('user_id', user.id); // Ensure user can only delete their own goals
+    
+    if (error) throw error;
+    
+    toast.success("Goal deleted successfully!");
+    return true;
+  } catch (error: any) {
+    console.error('Error deleting goal:', error);
+    toast.error(error.message || "Failed to delete goal");
     throw error;
   }
 };

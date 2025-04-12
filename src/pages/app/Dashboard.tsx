@@ -1,9 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import StatsCard from "@/components/app/StatsCard";
 import CravingChart from "@/components/app/dashboard/CravingChart";
 import HolisticMetrics from "@/components/app/dashboard/HolisticMetrics";
-import { Activity, Battery, Brain, Calendar, DollarSign, Flame, Clock, Loader2, AlertCircle, Quote } from "lucide-react"; 
+import { Activity, Battery, Brain, Calendar, DollarSign, Flame, Clock, AlertCircle, Quote } from "lucide-react"; 
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getLogEntries, getRecentLogStats } from "@/services/logService"; 
@@ -25,7 +24,7 @@ interface DashboardStats {
 }
 
 // Use the NicotineLog type from lib/supabase for logs
-interface LogEntry extends NicotineLog {}
+type LogEntry = NicotineLog;
 
 const Dashboard = () => {
   const { user } = useAuth();

@@ -28,10 +28,27 @@ export const getUserLogs = async (limit: number = 100) => {
 
 /**
  * Get logs for the dashboard charts and displays
- * This is an alias for getUserLogs to match the import in Dashboard.tsx
  */
 export const getLogEntries = async (limit: number = 30) => {
   return getUserLogs(limit);
+};
+
+/**
+ * Get a specific log by ID
+ */
+export const getLogById = async (logId: string) => {
+  const { data, error } = await supabase
+    .from('nicotine_logs')
+    .select('*')
+    .eq('id', logId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching log by ID', error);
+    throw error;
+  }
+
+  return data as NicotineLog;
 };
 
 /**
@@ -92,6 +109,32 @@ export const saveLogEntry = async (log: Omit<NicotineLog, 'id' | 'created_at'>) 
   } catch (error: any) {
     console.error('Error saving log entry', error);
     toast.error(error.message || "Error saving log entry");
+    throw error;
+  }
+};
+
+/**
+ * Delete a log entry by ID
+ */
+export const deleteLogEntry = async (logId: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error("User not authenticated");
+
+    const { error } = await supabase
+      .from('nicotine_logs')
+      .delete()
+      .eq('id', logId)
+      .eq('user_id', user.id); // Ensure user can only delete their own logs
+    
+    if (error) throw error;
+    
+    toast.success("Log entry deleted successfully!");
+    return true;
+  } catch (error: any) {
+    console.error('Error deleting log entry', error);
+    toast.error(error.message || "Error deleting log entry");
     throw error;
   }
 };
