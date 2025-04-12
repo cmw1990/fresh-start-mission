@@ -193,9 +193,7 @@ const LogEntry = () => {
               setEnergy={setEnergy}
               focus={focus}
               setFocus={setFocus}
-              sleepHours={sleep
-
-Hours}
+              sleepHours={sleepHours}
               setSleepHours={setSleepHours}
               sleepQuality={sleepQuality}
               setSleepQuality={setSleepQuality}

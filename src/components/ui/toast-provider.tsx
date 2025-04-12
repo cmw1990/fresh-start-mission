@@ -42,6 +42,10 @@ export function ToastProvider() {
       }}
       closeButton
       richColors
+      expand={true}
+      duration={4000}
+      visibleToasts={3}
+      pauseWhenPageIsHidden={true}
     />
   );
 }
