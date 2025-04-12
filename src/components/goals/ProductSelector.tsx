@@ -27,6 +27,8 @@ interface CustomProduct {
   id: string;
   name: string;
   user_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const ProductSelector = ({ product, setProduct }: ProductSelectorProps) => {

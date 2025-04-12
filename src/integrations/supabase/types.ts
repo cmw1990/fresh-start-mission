@@ -1052,6 +1052,30 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_products: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       danger_zone_types: {
         Row: {
           color: string | null
@@ -1907,6 +1931,30 @@ export type Database = {
         }
         Relationships: []
       }
+      quotes: {
+        Row: {
+          author: string
+          category: string | null
+          created_at: string | null
+          id: string
+          text: string
+        }
+        Insert: {
+          author: string
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          text: string
+        }
+        Update: {
+          author?: string
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          text?: string
+        }
+        Relationships: []
+      }
       rewards: {
         Row: {
           active: boolean
@@ -2328,6 +2376,42 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           verification_status?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          dashboard_widgets: string[] | null
+          id: string
+          notification_cravings: boolean | null
+          notification_logs: boolean | null
+          notification_milestones: boolean | null
+          theme: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dashboard_widgets?: string[] | null
+          id?: string
+          notification_cravings?: boolean | null
+          notification_logs?: boolean | null
+          notification_milestones?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dashboard_widgets?: string[] | null
+          id?: string
+          notification_cravings?: boolean | null
+          notification_logs?: boolean | null
+          notification_milestones?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
