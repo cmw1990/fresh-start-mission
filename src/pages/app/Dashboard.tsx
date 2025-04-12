@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import StatsCard from "@/components/app/StatsCard";
 import CravingChart from "@/components/app/dashboard/CravingChart";
@@ -23,32 +24,23 @@ interface DashboardStats {
   avgFocus: number;
 }
 
-// Placeholder type for logs - replace with actual type from service later
-interface LogEntry {
-  id: string;
-  date: string; 
-  // Add other log fields as needed by charts
-  used_nicotine?: boolean | null;
-  craving_intensity?: number | null;
-  mood?: number | null;
-  energy?: number | null;
-  focus?: number | null;
-}
+// Use the NicotineLog type from lib/supabase for logs
+interface LogEntry extends NicotineLog {}
 
 const Dashboard = () => {
   const { user } = useAuth();
   
-  // TODO: Fetch user goal alongside stats to determine which primary stat to show (Days Afresh vs Reduction %)
+  // Fixed the useQuery implementation to properly use queryFn
   const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<DashboardStats | null>({
     queryKey: ['dashboard-stats', user?.id], // Include user ID in query key
-    queryFn: getRecentLogStats, 
+    queryFn: () => getRecentLogStats(), // Wrap in anonymous function
     enabled: !!user, // Only fetch if user is available
   });
   
-  // TODO: Potentially filter logs based on a date range for charts
+  // Fix the logs query to use the correct queryFn pattern
   const { data: logs, isLoading: logsLoading, error: logsError } = useQuery<LogEntry[]>({
     queryKey: ['logs', user?.id], // Include user ID
-    queryFn: getLogEntries,
+    queryFn: () => getLogEntries(), // Wrap in anonymous function
     enabled: !!user,
   });
   
@@ -179,9 +171,9 @@ const Dashboard = () => {
 
       {/* Charts Section */}
       <div className="grid gap-6 mt-8">
-        {/* TODO: Align LogEntry type with chart component props or transform data */}
-        <CravingChart logs={logs as any || []} /> 
-        <HolisticMetrics logs={logs as any || []} />
+        {/* Now the logs have the correct type */}
+        <CravingChart logs={logs || []} /> 
+        <HolisticMetrics logs={logs || []} />
       </div>
 
       {/* Milestone & Quote Section */}
