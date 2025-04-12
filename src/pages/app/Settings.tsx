@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import NotificationPreferences from "@/components/settings/NotificationPreferences";
@@ -27,12 +28,13 @@ const Settings = () => {
     queryKey: ['user-preferences'],
     queryFn: getUserPreferences,
     enabled: !!user,
-    onSuccess: (data) => {
+    select: (data) => {
       if (data?.cost_per_product) {
         setCigaretteCost(data.cost_per_product.cigarette?.toString() || "");
         setVapeCost(data.cost_per_product.vape?.toString() || "");
         setDipCost(data.cost_per_product.dip?.toString() || "");
       }
+      return data;
     }
   });
 
