@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAvailableRewards, getUserPointsBalance, claimReward } from '@/services/rewardService';
+import { getAvailableRewards, getUserPointsBalance, claimReward, getRewardHistory } from '@/services/rewardService';
 import EnhancedMobileStepTracker from '@/components/mobile/EnhancedMobileStepTracker';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Gift, Trophy, ArrowRight, Clock, Check } from 'lucide-react';
+import { Gift, Trophy, Clock, Check } from 'lucide-react';
 import { useStepTracking } from '@/hooks/useStepTracking';
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
 // Define reward history type
 type RewardHistory = {
@@ -41,8 +42,9 @@ const StepRewards = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const { impact } = useHaptics();
   
-  const { isNative, stepData, logManualSteps } = useStepTracking();
+  const { isNative, stepData, logManualSteps, hasPermission, requestPermissions } = useStepTracking();
   
   const form = useForm<z.infer<typeof stepFormSchema>>({
     resolver: zodResolver(stepFormSchema),
@@ -84,26 +86,7 @@ const StepRewards = () => {
     isLoading: isLoadingHistory
   } = useQuery({
     queryKey: ['reward-history'],
-    queryFn: async () => {
-      // Mock implementation for now
-      // In a real app, this would fetch from backend
-      return [
-        {
-          id: '1',
-          name: '5% Discount Code',
-          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-          points: 500,
-          status: 'fulfilled' as const
-        },
-        {
-          id: '2',
-          name: 'Premium App Feature',
-          date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-          points: 1000,
-          status: 'pending' as const
-        }
-      ];
-    },
+    queryFn: getRewardHistory,
     enabled: !!user
   });
 
@@ -113,6 +96,12 @@ const StepRewards = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-points-balance'] });
       queryClient.invalidateQueries({ queryKey: ['reward-history'] });
+      impact(HapticImpact.MEDIUM);
+      toast.success('Reward claimed successfully!');
+    },
+    onError: (error) => {
+      console.error('Error claiming reward:', error);
+      toast.error('Failed to claim reward. Please try again.');
     }
   });
 
@@ -132,6 +121,7 @@ const StepRewards = () => {
     logManualSteps(steps);
     form.reset();
     setShowManualEntry(false);
+    impact(HapticImpact.LIGHT);
   };
 
   if (loading) {
@@ -141,6 +131,9 @@ const StepRewards = () => {
   if (!user) {
     return null;
   }
+
+  // Hide manual entry on mobile if tracking is active
+  const showManualEntryButton = isNative ? !hasPermission : true;
 
   return (
     <div className="container py-8">
@@ -167,7 +160,7 @@ const StepRewards = () => {
             <p className="text-sm text-center mb-4">
               You earn 1 point for every 100 steps you take!
             </p>
-            {!isNative && (
+            {showManualEntryButton && (
               <Button
                 onClick={() => setShowManualEntry(prev => !prev)}
                 variant="outline"

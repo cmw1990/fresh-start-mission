@@ -6,13 +6,19 @@ import OfflineIndicator from "../common/OfflineIndicator";
 import ErrorBoundary from "../common/ErrorBoundary";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
+import { useOfflineSupport } from "@/hooks/useOfflineSupport";
 
 const AppLayout = () => {
   const [isMobileApp, setIsMobileApp] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [isOnlineAgain, setIsOnlineAgain] = useState(false);
   const { user } = useAuth();
+  const { impact } = useHaptics();
+  const { isOnline, syncOfflineData } = useOfflineSupport();
 
+  // Check platform and first visit
   useEffect(() => {
     // Check if we're running as a native app
     const checkPlatform = () => {
@@ -41,6 +47,37 @@ const AppLayout = () => {
     checkPlatform();
   }, []);
 
+  // Handle online/offline status changes
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (isOnline) {
+      // If we come back online, show the online indicator and sync data
+      const wasOffline = localStorage.getItem('wasOffline') === 'true';
+      
+      if (wasOffline) {
+        setIsOnlineAgain(true);
+        syncOfflineData();
+        impact(HapticImpact.MEDIUM);
+        
+        // Hide online indicator after 5 seconds
+        timeoutId = setTimeout(() => {
+          setIsOnlineAgain(false);
+        }, 5000);
+      }
+      
+      localStorage.removeItem('wasOffline');
+    } else {
+      // Mark that we were offline
+      localStorage.setItem('wasOffline', 'true');
+      impact(HapticImpact.HEAVY);
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isOnline, impact, syncOfflineData]);
+
   return (
     <>
       {showSplash && isFirstVisit && (
@@ -50,7 +87,10 @@ const AppLayout = () => {
             <p className="mb-8">{user?.email ? `Welcome ${user.email}!` : 'A Fresh World is Mission Possible!'}</p>
             <button 
               className="bg-white text-fresh-600 px-6 py-2 rounded-full font-medium"
-              onClick={() => setShowSplash(false)}
+              onClick={() => {
+                setShowSplash(false);
+                impact(HapticImpact.MEDIUM);
+              }}
             >
               Get Started
             </button>
@@ -62,7 +102,10 @@ const AppLayout = () => {
         <main className="flex-1 overflow-auto pb-16 md:pb-0 app-container relative">
           <ErrorBoundary>
             <div className="sticky top-0 z-40 w-full">
-              <OfflineIndicator className="rounded-none border-x-0 border-t-0" />
+              <OfflineIndicator 
+                className="rounded-none border-x-0 border-t-0" 
+                showWhenOnline={isOnlineAgain}
+              />
             </div>
             <Outlet />
           </ErrorBoundary>

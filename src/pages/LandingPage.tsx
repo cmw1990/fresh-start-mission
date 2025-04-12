@@ -1,25 +1,26 @@
-
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import Hero from "@/components/home/Hero";
-import HowItWorks from "@/components/home/HowItWorks";
-import Features from "@/components/home/Features";
-import WebTools from "@/components/home/WebTools";
-import CTASection from "@/components/home/CTASection";
+import Hero from '@/components/home/Hero';
+import FeaturesIntro from '@/components/home/FeaturesIntro';
+import HowItWorks from '@/components/home/HowItWorks';
+import WebTools from '@/components/home/WebTools';
+import CTASection from '@/components/home/CTASection';
+import SEOHead from '@/components/common/SEOHead';
+import Testimonials from '@/components/home/Testimonials';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Navbar />
-      <div className="flex-1">
-        <Hero />
-        <HowItWorks />
-        <Features />
-        <WebTools />
-        <CTASection />
-      </div>
-      <Footer />
-    </div>
+    <>
+      <SEOHead 
+        title="Mission Fresh - Your Journey to a Nicotine-Free Life"
+        description="Start your journey to becoming nicotine-free with Mission Fresh. Track your progress, manage cravings, and celebrate milestones with our supportive community and evidence-based tools."
+        keywords="quit smoking, quit vaping, quit nicotine, tobacco cessation, nicotine addiction, health tracker, smoking cessation app"
+      />
+      <Hero />
+      <FeaturesIntro />
+      <HowItWorks />
+      <WebTools />
+      <Testimonials />
+      <CTASection />
+    </>
   );
 };
 

@@ -35,7 +35,7 @@ export function useOfflineSupport() {
         const storedData = localStorage.getItem('offlineData');
         if (storedData) {
           const parsedData = JSON.parse(storedData);
-          setOfflineData(parsedData);
+          setOfflineData(Array.isArray(parsedData) ? parsedData : []);
         }
       } catch (error) {
         console.error('Error loading offline data:', error);

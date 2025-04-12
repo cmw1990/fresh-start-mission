@@ -1,182 +1,200 @@
 
-import { supabase, StepReward, Reward, ClaimedReward } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-/**
- * Logs user's daily steps
- */
-export const logSteps = async (steps: number): Promise<StepReward | null> => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) {
-      toast.error('You must be logged in to log steps');
-      return null;
-    }
-
-    // Calculate points based on steps (1 point per 100 steps)
-    const pointsEarned = Math.floor(steps / 100);
-    const today = new Date().toISOString().split('T')[0];
-
-    // Check if steps already logged for today
-    const { data: existingEntry } = await supabase
-      .from('step_rewards')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .eq('date', today)
-      .single();
-
-    if (existingEntry) {
-      // Update existing entry
-      const { data, error } = await supabase
-        .from('step_rewards')
-        .update({
-          steps,
-          points_earned: pointsEarned
-        })
-        .eq('id', existingEntry.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      toast.success('Steps updated successfully!');
-      return data as StepReward;
-    } else {
-      // Create new entry
-      const { data, error } = await supabase
-        .from('step_rewards')
-        .insert({
-          user_id: user.user.id,
-          date: today,
-          steps,
-          points_earned: pointsEarned
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      toast.success('Steps logged successfully!');
-      return data as StepReward;
-    }
-  } catch (error: any) {
-    console.error('Error logging steps:', error);
-    toast.error(error.message || 'Error logging steps');
-    return null;
-  }
+export type Reward = {
+  id: string;
+  name: string;
+  description: string;
+  points_required: number;
+  active: boolean;
 };
 
-/**
- * Gets available rewards
- */
-export const getAvailableRewards = async (): Promise<Reward[]> => {
+export type RewardHistory = {
+  id: string;
+  name: string;
+  date: string;
+  points: number;
+  status: 'pending' | 'fulfilled';
+};
+
+export async function getAvailableRewards(): Promise<Reward[]> {
   try {
     const { data, error } = await supabase
       .from('rewards')
       .select('*')
       .eq('active', true)
       .order('points_required', { ascending: true });
-
+    
     if (error) throw error;
-    return data as Reward[];
-  } catch (error: any) {
-    console.error('Error fetching rewards:', error);
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching available rewards:", error);
+    toast.error("Failed to fetch rewards");
     return [];
   }
-};
+}
 
-/**
- * Gets user's total points balance
- */
-export const getUserPointsBalance = async (): Promise<number> => {
+export async function getUserPointsBalance(): Promise<number> {
   try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return 0;
-
-    // Get total points earned
-    const { data: earned, error: earnedError } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+    
+    // Get the total points earned
+    const { data: earnedData, error: earnedError } = await supabase
       .from('step_rewards')
       .select('points_earned')
-      .eq('user_id', user.user.id);
-
-    if (earnedError) throw earnedError;
-
-    // Get total points spent
-    const { data: claimed, error: claimedError } = await supabase
-      .from('claimed_rewards')
-      .select('rewards(points_required)')
-      .eq('user_id', user.user.id)
-      .eq('status', 'fulfilled');
-
-    if (claimedError) throw claimedError;
-
-    // Calculate balance
-    const totalEarned = earned.reduce((sum, item) => sum + (item.points_earned || 0), 0);
+      .eq('user_id', user.id);
     
-    // Fix the type issue by correctly handling the array structure from the join
-    const totalSpent = claimed.reduce((sum, item) => {
-      // Handle the case where rewards is likely an array from the join query
-      if (!item.rewards) return sum;
-      
-      if (Array.isArray(item.rewards)) {
-        // If it's an array, take the first item
-        return sum + (item.rewards[0]?.points_required || 0);
-      } else {
-        // If it's already a single object
-        return sum + ((item.rewards as unknown as { points_required: number })?.points_required || 0);
-      }
-    }, 0);
-
-    return totalEarned - totalSpent;
-  } catch (error: any) {
-    console.error('Error calculating points balance:', error);
+    if (earnedError) throw earnedError;
+    
+    // Get the total points spent
+    const { data: spentData, error: spentError } = await supabase
+      .from('claimed_rewards')
+      .select('points_redeemed')
+      .eq('user_id', user.id);
+    
+    if (spentError) throw spentError;
+    
+    // Calculate balance
+    const earnedPoints = earnedData?.reduce((sum, item) => sum + (item.points_earned || 0), 0) || 0;
+    const spentPoints = spentData?.reduce((sum, item) => sum + (item.points_redeemed || 0), 0) || 0;
+    
+    return earnedPoints - spentPoints;
+  } catch (error) {
+    console.error("Error fetching user points balance:", error);
     return 0;
   }
-};
+}
 
-/**
- * Claims a reward
- */
-export const claimReward = async (rewardId: string): Promise<ClaimedReward | null> => {
+export async function claimReward(rewardId: string): Promise<boolean> {
   try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) {
-      toast.error('You must be logged in to claim rewards');
-      return null;
-    }
-
-    // Check if user has enough points
-    const userBalance = await getUserPointsBalance();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+    
+    // Get the reward details
     const { data: reward, error: rewardError } = await supabase
       .from('rewards')
       .select('*')
       .eq('id', rewardId)
       .single();
-
-    if (rewardError) throw rewardError;
     
-    if (userBalance < reward.points_required) {
-      toast.error('Not enough points to claim this reward');
-      return null;
+    if (rewardError) throw rewardError;
+    if (!reward) throw new Error("Reward not found");
+    
+    // Check if user has enough points
+    const pointsBalance = await getUserPointsBalance();
+    if (pointsBalance < reward.points_required) {
+      toast.error("You don't have enough points to claim this reward");
+      return false;
     }
-
-    // Claim the reward
-    const { data, error } = await supabase
+    
+    // Create claimed reward record
+    const { error: claimError } = await supabase
       .from('claimed_rewards')
       .insert({
-        user_id: user.user.id,
+        user_id: user.id,
         reward_id: rewardId,
-        claimed_at: new Date().toISOString(),
-        status: 'pending'
-      })
-      .select()
-      .single();
+        points_redeemed: reward.points_required,
+        status: 'pending' // Default to pending until processed
+      });
+    
+    if (claimError) throw claimError;
+    
+    return true;
+  } catch (error) {
+    console.error("Error claiming reward:", error);
+    throw error;
+  }
+}
 
+export async function getRewardHistory(): Promise<RewardHistory[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+    
+    // Join claimed_rewards with rewards to get reward details
+    const { data, error } = await supabase
+      .from('claimed_rewards')
+      .select(`
+        id,
+        points_redeemed,
+        claimed_at,
+        status,
+        rewards (
+          name
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('claimed_at', { ascending: false });
+    
     if (error) throw error;
     
-    toast.success('Reward claimed successfully!');
-    return data as ClaimedReward;
-  } catch (error: any) {
-    console.error('Error claiming reward:', error);
-    toast.error(error.message || 'Error claiming reward');
-    return null;
+    // Format the data
+    return (data || []).map(item => ({
+      id: item.id,
+      name: item.rewards?.name || 'Unknown Reward',
+      date: new Date(item.claimed_at).toLocaleDateString(),
+      points: item.points_redeemed,
+      status: item.status as 'pending' | 'fulfilled'
+    }));
+  } catch (error) {
+    console.error("Error fetching reward history:", error);
+    toast.error("Failed to fetch reward history");
+    return [];
   }
-};
+}
+
+export async function logSteps(steps: number): Promise<boolean> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+    
+    // Calculate points (1 point per 100 steps)
+    const pointsEarned = Math.floor(steps / 100);
+    
+    // Check if already logged steps today
+    const today = new Date().toISOString().split('T')[0];
+    const { data: existingLog, error: checkError } = await supabase
+      .from('step_rewards')
+      .select('id, steps, points_earned')
+      .eq('user_id', user.id)
+      .eq('date', today)
+      .maybeSingle();
+    
+    if (checkError) throw checkError;
+    
+    if (existingLog) {
+      // Update existing log
+      const { error: updateError } = await supabase
+        .from('step_rewards')
+        .update({ 
+          steps: steps, 
+          points_earned: pointsEarned
+        })
+        .eq('id', existingLog.id);
+      
+      if (updateError) throw updateError;
+      toast.success(`Updated today's steps: ${steps} steps (${pointsEarned} points)`);
+    } else {
+      // Create new log
+      const { error: insertError } = await supabase
+        .from('step_rewards')
+        .insert({
+          user_id: user.id,
+          date: today,
+          steps: steps,
+          points_earned: pointsEarned
+        });
+      
+      if (insertError) throw insertError;
+      toast.success(`Logged ${steps} steps (${pointsEarned} points)`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error logging steps:", error);
+    toast.error("Failed to log steps");
+    return false;
+  }
+}

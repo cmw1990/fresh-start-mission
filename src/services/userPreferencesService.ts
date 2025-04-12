@@ -2,10 +2,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export type DashboardWidget = 'keyStats' | 'wellness' | 'milestone' | 'quote' | 'supportTools';
+
 type UserPreferences = {
   theme?: 'light' | 'dark' | 'system';
   notifications?: Record<string, boolean>;
-  dashboard_widgets?: string[];
+  dashboard_widgets?: DashboardWidget[];
   cost_per_product?: Record<string, number>;
   show_welcome?: boolean;
 };
@@ -20,21 +22,27 @@ export async function getUserPreferences(): Promise<UserPreferences | null> {
     
     const { data, error } = await supabase
       .from('user_preferences')
-      .select('preferences')
+      .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
     
     if (error) throw error;
     
     // Return the preferences or null if none exist
-    return data?.preferences || null;
+    return data || null;
   } catch (error) {
     console.error('Error fetching user preferences:', error);
     return null;
   }
 }
 
-export async function saveUserPreferences(preferences: UserPreferences): Promise<void> {
+export async function saveUserPreferences(preferences: Partial<{
+  theme?: 'light' | 'dark' | 'system';
+  notifications?: Record<string, boolean>;
+  dashboard_widgets?: DashboardWidget[];
+  cost_per_product?: Record<string, number>;
+  show_welcome?: boolean;
+}>): Promise<void> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -45,22 +53,17 @@ export async function saveUserPreferences(preferences: UserPreferences): Promise
     // First check if the user has existing preferences
     const { data: existingData, error: fetchError } = await supabase
       .from('user_preferences')
-      .select('preferences')
+      .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
     
     if (fetchError) throw fetchError;
     
-    // If user has existing preferences, merge them with the new ones
-    const mergedPreferences = existingData 
-      ? { ...existingData.preferences, ...preferences } 
-      : preferences;
-    
     if (existingData) {
       // Update existing preferences
       const { error: updateError } = await supabase
         .from('user_preferences')
-        .update({ preferences: mergedPreferences })
+        .update(preferences)
         .eq('user_id', user.id);
       
       if (updateError) throw updateError;
@@ -70,7 +73,7 @@ export async function saveUserPreferences(preferences: UserPreferences): Promise
         .from('user_preferences')
         .insert({ 
           user_id: user.id,
-          preferences: mergedPreferences
+          ...preferences
         });
       
       if (insertError) throw insertError;
@@ -82,7 +85,7 @@ export async function saveUserPreferences(preferences: UserPreferences): Promise
   }
 }
 
-export async function updateDashboardLayout(widgetIds: string[]): Promise<void> {
+export async function updateDashboardWidgets(widgetIds: DashboardWidget[]): Promise<void> {
   return saveUserPreferences({
     dashboard_widgets: widgetIds
   });

@@ -26,8 +26,8 @@ export function useHaptics(): HapticsInterface {
         const Capacitor = await import('@capacitor/core');
         
         if (Capacitor.Capacitor.isPluginAvailable('Haptics')) {
-          const { Haptics } = await import('@capacitor/haptics');
-          setHaptics(Haptics);
+          const HapticsModule = await import('@capacitor/haptics');
+          setHaptics(HapticsModule.Haptics);
           setIsAvailable(true);
         } else {
           console.log('Haptics plugin not available');
