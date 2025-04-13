@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +35,16 @@ interface Product {
   manufacturer: string;
   image_url?: string;
   average_rating?: number;
+  // Add any additional properties from the returned data
+  brand?: string;
+  created_at?: string; 
+  expert_notes_chemicals?: string;
+  expert_notes_gum_health?: string;
+  flavor_category?: string;
+  ingredients?: string[];
+  user_rating_avg?: number;
+  nicotine_strength_mg?: number;
+  user_rating_count?: number;
 }
 
 const ProductDetails = () => {
@@ -70,7 +81,30 @@ const ProductDetails = () => {
         return;
       }
 
-      setProduct(productData);
+      // Map product data to match our interface
+      const formattedProduct: Product = {
+        id: productData.id,
+        name: productData.name,
+        description: productData.description || '',
+        image_url: productData.image_url,
+        price: productData.price || 'N/A',  // Default values for required fields
+        category: productData.category || 'N/A',
+        nicotine_content: productData.nicotine_content || String(productData.nicotine_strength_mg || 'N/A'),
+        manufacturer: productData.manufacturer || productData.brand || 'N/A',
+        average_rating: productData.user_rating_avg,
+        // Additional fields
+        brand: productData.brand,
+        created_at: productData.created_at,
+        expert_notes_chemicals: productData.expert_notes_chemicals,
+        expert_notes_gum_health: productData.expert_notes_gum_health,
+        flavor_category: productData.flavor_category,
+        ingredients: productData.ingredients,
+        user_rating_avg: productData.user_rating_avg,
+        nicotine_strength_mg: productData.nicotine_strength_mg,
+        user_rating_count: productData.user_rating_count
+      };
+
+      setProduct(formattedProduct);
 
       // Fetch reviews with user information
       const { data: reviewsData, error: reviewsError } = await supabase
@@ -81,7 +115,13 @@ const ProductDetails = () => {
         .order('created_at', { ascending: false });
 
       if (reviewsError) throw reviewsError;
-      setReviews(reviewsData || []);
+      
+      // Cast and filter the reviews to ensure they match our Review interface
+      const typedReviews = (reviewsData || []).filter(review => 
+        review && review.user && !review.user.error
+      ) as Review[];
+
+      setReviews(typedReviews);
 
     } catch (error: any) {
       toast.error('Error loading product details: ' + error.message);

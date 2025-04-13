@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Sheet,
@@ -43,7 +44,7 @@ interface MenuItem {
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { signOut } = useAuth(); // Changed from 'logout' to 'signOut' to match AuthContext
   const [open, setOpen] = useState(false);
 
   const isActive = (path: string) => {
@@ -52,7 +53,7 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await signOut(); // Changed from 'logout' to 'signOut' here too
       navigate('/login');
     } catch (error) {
       console.error("Logout failed:", error);

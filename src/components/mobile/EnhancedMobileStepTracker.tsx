@@ -9,7 +9,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Footprints, AlertTriangle, ArrowRight, Gift, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { isMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile'; // Changed to use the correct import
 import { cn } from '@/lib/utils';
 
 export interface EnhancedMobileStepTrackerProps {
@@ -45,17 +45,19 @@ const MILESTONES: MilestoneInfo[] = [
 ];
 
 const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ className }) => {
-  const { steps, isLoading, error, syncSteps } = useStepTracking();
-  const { triggerHaptic } = useHaptics();
+  const { stepData, isLoading, hasPermission, fetchSteps, logManualSteps } = useStepTracking();
+  const { impact, notification } = useHaptics(); // Use the correct properties from useHaptics
   const [showAnimation, setShowAnimation] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [reachedMilestones, setReachedMilestones] = useState<number[]>([]);
-  const mobile = isMobile();
+  const mobile = useIsMobile(); // Changed to use the correct function
 
   // Track milestone achievements
   useEffect(() => {
     // Find the most recently crossed milestone that hasn't been celebrated yet
     let highestMilestoneIndex = -1;
+    const steps = stepData.steps; // Use stepData.steps instead of just steps
+    
     if (steps > 0) {
       for (let i = MILESTONES.length - 1; i >= 0; i--) {
         if (steps >= MILESTONES[i].threshold && !reachedMilestones.includes(i)) {
@@ -69,7 +71,7 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
     if (highestMilestoneIndex >= 0) {
       setActiveIndex(highestMilestoneIndex);
       setShowAnimation(true);
-      triggerHaptic('success');
+      notification('SUCCESS'); // Use notification instead of triggerHaptic
       setReachedMilestones(prev => [...prev, highestMilestoneIndex]);
       
       // Show toast notification
@@ -77,18 +79,20 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
         description: MILESTONES[highestMilestoneIndex].description
       });
     }
-  }, [steps, reachedMilestones, triggerHaptic]);
+  }, [stepData.steps, reachedMilestones, notification]);
 
   const handleRefresh = async () => {
     try {
-      await syncSteps();
-      triggerHaptic('light');
+      await fetchSteps(); // Use fetchSteps instead of syncSteps
+      impact(HapticImpact.LIGHT); // Use impact instead of triggerHaptic
     } catch (e) {
       console.error("Error refreshing steps:", e);
     }
   };
 
   const getClosestMilestone = () => {
+    const steps = stepData.steps; // Use stepData.steps
+    
     if (steps <= 0) return MILESTONES[0];
     
     for (let i = 0; i < MILESTONES.length; i++) {
@@ -103,9 +107,9 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
   const closestMilestone = getClosestMilestone();
   const nextMilestoneProgress = Math.min(
     100, 
-    steps > 0 ? (steps / closestMilestone.threshold) * 100 : 0
+    stepData.steps > 0 ? (stepData.steps / closestMilestone.threshold) * 100 : 0
   );
-  const pointsEarned = Math.floor(steps / 100); // 1 point per 100 steps
+  const pointsEarned = Math.floor(stepData.steps / 100); // 1 point per 100 steps
 
   return (
     <Card className={cn("relative overflow-hidden", 
@@ -183,7 +187,7 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
           </div>
         </CardHeader>
         <CardContent>
-          {error ? (
+          {!hasPermission ? (
             <div className="py-4 text-center">
               <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Unable to connect to health data</p>
@@ -210,7 +214,7 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <span className="text-3xl font-bold">{steps.toLocaleString()}</span>
+                  <span className="text-3xl font-bold">{stepData.steps.toLocaleString()}</span>
                 </motion.div>
                 <p className="text-muted-foreground text-sm">steps today</p>
               </div>
@@ -228,8 +232,8 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
                   <Progress value={nextMilestoneProgress} className="h-2" />
                 </motion.div>
                 <p className="text-xs text-muted-foreground">
-                  {steps < closestMilestone.threshold ? (
-                    `${closestMilestone.threshold - steps} more steps to go`
+                  {stepData.steps < closestMilestone.threshold ? (
+                    `${closestMilestone.threshold - stepData.steps} more steps to go`
                   ) : (
                     'Milestone reached!'
                   )}

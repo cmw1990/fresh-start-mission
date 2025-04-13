@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
@@ -16,4 +17,9 @@ export function useIsMobile() {
   }, [])
 
   return !!isMobile
+}
+
+// Export isMobile as a named function to fix the import error
+export const isMobile = () => {
+  return useIsMobile();
 }

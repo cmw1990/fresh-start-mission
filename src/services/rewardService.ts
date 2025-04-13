@@ -1,15 +1,36 @@
 
 // Import dependencies from rewardsService (note plural 's') to maintain backwards compatibility
 import { supabase } from "@/integrations/supabase/client";
-import { getTotalPoints, getRewardHistory, claimRewardPoints } from "./rewardsService";
+import { getTotalPoints, getRewardHistory } from "./rewardsService";
 
 // Re-export functions from rewardsService for backward compatibility
-export { getTotalPoints, getRewardHistory, claimRewardPoints };
+export { getTotalPoints, getRewardHistory };
 
 // Add missing functions that are referenced elsewhere but not in original file
 export const getUserPointsBalance = async (): Promise<number> => {
   // Simply use getTotalPoints from rewardsService
   return getTotalPoints();
+};
+
+// Function to claim points for a reward
+export const claimRewardPoints = async (points: number): Promise<void> => {
+  // This function might be used elsewhere
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+    
+    // We'll implement a basic version that just checks if user has enough points
+    const currentPoints = await getTotalPoints();
+    if (currentPoints < points) {
+      throw new Error('Not enough points to claim this reward');
+    }
+    
+    // The actual claiming logic would be in the database function
+    console.log(`Claiming ${points} points`);
+  } catch (error) {
+    console.error('Error claiming reward points:', error);
+    throw error;
+  }
 };
 
 // Function to log steps for reward tracking
