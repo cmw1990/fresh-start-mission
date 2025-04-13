@@ -1,84 +1,56 @@
 
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { QuoteIcon } from "lucide-react";
-
-interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  testimonial: string;
-  image?: string;
-}
-
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    name: "Sarah K.",
-    role: "Fresh for 1 year",
-    testimonial: "Mission Fresh gave me the structure and support I needed to finally quit after 15 years of smoking. The craving tools got me through the toughest moments.",
-    image: "/testimonials/person1.jpg"
-  },
-  {
-    id: "2",
-    name: "Michael T.",
-    role: "Fresh for 6 months",
-    testimonial: "The step rewards feature kept me active and focused on something other than cravings. I've saved over $2000 and feel like a new person!",
-    image: "/testimonials/person2.jpg"
-  },
-  {
-    id: "3",
-    name: "Jamie L.",
-    role: "Fresh for 3 months",
-    testimonial: "As a vaper, I appreciated how the app wasn't just focused on cigarettes. The personalized reduction plan helped me taper down gradually.",
-    image: "/testimonials/person3.jpg"
-  },
-  {
-    id: "4",
-    name: "Robert D.",
-    role: "Fresh for 9 months",
-    testimonial: "The holistic approach that addresses mood, energy, and cravings as interconnected was what finally worked for me. I recommend this app to everyone I know.",
-    image: ""
-  },
-];
 
 const Testimonials = () => {
+  const testimonials = [
+    {
+      quote: "Mission Fresh helped me understand that my energy dips weren't a failure—they were just part of the process. Their tools made all the difference.",
+      author: "Michael K.",
+      title: "2 Months Afresh",
+      background: "bg-blue-50",
+      border: "border-blue-200"
+    },
+    {
+      quote: "I tried quitting cold turkey five times before and always failed. Using the gradual reduction approach with Mission Fresh finally worked for me.",
+      author: "Sarah T.",
+      title: "Reduced by 75%",
+      background: "bg-green-50",
+      border: "border-green-200"
+    },
+    {
+      quote: "The mood management tools were exactly what I needed. They helped me navigate the emotional rollercoaster of quitting without breaking my streak.",
+      author: "James L.",
+      title: "90 Days Afresh",
+      background: "bg-purple-50", 
+      border: "border-purple-200"
+    }
+  ];
+
   return (
-    <section className="py-16 bg-fresh-50/50">
+    <section className="py-20 bg-white" id="testimonials">
       <div className="container">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold tracking-tight">
-            Success Stories
-          </h2>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Join thousands who have successfully started fresh
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Success Stories</h2>
+          <p className="text-lg text-muted-foreground">
+            Real people on their Fresh journey
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="h-full">
-              <CardContent className="pt-6">
-                <div className="mb-4 flex items-start">
-                  <QuoteIcon className="h-6 w-6 text-fresh-400 mr-2 shrink-0 mt-1" />
-                  <p className="italic text-gray-700">{testimonial.testimonial}</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {testimonials.map((testimonial, i) => (
+            <div 
+              key={i} 
+              className={`rounded-lg ${testimonial.background} ${testimonial.border} border p-6 shadow-sm hover:shadow-md transition-shadow`}
+            >
+              <div className="flex flex-col h-full">
+                <div className="mb-4 text-2xl text-gray-400">"</div>
+                <p className="flex-grow italic mb-6">{testimonial.quote}</p>
+                <div>
+                  <p className="font-medium">{testimonial.author}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.title}</p>
                 </div>
-                
-                <div className="flex items-center mt-4">
-                  <Avatar className="h-10 w-10 border-2 border-fresh-100">
-                    <AvatarImage src={testimonial.image} alt={testimonial.name} />
-                    <AvatarFallback className="bg-fresh-200 text-fresh-700">
-                      {testimonial.name.slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="ml-3">
-                    <p className="font-medium">{testimonial.name}</p>
-                    <p className="text-sm text-fresh-600">{testimonial.role}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       </div>

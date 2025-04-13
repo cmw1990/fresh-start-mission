@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Box, Compass, Calculator, SunMoon, Tablet, ArrowRight } from 'lucide-react';
+import { Box, Compass, Calculator, SunMoon, Tablet, ArrowRight, CheckCircle } from 'lucide-react';
 
 const WebToolsIndex = () => {
   return (
@@ -24,6 +24,12 @@ const WebToolsIndex = () => {
           link="/tools/nrt-guide"
           bgColor="bg-blue-50"
           iconColor="text-blue-600"
+          features={[
+            "Compare all NRT types",
+            "Usage guidelines",
+            "Side effect information",
+            "Cost considerations"
+          ]}
         />
         
         <ToolCard 
@@ -33,6 +39,12 @@ const WebToolsIndex = () => {
           link="/tools/smokeless-directory"
           bgColor="bg-green-50"
           iconColor="text-green-600"
+          features={[
+            "Expert chemical analysis",
+            "User reviews and ratings",
+            "Product filtering options",
+            "Affiliate purchase links"
+          ]}
         />
         
         <ToolCard 
@@ -42,6 +54,12 @@ const WebToolsIndex = () => {
           link="/tools/quit-methods"
           bgColor="bg-purple-50"
           iconColor="text-purple-600"
+          features={[
+            "Cold turkey approach",
+            "Gradual reduction plans",
+            "Tapering schedules",
+            "Harm reduction strategies"
+          ]}
         />
         
         <ToolCard 
@@ -51,6 +69,12 @@ const WebToolsIndex = () => {
           link="/tools/calculators"
           bgColor="bg-amber-50"
           iconColor="text-amber-600"
+          features={[
+            "Financial savings calculator",
+            "Health timeline generator",
+            "Custom product calculations",
+            "Long-term projection view"
+          ]}
         />
         
         <ToolCard 
@@ -60,6 +84,12 @@ const WebToolsIndex = () => {
           link="/tools/holistic-health"
           bgColor="bg-rose-50"
           iconColor="text-rose-600"
+          features={[
+            "Energy management strategies",
+            "Mood regulation techniques",
+            "Focus enhancement tools",
+            "Cravings management guides"
+          ]}
         />
       </div>
       
@@ -91,9 +121,10 @@ interface ToolCardProps {
   link: string;
   bgColor: string;
   iconColor: string;
+  features?: string[];
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link, bgColor, iconColor }) => {
+const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link, bgColor, iconColor, features }) => {
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md border-t-4 border-t-fresh-500 hover:border-t-fresh-600">
       <CardHeader className="pb-2">
@@ -103,6 +134,18 @@ const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link, bgC
         <CardTitle className="text-xl">{title}</CardTitle>
         <CardDescription className="text-base">{description}</CardDescription>
       </CardHeader>
+      <CardContent className="pb-2">
+        {features && features.length > 0 && (
+          <ul className="space-y-1">
+            {features.map((feature, i) => (
+              <li key={i} className="flex items-start">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                <span className="text-sm">{feature}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
       <CardFooter className="pt-2">
         <Button asChild variant="ghost" className="text-fresh-600 hover:text-fresh-700 hover:bg-fresh-50 p-0 group">
           <Link to={link} className="flex items-center">

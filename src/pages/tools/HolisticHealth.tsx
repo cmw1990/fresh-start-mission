@@ -2,371 +2,547 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { ArrowLeft, ArrowRight, Heart, Brain, Battery, Coffee, Droplets, Moon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { ArrowLeft, ArrowRight, Droplets, Brain, Heart, Utensils, Dumbbell, Wind } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const HolisticHealth = () => {
-  const categories = [
-    {
-      title: "Energy Management",
-      icon: <Battery className="h-8 w-8 text-green-500" />,
-      description: "Strategies for maintaining physical energy during nicotine reduction",
-      sections: [
-        {
-          title: "Understanding Energy Slumps",
-          content: `
-            <p>When reducing nicotine intake, many people experience temporary but significant energy drops. This happens because:</p>
-            <ul>
-              <li>Nicotine is a stimulant that artificially boosts your energy and alertness</li>
-              <li>Your body has adapted to functioning with regular nicotine stimulation</li>
-              <li>Without nicotine, your natural energy regulation systems need time to readjust</li>
-              <li>Withdrawal symptoms can temporarily disrupt sleep patterns, further affecting energy levels</li>
-            </ul>
-            <p>Remember that these energy fluctuations are temporary and typically improve significantly after 2-3 weeks.</p>
-          `
-        },
-        {
-          title: "Quick Energy Boosting Techniques",
-          content: `
-            <p>When you're experiencing an energy slump, try these scientifically-backed approaches:</p>
-            <ul>
-              <li><strong>Micro-Movement:</strong> Even 5 minutes of physical activity like brisk walking, stretching, or jumping jacks can boost circulation and energy</li>
-              <li><strong>Cold Exposure:</strong> Splash cold water on your face or take a quick cold shower to trigger alertness</li>
-              <li><strong>Deep Breathing:</strong> 10 deep belly breaths with extended exhalations can increase oxygen flow and energy</li>
-              <li><strong>Strategic Hydration:</strong> Dehydration worsens fatigue; drink a glass of water with a pinch of salt for better absorption</li>
-              <li><strong>Nature Exposure:</strong> Even brief exposure to natural light and outdoor environments improves alertness</li>
-            </ul>
-          `
-        },
-        {
-          title: "Nutrition for Stable Energy",
-          content: `
-            <p>What you eat significantly impacts your energy levels during nicotine reduction:</p>
-            <ul>
-              <li>Focus on balanced meals with protein, healthy fats, and complex carbohydrates</li>
-              <li>Avoid high-sugar foods that cause energy crashes</li>
-              <li>Consider smaller, more frequent meals to maintain steady blood sugar</li>
-              <li>Some find that temporarily increasing protein intake helps manage energy fluctuations</li>
-              <li>Stay adequately hydrated - even mild dehydration can significantly impact energy levels</li>
-            </ul>
-            <p>Many people find that their taste buds become more sensitive after reducing nicotine, making healthy foods more enjoyable over time.</p>
-          `
-        }
-      ]
-    },
-    {
-      title: "Focus Enhancement",
-      icon: <Brain className="h-8 w-8 text-blue-500" />,
-      description: "Techniques to maintain mental clarity and concentration",
-      sections: [
-        {
-          title: "Why Focus Suffers During Withdrawal",
-          content: `
-            <p>Temporary cognitive fog and attention difficulties are common when reducing nicotine use because:</p>
-            <ul>
-              <li>Nicotine directly affects neurotransmitters involved in attention and cognitive function</li>
-              <li>Your brain has adapted to functioning with these chemical alterations</li>
-              <li>While readjusting to functioning without nicotine, concentration may temporarily decline</li>
-              <li>Stress and anxiety about quitting can further impact cognitive resources</li>
-            </ul>
-            <p>Most people notice significant improvements in concentration within 2-4 weeks, with many reporting better focus than before quitting once fully adjusted.</p>
-          `
-        },
-        {
-          title: "Practical Focus Techniques",
-          content: `
-            <p>These evidence-based strategies can help manage focus difficulties:</p>
-            <ul>
-              <li><strong>Pomodoro Technique:</strong> Work in focused 25-minute intervals with short breaks</li>
-              <li><strong>Environment Optimization:</strong> Minimize distractions in your physical space</li>
-              <li><strong>Task Segmentation:</strong> Break complex tasks into smaller, more manageable steps</li>
-              <li><strong>Mindfulness Practice:</strong> Even brief mindfulness sessions improve attention control</li>
-              <li><strong>Single-Tasking:</strong> Focus exclusively on one task rather than multitasking</li>
-              <li><strong>Implementation Intentions:</strong> Create specific "if-then" plans for focus challenges</li>
-            </ul>
-          `
-        },
-        {
-          title: "Supplements & Natural Aids",
-          content: `
-            <p>Some natural compounds may support cognitive function during nicotine reduction:</p>
-            <ul>
-              <li><strong>L-theanine:</strong> Found in green tea, promotes calm alertness without sedation</li>
-              <li><strong>Rhodiola rosea:</strong> An adaptogenic herb that may improve mental stamina</li>
-              <li><strong>B vitamins:</strong> Particularly B6, B12, and folate support brain function</li>
-              <li><strong>Omega-3 fatty acids:</strong> Support overall cognitive health and function</li>
-            </ul>
-            <p>Always consult with a healthcare provider before starting any supplement regimen.</p>
-          `
-        }
-      ]
-    },
-    {
-      title: "Mood Regulation",
-      icon: <Heart className="h-8 w-8 text-red-500" />,
-      description: "Strategies for emotional balance during nicotine withdrawal",
-      sections: [
-        {
-          title: "Understanding Mood Changes",
-          content: `
-            <p>Temporary mood fluctuations during nicotine reduction are normal and result from:</p>
-            <ul>
-              <li>Changes in dopamine and other neurotransmitter systems previously regulated by nicotine</li>
-              <li>Stress hormones that can be elevated during withdrawal</li>
-              <li>Sleep disruptions that affect emotional regulation</li>
-              <li>The psychological challenge of changing an established habit</li>
-            </ul>
-            <p>Most people experience significant improvement in mood stability within 2-4 weeks, with many reporting better overall mood than before quitting.</p>
-          `
-        },
-        {
-          title: "Immediate Mood Management",
-          content: `
-            <p>When experiencing difficult emotions, these techniques can help provide relief:</p>
-            <ul>
-              <li><strong>Emotional Labeling:</strong> Simply naming your emotions reduces their intensity</li>
-              <li><strong>5-4-3-2-1 Grounding:</strong> Identify 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste</li>
-              <li><strong>Physical Movement:</strong> Even brief exercise releases endorphins that improve mood</li>
-              <li><strong>Social Connection:</strong> Briefly connecting with a supportive person can regulate emotions</li>
-              <li><strong>Progressive Muscle Relaxation:</strong> Systematically tensing and releasing muscle groups</li>
-            </ul>
-          `
-        },
-        {
-          title: "Building Emotional Resilience",
-          content: `
-            <p>Developing these practices can help build longer-term emotional stability:</p>
-            <ul>
-              <li><strong>Gratitude Practice:</strong> Daily noting of 3 things you appreciate</li>
-              <li><strong>Regular Physical Activity:</strong> Even moderate exercise significantly improves mood</li>
-              <li><strong>Sleep Hygiene:</strong> Prioritizing sleep quality directly impacts emotional regulation</li>
-              <li><strong>Cognitive Reframing:</strong> Practicing looking at situations from different perspectives</li>
-              <li><strong>Mindfulness Practice:</strong> Building awareness without judgment improves emotional processing</li>
-              <li><strong>Social Support:</strong> Regular connection with understanding people</li>
-            </ul>
-          `
-        }
-      ]
-    },
-    {
-      title: "Sleep Optimization",
-      icon: <Moon className="h-8 w-8 text-indigo-500" />,
-      description: "Techniques for better sleep quality during nicotine reduction",
-      sections: [
-        {
-          title: "Why Sleep Changes During Withdrawal",
-          content: `
-            <p>Many people experience temporary sleep disruptions when reducing nicotine because:</p>
-            <ul>
-              <li>Nicotine affects sleep architecture and circadian rhythms</li>
-              <li>Your body needs to reestablish natural sleep regulation</li>
-              <li>Withdrawal symptoms like anxiety can interfere with falling and staying asleep</li>
-              <li>Dreams may temporarily become more vivid as REM sleep rebounds</li>
-            </ul>
-            <p>Most sleep disruptions peak within the first week and significantly improve by week 2-3.</p>
-          `
-        },
-        {
-          title: "Sleep Environment Optimization",
-          content: `
-            <p>Creating ideal conditions for quality sleep:</p>
-            <ul>
-              <li><strong>Temperature:</strong> Keep your bedroom cool (65-68°F/18-20°C is optimal for most people)</li>
-              <li><strong>Light:</strong> Ensure your sleep environment is as dark as possible</li>
-              <li><strong>Sound:</strong> Minimize noise disruptions with earplugs or white noise if needed</li>
-              <li><strong>Comfort:</strong> Invest in a supportive mattress and pillows that work for your body</li>
-              <li><strong>Electronics:</strong> Remove devices from the bedroom or use night mode features</li>
-            </ul>
-          `
-        },
-        {
-          title: "Evening Routine for Better Sleep",
-          content: `
-            <p>Developing a consistent pre-sleep routine signals your body it's time to wind down:</p>
-            <ul>
-              <li>Maintain consistent sleep and wake times, even on weekends</li>
-              <li>Avoid caffeine after noon and limit alcohol, which disrupts sleep quality</li>
-              <li>Dim lights 1-2 hours before bedtime to support melatonin production</li>
-              <li>Consider relaxation techniques like gentle stretching, reading, or a warm bath</li>
-              <li>Try 10 minutes of deep breathing or progressive muscle relaxation before sleep</li>
-              <li>If you can't fall asleep within 20 minutes, get up and do something relaxing until you feel sleepy</li>
-            </ul>
-          `
-        }
-      ]
-    },
-    {
-      title: "Hydration & Nutrition",
-      icon: <Droplets className="h-8 w-8 text-cyan-500" />,
-      description: "How proper nutrition supports nicotine reduction",
-      sections: [
-        {
-          title: "Nutrition Basics During Nicotine Reduction",
-          content: `
-            <p>Strategic nutrition can help manage withdrawal symptoms and cravings:</p>
-            <ul>
-              <li>Nicotine affects how your body processes certain nutrients and regulates blood sugar</li>
-              <li>Metabolism often temporarily slows when reducing nicotine intake</li>
-              <li>Taste and smell perception often change, affecting food preferences</li>
-              <li>Some people experience increased appetite during withdrawal</li>
-            </ul>
-            <p>A thoughtful approach to nutrition can ease the transition and minimize weight concerns.</p>
-          `
-        },
-        {
-          title: "Hydration Strategy",
-          content: `
-            <p>Proper hydration is particularly important during nicotine reduction:</p>
-            <ul>
-              <li>Aim for 2-3 liters (68-100 oz) of water daily during nicotine withdrawal</li>
-              <li>Mild dehydration worsens fatigue, headaches, and cravings</li>
-              <li>Consider adding electrolytes to water, especially if experiencing headaches</li>
-              <li>Herbal teas can provide both hydration and beneficial compounds</li>
-              <li>Drinking water can help manage oral fixation and temporary hunger sensations</li>
-            </ul>
-          `
-        },
-        {
-          title: "Foods That Support Withdrawal",
-          content: `
-            <p>Certain foods may help ease specific withdrawal symptoms:</p>
-            <ul>
-              <li><strong>For energy stability:</strong> Complex carbohydrates paired with protein (e.g., whole grain toast with eggs)</li>
-              <li><strong>For oral fixation:</strong> Crunchy vegetables, sugar-free gum, or frozen grapes</li>
-              <li><strong>For stress reduction:</strong> Foods rich in magnesium like dark leafy greens and nuts</li>
-              <li><strong>For dopamine support:</strong> Tyrosine-rich foods like eggs, cheese, and legumes</li>
-              <li><strong>For brain function:</strong> Omega-3 rich foods like salmon, walnuts, and flaxseeds</li>
-            </ul>
-            <p>Small, balanced meals every 3-4 hours help maintain steady blood sugar and energy levels.</p>
-          `
-        }
-      ]
-    },
-    {
-      title: "Caffeine Management",
-      icon: <Coffee className="h-8 w-8 text-yellow-700" />,
-      description: "Adjusting caffeine intake during nicotine reduction",
-      sections: [
-        {
-          title: "The Nicotine-Caffeine Connection",
-          content: `
-            <p>Understanding the important relationship between these two substances:</p>
-            <ul>
-              <li>Nicotine accelerates caffeine metabolism by up to 50%</li>
-              <li>When you reduce nicotine, caffeine stays in your system much longer</li>
-              <li>This means your usual caffeine amount can suddenly feel like 1.5-2x stronger</li>
-              <li>This can cause anxiety, jitters, sleep problems, and increased heart rate</li>
-            </ul>
-            <p>Many withdrawal symptoms attributed to nicotine are actually caffeine overload.</p>
-          `
-        },
-        {
-          title: "Caffeine Adjustment Strategy",
-          content: `
-            <p>How to manage caffeine during your nicotine reduction:</p>
-            <ul>
-              <li>Consider reducing caffeine intake by approximately 50% when reducing nicotine</li>
-              <li>Do this gradually to avoid caffeine withdrawal headaches</li>
-              <li>Be especially mindful of afternoon caffeine consumption</li>
-              <li>Consider switching to half-caf or decaf versions of your usual beverages</li>
-              <li>Watch for hidden caffeine in teas, sodas, energy drinks, and chocolate</li>
-            </ul>
-            <p>After 1-2 weeks, your body will begin adjusting to the new caffeine metabolism rate.</p>
-          `
-        },
-        {
-          title: "Caffeine Alternatives",
-          content: `
-            <p>If you're looking to reduce caffeine while maintaining energy:</p>
-            <ul>
-              <li><strong>Green tea:</strong> Contains L-theanine which provides balanced energy without jitters</li>
-              <li><strong>Golden milk:</strong> Turmeric-based beverage with anti-inflammatory properties</li>
-              <li><strong>Chicory root coffee:</strong> Coffee-like flavor without caffeine</li>
-              <li><strong>Rooibos tea:</strong> Naturally caffeine-free with a rich flavor profile</li>
-              <li><strong>Dandelion root tea:</strong> Earthy, coffee-like taste with liver-supporting properties</li>
-            </ul>
-          `
-        }
-      ]
-    }
-  ];
-
   return (
-    <div className="container py-12 px-4 mx-auto max-w-6xl">
+    <div className="container py-12 px-4 mx-auto max-w-5xl">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight mb-3">Holistic Health Guide</h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Practical strategies for managing energy, focus, mood, and overall wellbeing during your nicotine reduction journey.
+          Evidence-based strategies to support your energy, mood, focus, and overall wellbeing 
+          throughout your fresh journey.
         </p>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 mb-12">
-        <h2 className="text-2xl font-semibold mb-4">The Holistic Approach to Nicotine Reduction</h2>
-        <p className="mb-4">
-          Reducing nicotine isn't just about willpower—it's about understanding and supporting your body and mind through a significant transition.
-        </p>
-        <p className="mb-4">
-          Nicotine affects multiple systems in your body, from neurotransmitters that regulate mood and focus to hormones that influence energy and metabolism. When you reduce or eliminate nicotine, these systems need time to recalibrate.
-        </p>
-        <p>
-          This guide provides evidence-based strategies to support your body during this adjustment period, making your journey more comfortable and increasing your chances of success.
-        </p>
-      </div>
+      <Tabs defaultValue="energy" className="mb-12">
+        <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsTrigger value="energy" className="flex items-center justify-center">
+            <Droplets className="mr-2 h-4 w-4" />
+            Energy Support
+          </TabsTrigger>
+          <TabsTrigger value="mood" className="flex items-center justify-center">
+            <Heart className="mr-2 h-4 w-4" />
+            Mood Regulation
+          </TabsTrigger>
+          <TabsTrigger value="focus" className="flex items-center justify-center">
+            <Brain className="mr-2 h-4 w-4" />
+            Focus Enhancement
+          </TabsTrigger>
+          <TabsTrigger value="cravings" className="flex items-center justify-center">
+            <Wind className="mr-2 h-4 w-4" />
+            Cravings Management
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Category Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {categories.map((category, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow">
+        {/* Energy Support Content */}
+        <TabsContent value="energy">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Understanding Energy Fluctuations</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p>Many people experience temporary energy fluctuations when reducing nicotine. This is normal and happens because:</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>Nicotine is a stimulant that artificially boosts your energy levels</li>
+                  <li>Your body is adjusting to functioning without this artificial stimulant</li>
+                  <li>The quality of your sleep may temporarily change</li>
+                  <li>Stress hormones are rebalancing</li>
+                </ul>
+                <p className="font-medium text-fresh-600">The good news: These effects are temporary, and there are effective strategies to manage them!</p>
+              </CardContent>
+            </Card>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">Practical Strategies for Energy Management</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
+                    <Droplets className="h-6 w-6" />
+                  </div>
+                  <CardTitle>Hydration</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Even mild dehydration can significantly impact energy levels. When reducing nicotine:</p>
+                  <ul className="list-disc pl-6 mt-2 space-y-1">
+                    <li>Aim for 8-10 glasses of water daily</li>
+                    <li>Start your day with a full glass of water</li>
+                    <li>Consider herbal teas as a soothing alternative</li>
+                    <li>Limit caffeine to morning hours to prevent sleep disruption</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 mb-4">
+                    <Utensils className="h-6 w-6" />
+                  </div>
+                  <CardTitle>Nutrition</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Strategic eating can help stabilize energy levels throughout the day:</p>
+                  <ul className="list-disc pl-6 mt-2 space-y-1">
+                    <li>Incorporate protein with each meal to maintain steady energy</li>
+                    <li>Choose complex carbohydrates (whole grains, vegetables) over simple sugars</li>
+                    <li>Eat smaller, more frequent meals if energy dips between larger meals</li>
+                    <li>Consider B-vitamin rich foods (leafy greens, whole grains) which support energy metabolism</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 mb-4">
+                    <Dumbbell className="h-6 w-6" />
+                  </div>
+                  <CardTitle>Physical Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Movement is one of the most effective natural energy boosters:</p>
+                  <ul className="list-disc pl-6 mt-2 space-y-1">
+                    <li>Start with brief (5-10 minute) walks when feeling an energy dip</li>
+                    <li>Incorporate gentle stretching throughout the day</li>
+                    <li>Build up to 30 minutes of moderate activity most days</li>
+                    <li>Consider morning exercise to energize your day naturally</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M12 2v8"></path><path d="M12 18v4"></path><path d="M4.93 4.93l5.66 5.66"></path><path d="M13.41 13.41l5.66 5.66"></path><path d="M2 12h8"></path><path d="M18 12h4"></path><path d="M4.93 19.07l5.66-5.66"></path><path d="M13.41 10.59l5.66-5.66"></path></svg>
+                  </div>
+                  <CardTitle>Energy Rhythms</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Working with your body's natural energy patterns:</p>
+                  <ul className="list-disc pl-6 mt-2 space-y-1">
+                    <li>Identify your peak energy times and schedule important tasks then</li>
+                    <li>Plan for an afternoon dip with lighter activities</li>
+                    <li>Create a consistent sleep-wake schedule</li>
+                    <li>Consider a short (10-20 minute) afternoon nap if needed</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-fresh-50 p-6 rounded-lg mt-8">
+              <h3 className="font-bold text-lg mb-2">Quick Energy Boost Exercise</h3>
+              <p className="mb-4">When you need an immediate energy lift, try this simple technique:</p>
+              <ol className="list-decimal pl-6 space-y-3">
+                <li>Stand up and gently shake out your limbs for 10 seconds</li>
+                <li>Take 5 deep breaths, inhaling through your nose for 4 counts, and exhaling through your mouth for 6 counts</li>
+                <li>Roll your shoulders backward 5 times, then forward 5 times</li>
+                <li>March in place with high knees for 30 seconds</li>
+                <li>Finish with a gentle stretch reaching your arms overhead</li>
+              </ol>
+              <p className="mt-4 text-sm italic">This takes less than 2 minutes but can significantly increase blood flow, oxygen, and energy.</p>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Mood Regulation Content */}
+        <TabsContent value="mood">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Understanding Mood Changes</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p>Fluctuations in mood are one of the most common experiences when reducing nicotine. Here's why:</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>Nicotine directly affects dopamine, your brain's reward chemical</li>
+                  <li>Your brain is recalibrating its natural mood regulation systems</li>
+                  <li>Temporary irritability is part of the adjustment process</li>
+                  <li>Emotions that were previously numbed may feel more intense</li>
+                </ul>
+                <p className="font-medium text-fresh-600">Remember: These mood changes are temporary and signify your brain healing!</p>
+              </CardContent>
+            </Card>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">Effective Mood Management Techniques</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mindfulness Practice</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Mindfulness helps create space between emotions and reactions:</p>
+                  <ul className="list-disc pl-6 space-y-1">
+                    <li>Start with brief (3-5 minute) daily meditation sessions</li>
+                    <li>Practice "STOP": Stop, Take a breath, Observe feelings, Proceed mindfully</li>
+                    <li>Notice emotions without judgment or immediate reaction</li>
+                    <li>Use gentle curiosity when exploring difficult feelings</li>
+                  </ul>
+                  <div className="bg-slate-50 p-4 rounded-md mt-2">
+                    <p className="text-sm italic">"Mindfulness isn't about suppressing emotions, but understanding them better so they have less control over your behavior."</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Physical Movement</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Movement is one of the most effective mood regulators:</p>
+                  <ul className="list-disc pl-6 space-y-1">
+                    <li>Even a 10-minute walk can significantly improve mood</li>
+                    <li>Regular exercise increases endorphins, your natural mood lifters</li>
+                    <li>Physical activities provide a healthy outlet for stress or frustration</li>
+                    <li>Gentle stretching or yoga can calm an agitated mind</li>
+                  </ul>
+                  <div className="bg-slate-50 p-4 rounded-md mt-2">
+                    <p className="text-sm italic">"Movement doesn't just change your body; it changes your brain chemistry in ways that directly support emotional stability."</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Social Connection</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Quality social interaction helps stabilize mood:</p>
+                  <ul className="list-disc pl-6 space-y-1">
+                    <li>Share your journey with at least one supportive person</li>
+                    <li>Schedule regular check-ins with friends or family</li>
+                    <li>Consider joining a support group (online or in-person)</li>
+                    <li>Helping others has been shown to boost mood and purpose</li>
+                  </ul>
+                  <p className="text-sm mt-2">Tip: Be selective about who you share with—choose people who are supportive of your journey.</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Expressive Techniques</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Expressing emotions in healthy ways prevents buildup:</p>
+                  <ul className="list-disc pl-6 space-y-1">
+                    <li>Journal for 5-10 minutes daily about your feelings</li>
+                    <li>Try creative outlets like drawing, music, or crafts</li>
+                    <li>Practice "emotion naming"—specifically identifying what you feel</li>
+                    <li>Use physical practices like pillow punching or tension release for strong emotions</li>
+                  </ul>
+                  <p className="text-sm mt-2">Research shows that naming emotions reduces their intensity.</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-fresh-50 p-6 rounded-lg mt-8">
+              <h3 className="font-bold text-lg mb-2">Quick Mood Reset Technique</h3>
+              <p className="mb-4">When experiencing a difficult mood, try this evidence-based grounding exercise:</p>
+              <p className="mb-2 font-medium">The 5-4-3-2-1 Method:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>5:</strong> Notice FIVE things you can see around you</li>
+                <li><strong>4:</strong> Acknowledge FOUR things you can touch or feel</li>
+                <li><strong>3:</strong> Listen for THREE sounds in your environment</li>
+                <li><strong>2:</strong> Identify TWO things you can smell</li>
+                <li><strong>1:</strong> Note ONE thing you can taste</li>
+              </ul>
+              <p className="mt-4 text-sm italic">This exercise brings you back to the present moment and engages your senses, helping to interrupt negative thought patterns.</p>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Focus Enhancement Content */}
+        <TabsContent value="focus">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Understanding Focus Changes</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p>Many people notice concentration difficulties when reducing nicotine. This happens because:</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>Nicotine temporarily enhances attention by stimulating acetylcholine receptors</li>
+                  <li>Your brain is creating new neural pathways for focus without nicotine</li>
+                  <li>Withdrawal symptoms like irritability can distract attention</li>
+                  <li>Sleep quality changes can impact cognitive function</li>
+                </ul>
+                <p className="font-medium text-fresh-600">Focus typically improves within 2-4 weeks as your brain adjusts, often becoming better than before!</p>
+              </CardContent>
+            </Card>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">Effective Focus Enhancement Strategies</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Work Structure Techniques</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Strategic work approaches can maximize existing focus:</p>
+                  <ul className="list-disc pl-6 space-y-2 mb-4">
+                    <li><strong>The Pomodoro Technique:</strong> Work in focused 25-minute blocks with 5-minute breaks between</li>
+                    <li><strong>Task Batching:</strong> Group similar tasks together to reduce context switching</li>
+                    <li><strong>Important-First Scheduling:</strong> Handle complex tasks during your peak focus hours</li>
+                    <li><strong>Distraction Blocking:</strong> Use apps or browser extensions to limit digital interruptions</li>
+                  </ul>
+                  <p className="text-sm italic">These approaches maximize your available focus rather than demanding sustained attention for long periods.</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Physical Focus Enhancers</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Your physical state directly impacts cognitive function:</p>
+                  <ul className="list-disc pl-6 space-y-2 mb-4">
+                    <li><strong>Proper Hydration:</strong> Even mild dehydration reduces concentration by up to 13%</li>
+                    <li><strong>Protein-Based Snacks:</strong> Provide steady energy without crashes</li>
+                    <li><strong>Brief Exercise:</strong> A 5-minute movement break can reset attention</li>
+                    <li><strong>Proper Lighting:</strong> Natural light improves focus and reduces eye strain</li>
+                  </ul>
+                  <p className="text-sm italic">Physical interventions can often have more immediate effects than cognitive strategies alone.</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cognitive Training</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Strengthen your focus "muscles" with regular practice:</p>
+                  <ul className="list-disc pl-6 space-y-2 mb-4">
+                    <li><strong>Single-Tasking:</strong> Deliberately practice doing one thing at a time</li>
+                    <li><strong>Reading:</strong> Regular reading of physical books builds sustained attention</li>
+                    <li><strong>Mindfulness Practice:</strong> Meditation directly enhances focus networks</li>
+                    <li><strong>Attention Games:</strong> Puzzles, sudoku, or specific brain training apps</li>
+                  </ul>
+                  <p className="text-sm italic">Just like physical strength, cognitive focus improves with regular training and deteriorates without use.</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Environment Optimization</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Your surroundings significantly impact your ability to focus:</p>
+                  <ul className="list-disc pl-6 space-y-2 mb-4">
+                    <li><strong>Decluttering:</strong> Physical mess creates cognitive load and distraction</li>
+                    <li><strong>Noise Management:</strong> Use white noise, nature sounds, or noise-canceling headphones</li>
+                    <li><strong>Temperature Control:</strong> Cognitive performance peaks around 70-72°F (21-22°C)</li>
+                    <li><strong>Digital Minimalism:</strong> Close unnecessary apps, tabs, and silence notifications</li>
+                  </ul>
+                  <p className="text-sm italic">Your brain constantly processes environmental stimuli—reducing unnecessary input preserves cognitive resources.</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-fresh-50 p-6 rounded-lg mt-8">
+              <h3 className="font-bold text-lg mb-2">Quick Focus Restoration Exercise</h3>
+              <p className="mb-4">When your mind feels scattered, try this 60-second reset technique:</p>
+              <ol className="list-decimal pl-6 space-y-2">
+                <li>Close your eyes or soften your gaze</li>
+                <li>Take 3 deep breaths, focusing completely on the sensation of breathing</li>
+                <li>Gently roll your head in a circle, once in each direction</li>
+                <li>Place your hands on your desk/table and feel the texture for 10 seconds</li>
+                <li>Set a clear, specific intention for what you'll focus on next</li>
+              </ol>
+              <p className="mt-4 text-sm italic">This mini-reset interrupts scattered thinking and provides a clear transition back to focused work.</p>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Cravings Management Content */}
+        <TabsContent value="cravings">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Understanding Cravings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p>Cravings are temporary urges that typically follow a predictable pattern:</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>They generally build, peak, and subside within 3-5 minutes</li>
+                  <li>Cravings are triggered by specific cues (situations, emotions, etc.)</li>
+                  <li>The intensity naturally decreases over time with abstinence</li>
+                  <li>Each successfully managed craving weakens future ones</li>
+                </ul>
+                <p className="font-medium text-fresh-600">Remember: No matter how intense, a craving is temporary and will pass whether or not you use nicotine.</p>
+              </CardContent>
+            </Card>
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">Evidence-Based Craving Management Strategies</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Delay and Distract</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>One of the most effective strategies is simply outlasting the urge:</p>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>The 5-Minute Rule:</strong> When a craving hits, commit to waiting just 5 minutes before deciding</li>
+                    <li><strong>Engage in a brief, absorbing activity:</strong> Puzzle games, physical tasks, or conversations</li>
+                    <li><strong>Change your environment:</strong> Simply moving to a different room can interrupt the craving cycle</li>
+                    <li><strong>Use a timer:</strong> Setting a concrete endpoint helps maintain resolve</li>
+                  </ul>
+                  <div className="bg-slate-50 p-4 rounded-md mt-2">
+                    <p className="text-sm italic">"Between stimulus and response there is a space. In that space is our power to choose our response." — Viktor Frankl</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Physical Techniques</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Physical interventions can rapidly reduce craving intensity:</p>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Deep breathing:</strong> 4 counts in, hold for 2, 6 counts out (repeat 5 times)</li>
+                    <li><strong>Progressive muscle relaxation:</strong> Tense and release muscle groups sequentially</li>
+                    <li><strong>Water drinking:</strong> Slowly drink a full glass of cold water</li>
+                    <li><strong>Brief exercise:</strong> 20 jumping jacks, a quick walk, or stretch session</li>
+                  </ul>
+                  <p className="text-sm mt-2">These techniques activate your parasympathetic nervous system, naturally counteracting the stress response of cravings.</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cognitive Reframing</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Change how you think about cravings to reduce their power:</p>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Urge surfing:</strong> Visualize cravings as waves that you can ride without being swept away</li>
+                    <li><strong>Challenge thoughts:</strong> "I need nicotine" becomes "My body is adjusting to functioning without nicotine"</li>
+                    <li><strong>Future self:</strong> Imagine yourself in 30 minutes, grateful you didn't give in</li>
+                    <li><strong>Progress protection:</strong> Remember how far you've come and what you'd be giving up</li>
+                  </ul>
+                  <p className="text-sm mt-2">Changing your relationship with cravings transforms them from emergencies into passing discomforts.</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Replacement Behaviors</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p>Strategically substitute other activities for nicotine use:</p>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Oral substitutes:</strong> Sugar-free gum, cinnamon sticks, carrot sticks, toothpicks</li>
+                    <li><strong>Hand activities:</strong> Stress balls, fidget toys, beads, crafting</li>
+                    <li><strong>Breath activities:</strong> Deep breathing with essential oils, breathing exercises</li>
+                    <li><strong>Similar routine:</strong> Taking a "fresh air break" instead of a "smoke break"</li>
+                  </ul>
+                  <p className="text-sm mt-2">Substitution works because it addresses the habitual and sensory aspects of nicotine use beyond the chemical dependency.</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-fresh-50 p-6 rounded-lg mt-8">
+              <h3 className="font-bold text-lg mb-2">S.T.O.P Method for Intense Cravings</h3>
+              <p className="mb-4">When facing a powerful urge, follow this structured approach:</p>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium">S: <span className="font-normal">STOP what you're doing</span></p>
+                  <p className="text-sm pl-4">Pause and interrupt your automatic patterns.</p>
+                </div>
+                <div>
+                  <p className="font-medium">T: <span className="font-normal">TAKE a deep breath</span></p>
+                  <p className="text-sm pl-4">Breathe in for 4 seconds, hold for 2, exhale for 6. Repeat 3 times.</p>
+                </div>
+                <div>
+                  <p className="font-medium">O: <span className="font-normal">OBSERVE your experience</span></p>
+                  <p className="text-sm pl-4">Notice physical sensations, thoughts, and emotions without judgment.</p>
+                </div>
+                <div>
+                  <p className="font-medium">P: <span className="font-normal">PROCEED mindfully</span></p>
+                  <p className="text-sm pl-4">Choose your next action deliberately rather than automatically.</p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm italic">This method creates a vital space between stimulus (craving) and response, allowing you to act from intention rather than impulse.</p>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <div className="border-t pt-12">
+        <h2 className="text-2xl font-bold mb-6 text-center">Additional Resources</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
             <CardHeader>
-              <div className="mb-2">{category.icon}</div>
-              <CardTitle>{category.title}</CardTitle>
-              <CardDescription>{category.description}</CardDescription>
+              <CardTitle>Establish a Support System</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="list-disc pl-5 space-y-1 text-sm">
-                {category.sections.map((section, idx) => (
-                  <li key={idx}>{section.title}</li>
-                ))}
+              <p>Research shows that social support significantly improves success rates. Consider:</p>
+              <ul className="list-disc pl-6 mt-2">
+                <li>Sharing your journey with a trusted friend</li>
+                <li>Joining an online community</li>
+                <li>Working with a healthcare professional</li>
+                <li>Using the Mission Fresh app's community features</li>
               </ul>
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {/* Detailed Content Sections */}
-      {categories.map((category, categoryIndex) => (
-        <div key={categoryIndex} className="mb-16">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-full bg-gray-100">{category.icon}</div>
-            <h2 className="text-2xl font-bold">{category.title}</h2>
-          </div>
-
-          {category.sections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="mb-10">
-              <h3 className="text-xl font-semibold mb-4">{section.title}</h3>
-              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: section.content }}></div>
-            </div>
-          ))}
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Track Your Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Monitoring your journey provides motivation and insights:</p>
+              <ul className="list-disc pl-6 mt-2">
+                <li>Notice patterns in your energy, mood, and cravings</li>
+                <li>Celebrate improvements in your well-being</li>
+                <li>Identify triggers or difficult times</li>
+                <li>Use data to refine your approach</li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/sign-up">Start Tracking Now</Link>
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Calculate Your Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>See the tangible benefits of your fresh journey:</p>
+              <ul className="list-disc pl-6 mt-2">
+                <li>Financial savings from reduced nicotine use</li>
+                <li>Health improvements timeline</li>
+                <li>Projected long-term benefits</li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/tools/calculators">Use Calculators</Link>
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
-      ))}
-
-      <div className="bg-gradient-to-r from-fresh-50 to-green-50 rounded-xl p-8 mb-10">
-        <h3 className="text-xl font-semibold mb-4">Remember: Progress, Not Perfection</h3>
-        <p className="mb-4">
-          Every person's journey to reducing nicotine is unique. Some days will be easier than others, and that's completely normal.
-        </p>
-        <p>
-          Focus on implementing these strategies gradually. Even small improvements in your energy, focus, mood, and sleep can create positive momentum that makes your journey more sustainable and successful.
-        </p>
       </div>
 
-      <div className="flex justify-between">
+      <div className="mt-16 bg-gradient-to-br from-fresh-50 to-fresh-100 p-8 rounded-xl shadow-sm text-center">
+        <h2 className="text-2xl font-bold mb-4">Ready for Personalized Support?</h2>
+        <p className="text-lg mb-6 max-w-2xl mx-auto">
+          The Mission Fresh app offers customized tools for energy, mood, focus, and craving management 
+          based on your specific needs and goals.
+        </p>
+        <Button asChild size="lg" className="bg-fresh-500 hover:bg-fresh-600 text-white">
+          <Link to="/sign-up">Start Your Fresh Journey</Link>
+        </Button>
+      </div>
+
+      <div className="flex justify-between mt-12">
         <Link to="/tools">
           <Button variant="outline" className="flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />

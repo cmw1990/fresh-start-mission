@@ -6,6 +6,7 @@ import KeyFeatures from '@/components/home/KeyFeatures';
 import WebTools from '@/components/home/WebTools';
 import CallToAction from '@/components/home/CallToAction';
 import Footer from '@/components/layout/Footer';
+import Testimonials from '@/components/home/Testimonials';
 
 const LandingPage: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const LandingPage: React.FC = () => {
         <HowItWorks />
         <KeyFeatures />
         <WebTools />
+        <Testimonials />
         <CallToAction />
       </main>
       <Footer />
