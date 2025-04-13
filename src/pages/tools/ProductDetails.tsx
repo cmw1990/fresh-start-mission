@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { addProductReview } from '@/services/productService';
 import ProductReviewForm from '@/components/tools/ProductReviewForm';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Review {
   id: string;
@@ -18,24 +19,24 @@ interface Review {
   created_at: string;
   is_moderated: boolean;
   user?: {
-    email: string;
+    email?: string;
     user_metadata?: {
       full_name?: string;
     }
-  }
+  } | null;
 }
 
 interface Product {
   id: string;
   name: string;
   description: string;
-  price: string;
-  category: string;
-  nicotine_content: string;
-  manufacturer: string;
+  price: string; // Will be derived from data or set to default
+  category: string; // Will be derived from data or set to default
+  nicotine_content: string; // Will be derived from data or set to default
+  manufacturer: string; // Will be derived from data or set to default
   image_url?: string;
   average_rating?: number;
-  // Add any additional properties from the returned data
+  // Additional properties from the returned data
   brand?: string;
   created_at?: string; 
   expert_notes_chemicals?: string;
@@ -73,6 +74,7 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!id) {
@@ -142,33 +144,28 @@ const ProductDetails = () => {
           // Skip reviews with invalid data
           if (!review) continue;
           
-          // Create a safe user object with default values
-          const userObj = {
-            email: 'Unknown',
-            user_metadata: { full_name: undefined }
-          };
-          
-          // Check if user data exists and is valid
-          if (review.user && typeof review.user === 'object') {
-            // Use optional chaining to safely access properties
-            if (review.user?.email && typeof review.user.email === 'string') {
-              userObj.email = review.user.email;
-            }
-            
-            if (review.user?.user_metadata && typeof review.user.user_metadata === 'object') {
-              userObj.user_metadata = review.user.user_metadata;
-            }
-          }
-          
-          validReviews.push({
+          // Create a review object with all required fields
+          const validReview: Review = {
             id: review.id,
             user_id: review.user_id,
             rating: review.rating,
             review_text: review.review_text,
             created_at: review.created_at,
             is_moderated: review.is_moderated,
-            user: userObj
-          });
+            user: null // Default to null
+          };
+          
+          // Safely add user data if available
+          if (review.user && typeof review.user === 'object') {
+            validReview.user = {
+              email: typeof review.user.email === 'string' ? review.user.email : 'Anonymous',
+              user_metadata: review.user.user_metadata && typeof review.user.user_metadata === 'object' ? 
+                { full_name: typeof review.user.user_metadata.full_name === 'string' ? review.user.user_metadata.full_name : undefined } : 
+                { full_name: undefined }
+            };
+          }
+          
+          validReviews.push(validReview);
         }
       }
 
@@ -228,7 +225,7 @@ const ProductDetails = () => {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4">
+        <CardContent className={`grid ${isMobile ? 'gap-4' : 'gap-6 lg:grid-cols-2'}`}>
           {product.image_url && (
             <img 
               src={product.image_url} 
@@ -236,9 +233,9 @@ const ProductDetails = () => {
               className="w-full max-w-md mx-auto rounded-lg shadow-lg"
             />
           )}
-          <div className="grid gap-2">
+          <div className="grid gap-4">
             <p className="text-muted-foreground">{product.description}</p>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <p className="font-medium">Manufacturer</p>
                 <p className="text-muted-foreground">{product.manufacturer}</p>
@@ -256,6 +253,24 @@ const ProductDetails = () => {
                 <p className="text-muted-foreground">{product.nicotine_content}</p>
               </div>
             </div>
+            {product.expert_notes_chemicals && (
+              <div className="mt-4">
+                <p className="font-medium">Expert Notes on Chemicals</p>
+                <p className="text-muted-foreground">{product.expert_notes_chemicals}</p>
+              </div>
+            )}
+            {product.expert_notes_gum_health && (
+              <div className="mt-2">
+                <p className="font-medium">Expert Notes on Gum Health</p>
+                <p className="text-muted-foreground">{product.expert_notes_gum_health}</p>
+              </div>
+            )}
+            {product.ingredients && product.ingredients.length > 0 && (
+              <div className="mt-2">
+                <p className="font-medium">Ingredients</p>
+                <p className="text-muted-foreground">{product.ingredients.join(', ')}</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
