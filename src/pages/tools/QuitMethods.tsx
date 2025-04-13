@@ -189,7 +189,7 @@ const QuitMethods = () => {
         ]}
         successRate="Varies widely based on products chosen and individual goals"
         timeframe="Ongoing management rather than a finite process"
-        difficulty="Easy to Moderate"
+        difficulty="Moderate"
       />
       
       <div className="mt-10 mb-16 p-6 bg-purple-50 border border-purple-100 rounded-lg">
