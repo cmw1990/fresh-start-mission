@@ -45,7 +45,7 @@ const Rewards = () => {
   });
 
   // Mutation for claiming rewards
-  const { mutate: claimReward, isLoading: isClaiming } = useMutation({
+  const { mutate: claimReward, isPending: isClaiming } = useMutation({
     mutationFn: (rewardId: string) => claimSpecificReward(rewardId),
     onSuccess: () => {
       toast.success("Reward claimed successfully!");
