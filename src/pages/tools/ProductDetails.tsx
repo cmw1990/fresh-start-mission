@@ -155,7 +155,7 @@ const ProductDetails = () => {
           // Safely add user data if available
           if (review.user && typeof review.user === 'object') {
             validReview.user = {
-              email: typeof review.user.email === 'string' ? review.user.email : 'Anonymous',
+              email: typeof review.user.email === 'string' ? review.user.email : undefined,
               user_metadata: review.user.user_metadata && typeof review.user.user_metadata === 'object' ? 
                 { full_name: typeof review.user.user_metadata.full_name === 'string' ? review.user.user_metadata.full_name : undefined } : 
                 { full_name: undefined }
