@@ -49,7 +49,7 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
   const [showAnimation, setShowAnimation] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [reachedMilestones, setReachedMilestones] = useState<number[]>([]);
-  const mobile = useIsMobile();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     let highestMilestoneIndex = -1;
@@ -108,7 +108,7 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
 
   return (
     <Card className={cn("relative overflow-hidden", 
-      mobile ? "border-2 shadow-md" : "",
+      isMobile ? "border-2 shadow-md" : "",
       className
     )}>
       <AnimatePresence>

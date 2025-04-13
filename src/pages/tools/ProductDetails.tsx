@@ -63,6 +63,11 @@ interface RawProductData {
   user_rating_count?: number;
   created_at?: string;
   updated_at?: string;
+  // These fields don't exist in the database but are needed for our interface
+  price?: string;
+  category?: string;
+  nicotine_content?: string;
+  manufacturer?: string;
 }
 
 const ProductDetails = () => {
