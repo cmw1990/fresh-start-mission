@@ -140,8 +140,23 @@ const ProductDetails = () => {
       if (reviewsData) {
         for (const review of reviewsData) {
           // Skip reviews with invalid user data
-          if (!review || !review.user || typeof review.user === 'string' || 'error' in review.user) {
-            continue;
+          if (!review) continue;
+          
+          // Create a safe user object with default values
+          const userObj = {
+            email: 'Unknown',
+            user_metadata: { full_name: undefined }
+          };
+          
+          // Check if user data exists and is valid
+          if (review.user && typeof review.user === 'object' && !('error' in review.user)) {
+            if (review.user.email) {
+              userObj.email = review.user.email;
+            }
+            
+            if (review.user.user_metadata) {
+              userObj.user_metadata = review.user.user_metadata;
+            }
           }
           
           validReviews.push({
@@ -151,10 +166,7 @@ const ProductDetails = () => {
             review_text: review.review_text,
             created_at: review.created_at,
             is_moderated: review.is_moderated,
-            user: {
-              email: review.user?.email || 'Unknown',
-              user_metadata: review.user?.user_metadata
-            }
+            user: userObj
           });
         }
       }
