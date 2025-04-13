@@ -219,7 +219,7 @@ const HolisticCard: React.FC<HolisticCardProps> = ({ title, description, icon, b
         <Button asChild variant="link" className="mt-4 text-fresh-600 hover:text-fresh-700 p-0">
           <Link to="/tools/holistic-health" className="flex items-center">
             Learn more
-            <ArrowRight className="ml-2 w-4 h-4" />
+            <ArrowRight className="ml-2 w-4 w-4" />
           </Link>
         </Button>
       </div>

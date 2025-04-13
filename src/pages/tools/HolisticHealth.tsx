@@ -1,533 +1,417 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Activity, Brain, Heart, Zap, ExternalLink, ArrowRight, BookOpen, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sun, Brain, Heart, Zap, CheckCircle } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
-const HolisticHealth = () => {
+interface TechniqueProps {
+  title: string;
+  description: string;
+  steps: string[];
+  benefits: string[];
+  timeNeeded: string;
+}
+
+const Technique: React.FC<TechniqueProps> = ({
+  title,
+  description,
+  steps,
+  benefits,
+  timeNeeded
+}) => {
   return (
-    <div>
-      <div className="mb-10">
-        <h1 className="text-4xl font-bold tracking-tight mb-3">Holistic Health Resources</h1>
-        <p className="text-lg text-muted-foreground max-w-3xl">
-          Discover evidence-based approaches to managing energy, mood, focus, and cravings during your fresh journey.
-        </p>
-      </div>
-
-      <Tabs defaultValue="energy" className="mb-10">
-        <TabsList className="mb-6">
-          <TabsTrigger value="energy" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" /> Energy
-          </TabsTrigger>
-          <TabsTrigger value="mood" className="flex items-center gap-2">
-            <Heart className="h-4 w-4" /> Mood
-          </TabsTrigger>
-          <TabsTrigger value="focus" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" /> Focus
-          </TabsTrigger>
-          <TabsTrigger value="cravings" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" /> Cravings
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="energy" className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Energy Management</h2>
-            <p className="text-muted-foreground mb-6">
-              Low energy levels are one of the most common challenges when reducing nicotine. These research-backed strategies can help you manage fatigue and maintain natural energy.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ResourceCard
-              title="Physical Activity for Energy"
-              description="Short bursts of physical activity can significantly boost energy levels during nicotine withdrawal."
-              type="Article"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Key Strategies:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Try a 5-minute walk when energy dips - research shows even brief movement can increase energy by 20%
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Simple stretching at your desk can improve circulation and reduce fatigue
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Morning exercise has been shown to improve energy levels throughout the entire day
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground italic">
-                    Based on studies from the University of Georgia showing a 65% reduction in fatigue among previously sedentary individuals who began regular, low-intensity exercise.
-                  </p>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Optimal Hydration & Nutrition"
-              description="What you eat and drink directly impacts your energy levels, especially during nicotine withdrawal."
-              type="Guide"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Energy-Boosting Nutrition:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Stay hydrated - even mild dehydration reduces energy levels by up to 30%
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Balance blood sugar with protein+complex carb meals (e.g., oatmeal with nuts, not sugary cereals)
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      B vitamins support energy production - consider foods like leafy greens, whole grains, and eggs
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Magnesium-rich foods (nuts, seeds, dark chocolate) help combat the fatigue often experienced during withdrawal
-                    </ResourceListItem>
-                  </ul>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Strategic Rest & Recovery"
-              description="Proper rest techniques can significantly reduce withdrawal-related fatigue."
-              type="Techniques"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Evidence-Based Rest Techniques:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      10-20 minute power naps boost alertness without grogginess (avoid longer naps)
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Practice the 90-minute work/rest cycle - matches your body's natural ultradian rhythm
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      "Rest breaks" differ from "stress breaks" - research shows nature views restore mental energy
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    These techniques are especially valuable during the first 2-3 weeks of nicotine reduction when energy fluctuations are most intense.
-                  </p>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Breathing for Energy"
-              description="Specific breathing techniques can quickly boost energy and counteract fatigue."
-              type="Exercise"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Try This Energizing Breath Technique:</h3>
-                  <ol className="space-y-2 list-decimal pl-4">
-                    <li>Sit comfortably with good posture</li>
-                    <li>Inhale rapidly through your nose for 2-3 seconds</li>
-                    <li>Exhale gently through the mouth for 3-4 seconds</li>
-                    <li>Repeat for 1 minute (about 10-12 breaths)</li>
-                  </ol>
-                  <p className="text-sm">
-                    This technique increases oxygen flow and can activate your sympathetic nervous system, providing a natural energy boost without caffeine.
-                  </p>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      Full Breathing Guide
-                    </Button>
-                  </div>
-                </div>
-              }
-            />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="mood" className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Mood Regulation</h2>
-            <p className="text-muted-foreground mb-6">
-              Mood fluctuations are a normal part of reducing nicotine intake. These techniques can help stabilize emotions and reduce irritability.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ResourceCard
-              title="Mindfulness for Emotional Balance"
-              description="Research-backed mindfulness practices specifically designed for nicotine reduction."
-              type="Techniques"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Simple Mindfulness Practices:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      3-minute breathing space: focus on breath, body sensations, and then expand awareness
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      RAIN technique: Recognize emotions, Allow them to exist, Investigate with curiosity, Non-identification
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Body scan: systematically notice sensations throughout your body without judgment
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground">
-                    Clinical studies show regular mindfulness practice reduces irritability during nicotine withdrawal by up to 40%.
-                  </p>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Nature Connection for Mood"
-              description="How natural environments can stabilize mood during nicotine reduction."
-              type="Article"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Nature-Based Mood Boosters:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Just 20 minutes in nature reduces stress hormones by 10-20%
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      "Forest bathing" (mindful time among trees) has been shown to reduce irritability
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Even viewing nature photos can help - keep calming nature images on your phone
-                    </ResourceListItem>
-                  </ul>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
-                      <ExternalLink className="h-4 w-4" />
-                      Find Green Spaces Near You
-                    </Button>
-                  </div>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Physical Movement for Mood"
-              description="How specific types of movement can regulate emotions during nicotine withdrawal."
-              type="Guide"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Movement-Based Mood Regulation:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Rhythmic activities (walking, swimming, cycling) are most effective for mood
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Movement releases endorphins that counteract the dopamine drop from reduced nicotine
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Even 5-10 minutes of movement can shift your emotional state
-                    </ResourceListItem>
-                  </ul>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Social Connection & Mood"
-              description="How relationships impact emotional stability during your fresh journey."
-              type="Article"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Social Support Strategies:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Identify your "support team" - who can you reach out to when emotions are intense?
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Consider which relationships might trigger cravings and plan accordingly
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Online communities with similar goals provide validation and understanding
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground">
-                    Research shows people with strong social support are 2-3 times more likely to successfully reduce or quit nicotine use.
-                  </p>
-                </div>
-              }
-            />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="focus" className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Focus Enhancement</h2>
-            <p className="text-muted-foreground mb-6">
-              Difficulty concentrating is a common temporary side effect of nicotine reduction. These strategies can help maintain mental clarity.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ResourceCard
-              title="Optimal Work Environment"
-              description="How to structure your workspace for maximum focus during nicotine reduction."
-              type="Guide"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Environment Optimization:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Remove visual distractions - clear desk space reduces cognitive load
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Use noise-cancelling headphones or ambient sound to mask distracting noises
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Natural light improves focus by 15-20% compared to artificial lighting
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground">
-                    During nicotine withdrawal, your brain is more sensitive to distractions - optimizing your environment becomes even more important.
-                  </p>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Time Management Techniques"
-              description="Focus strategies specifically adapted for the nicotine reduction period."
-              type="Techniques"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Focus Enhancement Methods:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Pomodoro Technique: 25 minutes of focused work followed by 5 minute breaks
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Time-blocking: schedule specific focus periods when your energy is naturally higher
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Task batching: group similar tasks to reduce context switching
-                    </ResourceListItem>
-                  </ul>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      Focus Techniques Guide
-                    </Button>
-                  </div>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Cognitive Enhancement"
-              description="Natural ways to support brain function during nicotine reduction."
-              type="Article"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Brain-Supporting Strategies:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Hydration - even mild dehydration reduces cognitive performance by 5-10%
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Omega-3 fatty acids support brain function (fish, flaxseeds, walnuts)
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      B vitamins help maintain mental clarity during withdrawal
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Natural light exposure helps regulate neurotransmitters affected by nicotine
-                    </ResourceListItem>
-                  </ul>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Focus Exercises"
-              description="Practice these exercises to strengthen attention during nicotine reduction."
-              type="Exercises"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Attention-Building Practices:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Single-point focus: practice focusing on one object for 1-3 minutes
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Breath counting: count 1-10 breaths repeatedly, starting over when mind wanders
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Progressive focus training: gradually increase focused work periods by 5 minutes
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground">
-                    These exercises can help rebuild attentional capacity that may be temporarily affected by changing nicotine levels.
-                  </p>
-                </div>
-              }
-            />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="cravings" className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Craving Management</h2>
-            <p className="text-muted-foreground mb-6">
-              Evidence-based techniques to navigate through cravings effectively as your brain adapts to changing nicotine levels.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ResourceCard
-              title="The Science of Cravings"
-              description="Understanding what happens in your brain during a craving and why they fade."
-              type="Article"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">Key Craving Facts:</h3>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      Most cravings peak within 3-5 minutes before naturally subsiding
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Cravings activate the same brain regions as physical thirst
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      Each successfully weathered craving weakens the neural pathway, making future cravings less intense
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground">
-                    Understanding that cravings are temporary and diminish with time gives you power over them.
-                  </p>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Urge Surfing Technique"
-              description="A powerful mindfulness approach to riding out cravings without giving in."
-              type="Technique"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">How to Practice Urge Surfing:</h3>
-                  <ol className="space-y-2 list-decimal pl-4">
-                    <li>Notice the craving arising - where do you feel it in your body?</li>
-                    <li>Observe the sensations with curiosity, not judgment</li>
-                    <li>Breathe into the sensations, imagining them as a wave</li>
-                    <li>Notice how the intensity changes, rises and falls</li>
-                    <li>Remind yourself this is temporary and will pass</li>
-                  </ol>
-                  <p className="text-sm text-muted-foreground">
-                    Clinical studies show urge surfing can reduce craving intensity by 20-30% compared to distraction techniques.
-                  </p>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      Guided Urge Surfing Audio
-                    </Button>
-                  </div>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="H.A.L.T. Method"
-              description="Identify and address the underlying needs that intensify cravings."
-              type="Framework"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">The H.A.L.T. Framework:</h3>
-                  <p>When a craving hits, check if you are:</p>
-                  <ul className="space-y-2">
-                    <ResourceListItem>
-                      <strong>H</strong>ungry - Have a healthy snack to stabilize blood sugar
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      <strong>A</strong>ngry - Practice a quick calming technique
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      <strong>L</strong>onely - Reach out to a supportive person
-                    </ResourceListItem>
-                    <ResourceListItem>
-                      <strong>T</strong>ired - Take a short rest or change activities
-                    </ResourceListItem>
-                  </ul>
-                  <p className="text-sm text-muted-foreground">
-                    Addressing these underlying needs can reduce craving intensity by up to 50%.
-                  </p>
-                </div>
-              }
-            />
-            
-            <ResourceCard
-              title="Tactical Breathing"
-              description="Used by military personnel in high-stress situations, now adapted for craving management."
-              type="Exercise"
-              content={
-                <div className="space-y-4">
-                  <h3 className="font-medium">4-4-4 Tactical Breathing:</h3>
-                  <ol className="space-y-2 list-decimal pl-4">
-                    <li>Inhale deeply through the nose for 4 seconds</li>
-                    <li>Hold your breath for 4 seconds</li>
-                    <li>Exhale completely through the mouth for 4 seconds</li>
-                    <li>Repeat 4 times</li>
-                  </ol>
-                  <p className="text-sm">
-                    This technique activates your parasympathetic nervous system, counteracting the stress response that often triggers cravings. It can reduce perceived craving intensity by 15-25% within 60 seconds.
-                  </p>
-                </div>
-              }
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
-      
-      <div className="mt-10 pt-6 border-t">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Ready for personalized support?</h2>
-            <p className="text-muted-foreground">Create a free account to access tailored tools and track your progress.</p>
-          </div>
-          <Button asChild className="bg-fresh-500 hover:bg-fresh-600">
-            <Link to="/sign-up" className="flex items-center gap-2">
-              Get Started <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <h4 className="font-medium mb-2">How to practice:</h4>
+          <ol className="list-decimal pl-5 space-y-1">
+            {steps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
+          </ol>
         </div>
-      </div>
-    </div>
+        
+        <div>
+          <h4 className="font-medium mb-2">Benefits:</h4>
+          <ul className="pl-5 space-y-1">
+            {benefits.map((benefit, i) => (
+              <li key={i} className="flex items-start">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <div className="bg-gray-50 p-3 rounded-md inline-block">
+          <span className="text-sm font-medium">Time needed: </span>
+          <span className="text-sm">{timeNeeded}</span>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
-const ResourceListItem = ({ children }: { children: React.ReactNode }) => (
-  <li className="flex items-start">
-    <CheckCircle2 className="h-4 w-4 text-green-500 mr-2 mt-0.5 shrink-0" />
-    <span className="text-sm">{children}</span>
-  </li>
-);
-
-interface ResourceCardProps {
-  title: string;
-  description: string;
-  type: string;
-  content: React.ReactNode;
-}
-
-const ResourceCard = ({ title, description, type, content }: ResourceCardProps) => {
+const HolisticHealth = () => {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start mb-1">
-          <CardTitle className="text-lg">{title}</CardTitle>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            {type}
-          </Badge>
-        </div>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>{content}</CardContent>
-    </Card>
+    <div className="container py-12 px-4 mx-auto max-w-5xl">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold tracking-tight mb-3">Holistic Health Guide</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Managing energy, mood, focus, and cravings during your fresh journey
+        </p>
+      </div>
+
+      <div className="bg-gradient-to-r from-fresh-50 to-blue-50 rounded-xl p-8 mb-8">
+        <h2 className="text-2xl font-semibold mb-4">The Holistic Approach to Nicotine Reduction</h2>
+        <p className="mb-4">
+          Quitting or reducing nicotine isn't just about willpower - it's about managing the real 
+          physical and mental challenges that come with it. Energy dips, mood swings, focus issues, 
+          and cravings are all connected aspects of the withdrawal process.
+        </p>
+        <p>
+          At Mission Fresh, we believe addressing these holistic factors is key to a successful journey. 
+          These science-backed techniques can help you navigate the challenging moments and build resilience 
+          for long-term success.
+        </p>
+      </div>
+
+      <Tabs defaultValue="energy" className="mb-12">
+        <TabsList className="grid grid-cols-4 mb-8">
+          <TabsTrigger value="energy" className="flex flex-col items-center gap-2 py-4">
+            <Sun className="h-5 w-5 text-blue-600" />
+            <span>Energy</span>
+          </TabsTrigger>
+          <TabsTrigger value="mood" className="flex flex-col items-center gap-2 py-4">
+            <Heart className="h-5 w-5 text-green-600" />
+            <span>Mood</span>
+          </TabsTrigger>
+          <TabsTrigger value="focus" className="flex flex-col items-center gap-2 py-4">
+            <Brain className="h-5 w-5 text-purple-600" />
+            <span>Focus</span>
+          </TabsTrigger>
+          <TabsTrigger value="cravings" className="flex flex-col items-center gap-2 py-4">
+            <Zap className="h-5 w-5 text-amber-600" />
+            <span>Cravings</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="energy">
+          <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-2 text-blue-700">Energy Management</h3>
+            <p className="text-lg mb-6">
+              Many people experience fatigue and energy dips when reducing nicotine. These evidence-based 
+              techniques can help maintain natural energy levels throughout the day.
+            </p>
+          </div>
+          
+          <Technique 
+            title="5-Minute Energy Boost Breathing"
+            description="A quick breathing technique that stimulates the sympathetic nervous system to increase alertness."
+            steps={[
+              "Find a comfortable seated position with your back straight.",
+              "Inhale quickly through your nose for 2 counts.",
+              "Exhale forcefully through your mouth for 1 count.",
+              "Repeat this pattern for 1 minute.",
+              "Return to normal breathing for 30 seconds.",
+              "Repeat the cycle 3 times."
+            ]}
+            benefits={[
+              "Increases oxygen flow to your brain for improved alertness",
+              "Can be done anywhere, anytime you feel an energy slump",
+              "Acts as a healthier alternative to the stimulant effect of nicotine",
+              "Helps reset your focus when feeling scattered"
+            ]}
+            timeNeeded="5 minutes"
+          />
+          
+          <Technique 
+            title="Strategic Hydration Protocol"
+            description="A scheduled approach to hydration that helps maintain energy levels and reduce fatigue."
+            steps={[
+              "Start your day with 16oz (500ml) of room temperature water before anything else.",
+              "Set a timer to drink 8oz (250ml) of water every 2 hours.",
+              "Add a squeeze of lemon or a splash of fruit juice for electrolytes if desired.",
+              "Reduce caffeine intake after 2pm to avoid sleep disruption."
+            ]}
+            benefits={[
+              "Prevents dehydration-related fatigue which is common during nicotine withdrawal",
+              "Helps flush toxins from your system",
+              "Creates a healthy routine to replace nicotine habits",
+              "Improves cognitive function and concentration"
+            ]}
+            timeNeeded="All day (minimal effort)"
+          />
+          
+          <Technique 
+            title="3-Minute Movement Reset"
+            description="Short bursts of physical activity that can quickly elevate energy levels when you're feeling sluggish."
+            steps={[
+              "Stand up and stretch your arms overhead for 20 seconds.",
+              "Do 15 jumping jacks or march in place vigorously for 30 seconds.",
+              "Perform 10 body-weight squats.",
+              "Do 10 wall or desk push-ups.",
+              "Finish with 5 deep breaths, inhaling for 4 counts and exhaling for 6."
+            ]}
+            benefits={[
+              "Increases heart rate and blood flow to deliver more oxygen throughout your body",
+              "Triggers release of energy-boosting endorphins",
+              "Can be done in normal clothing without getting sweaty",
+              "Reduces the perceived need for the stimulant effects of nicotine"
+            ]}
+            timeNeeded="3 minutes"
+          />
+        </TabsContent>
+        
+        <TabsContent value="mood">
+          <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-2 text-green-700">Mood Enhancement</h3>
+            <p className="text-lg mb-6">
+              Nicotine withdrawal can cause irritability and mood swings. These techniques help 
+              stabilize emotions and create a more positive mindset.
+            </p>
+          </div>
+          
+          <Technique 
+            title="RAIN Method for Emotional Regulation"
+            description="A mindfulness technique to process difficult emotions without reacting impulsively."
+            steps={[
+              "R - Recognize what you're feeling without judgment.",
+              "A - Allow the feeling to be there, giving yourself permission to feel it.",
+              "I - Investigate with curiosity where you feel it in your body and what thoughts accompany it.",
+              "N - Non-identification: remind yourself 'This is a feeling, not who I am.'"
+            ]}
+            benefits={[
+              "Creates space between emotions and reactions",
+              "Reduces the intensity of negative emotions",
+              "Builds emotional intelligence and self-awareness",
+              "Prevents emotional triggers from leading to nicotine use"
+            ]}
+            timeNeeded="2-5 minutes"
+          />
+          
+          <Technique 
+            title="3-3-3 Grounding Practice"
+            description="A quick sensory awareness exercise that brings you back to the present moment when emotions feel overwhelming."
+            steps={[
+              "Name 3 things you can see around you right now.",
+              "Name 3 sounds you can hear right now.",
+              "Move 3 parts of your body (wiggle toes, rotate shoulders, stretch fingers).",
+              "Take 3 slow, deep breaths."
+            ]}
+            benefits={[
+              "Interrupts spiraling negative thought patterns",
+              "Reconnects you with the present moment",
+              "Reduces anxiety by activating the parasympathetic nervous system",
+              "Can be done discreetly in any situation"
+            ]}
+            timeNeeded="1-2 minutes"
+          />
+          
+          <Technique 
+            title="Gratitude Pivot"
+            description="A practiced method to shift perspective from negative to positive by focusing on gratitude."
+            steps={[
+              "When you notice irritability or a negative mood, pause.",
+              "Take one deep breath.",
+              "Name three specific things you're grateful for right now (be as specific as possible).",
+              "For each item, take a moment to really feel the appreciation in your body.",
+              "Think of one small positive action you can take in this moment."
+            ]}
+            benefits={[
+              "Activates positive neural pathways in the brain",
+              "Releases dopamine naturally (similar to what nicotine artificially triggered)",
+              "Builds resilience against stress and negative emotions",
+              "Creates a healthy alternative response to emotional triggers"
+            ]}
+            timeNeeded="3-5 minutes"
+          />
+        </TabsContent>
+        
+        <TabsContent value="focus">
+          <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-2 text-purple-700">Focus Improvement</h3>
+            <p className="text-lg mb-6">
+              Many people experience "brain fog" and concentration issues when reducing nicotine. These 
+              techniques can help you maintain mental clarity and productivity.
+            </p>
+          </div>
+          
+          <Technique 
+            title="Pomodoro Focus Method"
+            description="A time management technique that uses focused work sessions and brief breaks to maintain concentration."
+            steps={[
+              "Choose one specific task to focus on.",
+              "Set a timer for 25 minutes of uninterrupted work.",
+              "Work only on that task until the timer rings.",
+              "Take a 5-minute break (stand up, stretch, get water).",
+              "After 4 cycles, take a longer 15-30 minute break."
+            ]}
+            benefits={[
+              "Creates structure to overcome scattered attention",
+              "Makes focus manageable in shorter bursts",
+              "Regular breaks prevent mental fatigue",
+              "Builds confidence in your ability to focus without nicotine"
+            ]}
+            timeNeeded="30 minutes per cycle"
+          />
+          
+          <Technique 
+            title="Brain-Dump Clearing"
+            description="A quick writing exercise to clear mental distractions and improve focus."
+            steps={[
+              "Take a blank sheet of paper or open a notes app.",
+              "Set a timer for 2 minutes.",
+              "Write down everything that's on your mind - tasks, worries, ideas, anything.",
+              "Don't edit or organize, just get it all out of your head.",
+              "When done, circle 1-3 items that need immediate attention.",
+              "File the rest for later or let them go."
+            ]}
+            benefits={[
+              "Clears the 'mental RAM' that's slowing down your thinking",
+              "Reduces anxiety about forgetting important things",
+              "Creates mental space for focused attention",
+              "Helps prioritize what truly matters right now"
+            ]}
+            timeNeeded="2-5 minutes"
+          />
+          
+          <Technique 
+            title="5-4-3-2-1 Concentration Reset"
+            description="A multisensory focus exercise that can quickly improve concentration and mental clarity."
+            steps={[
+              "Sit comfortably and take a few deep breaths.",
+              "Notice 5 things you can SEE in detail around you.",
+              "Notice 4 things you can FEEL (textures, temperature, etc.).",
+              "Notice 3 things you can HEAR in your environment.",
+              "Notice 2 things you can SMELL (or like to smell).",
+              "Notice 1 thing you can TASTE (or would like to taste).",
+              "Return to your task with renewed focus."
+            ]}
+            benefits={[
+              "Fully engages your brain in the present moment",
+              "Interrupts rumination and circular thinking",
+              "Activates multiple brain regions to enhance overall cognition",
+              "Creates a clean mental slate before beginning focused work"
+            ]}
+            timeNeeded="3 minutes"
+          />
+        </TabsContent>
+        
+        <TabsContent value="cravings">
+          <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-2 text-amber-700">Craving Management</h3>
+            <p className="text-lg mb-6">
+              Cravings are a normal part of reducing nicotine intake. These evidence-based techniques 
+              help you navigate through cravings effectively.
+            </p>
+          </div>
+          
+          <Technique 
+            title="The 4Ds Technique"
+            description="A comprehensive approach to managing cravings using four proven strategies."
+            steps={[
+              "Delay: Tell yourself you'll wait just 5 more minutes before giving in.",
+              "Distract: Immediately do something that requires attention (call someone, play a game on your phone, solve a quick puzzle).",
+              "Drink water: Slowly drink a full glass of water.",
+              "Deep breathe: Take 10 slow, deep breaths, focusing on the sensation of breathing."
+            ]}
+            benefits={[
+              "Works with your brain's natural timing - most cravings peak and fade within 5-10 minutes",
+              "Gives you specific actions to take rather than just resisting",
+              "Introduces healthier habits (hydration, mindfulness)",
+              "Builds confidence with each successful craving management experience"
+            ]}
+            timeNeeded="5-10 minutes"
+          />
+          
+          <Technique 
+            title="Urge Surfing Meditation"
+            description="A mindfulness technique that helps you ride out cravings rather than fighting them."
+            steps={[
+              "When a craving hits, sit comfortably and close your eyes.",
+              "Notice where in your body you feel the craving (throat, chest, hands, etc.).",
+              "Observe the sensation with curiosity rather than judgment.",
+              "Imagine the craving as a wave that rises, peaks, and eventually falls.",
+              "Breathe deeply while you 'surf' the wave, knowing it will diminish.",
+              "Notice when the intensity begins to decrease."
+            ]}
+            benefits={[
+              "Reduces the anxiety and frustration of fighting cravings",
+              "Helps you understand cravings as temporary sensations, not commands",
+              "Builds mindfulness skills that benefit many areas of life",
+              "Each practice makes the next craving easier to manage"
+            ]}
+            timeNeeded="3-5 minutes"
+          />
+          
+          <Technique 
+            title="HALT Check-In"
+            description="A quick self-assessment to identify and address the triggers behind cravings."
+            steps={[
+              "When a craving hits, pause and ask yourself if you are:",
+              "H - Hungry? (If yes, have a healthy snack)",
+              "A - Angry? (If yes, take a few deep breaths or briefly journal)",
+              "L - Lonely? (If yes, reach out to someone or engage in a community)",
+              "T - Tired? (If yes, take a short break, nap, or stretch)",
+              "Address the underlying need you identified."
+            ]}
+            benefits={[
+              "Identifies the true need behind many cravings",
+              "Provides specific, effective actions to take",
+              "Increases self-awareness of your personal triggers",
+              "Addresses root causes rather than just symptoms"
+            ]}
+            timeNeeded="2-10 minutes"
+          />
+        </TabsContent>
+      </Tabs>
+      
+      <div className="mt-10 mb-16 p-6 bg-purple-50 border border-purple-100 rounded-lg">
+        <h3 className="text-xl font-semibold mb-4">Your Holistic Fresh Journey</h3>
+        <p className="mb-4">
+          Remember that nicotine reduction is a holistic process. Your energy levels, mood, focus, and cravings 
+          are all interconnected. Improving one area often benefits the others.
+        </p>
+        <p className="mb-4">
+          We recommend experimenting with techniques from each category and discovering what works best for you. 
+          Everyone's body and mind respond differently, so personalization is key.
+        </p>
+        <p className="font-medium">
+          For more personalized support, daily tracking, and a full suite of interactive tools, the Mission Fresh 
+          app provides comprehensive guidance for your entire journey.
+        </p>
+      </div>
+      
+      <div className="flex justify-between">
+        <Link to="/tools">
+          <Button variant="outline" className="flex items-center">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Tools
+          </Button>
+        </Link>
+        <Link to="/tools/calculators">
+          <Button variant="default" className="bg-fresh-500 hover:bg-fresh-600">
+            Try Our Calculators
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    </div>
   );
 };
 
