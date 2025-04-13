@@ -37,7 +37,10 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     
     // Get user preferences for cost calculation
     const preferences = await getUserPreferences();
-    const costPerDay = preferences?.cost_per_product?.[preferences.default_product || 'cigarette'] || 10;
+    
+    // Fix: Access cost_per_product directly and provide a default if it doesn't exist or if the product doesn't exist
+    // Default to $10 per day cost if preferences or cost_per_product are not available
+    const costPerDay = preferences?.cost_per_product?.cigarette || 10;
     
     // Calculate money saved based on actual cost per day from user preferences
     const moneySaved = logStats.daysAfresh * costPerDay;
