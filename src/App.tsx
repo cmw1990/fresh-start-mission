@@ -1,9 +1,9 @@
 
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import { PublicLayout } from './components/layout/PublicLayout';
-import AppLayout from './components/layout/AppLayout'; // Update to correct import 
+import AppLayout from './components/layout/AppLayout'; 
 import LandingPage from './pages/LandingPage';
 import SignUp from './pages/auth/SignUp';
 import Login from './pages/auth/Login';
@@ -161,14 +161,5 @@ function App() {
   );
 }
 
-function AppWrapper() {
-  return (
-    <Router>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </Router>
-  );
-}
-
-export default AppWrapper;
+// Export directly without wrapping in Router
+export default App;
