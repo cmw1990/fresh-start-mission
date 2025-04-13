@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calculator, Calendar, DollarSign } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calculator, Calendar, DollarSign } from 'lucide-react';
 import {
   Card,
   CardContent,
