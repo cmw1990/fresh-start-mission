@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Box, Compass, Calculator, SunMoon, Tablet, ArrowRight, CheckCircle } from 'lucide-react';
+import { Box, Compass, Calculator, SunMoon, Tablet, ArrowRight, CheckCircle, Brain, Heart, Activity, Zap } from 'lucide-react';
 
 const WebToolsIndex = () => {
   return (
@@ -93,7 +93,50 @@ const WebToolsIndex = () => {
         />
       </div>
       
-      <div className="mt-16 bg-gradient-to-br from-fresh-50 to-fresh-100 p-8 rounded-xl shadow-sm">
+      <div className="mt-16 mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <h2 className="text-3xl font-bold mb-4">Holistic Support for Your Journey</h2>
+          <p className="text-lg text-muted-foreground">
+            Discover practical tools and techniques to address the real challenges of nicotine reduction
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <HolisticCard 
+            title="Energy Support" 
+            icon={<Activity className="h-10 w-10" />}
+            description="Combat fatigue during nicotine reduction with science-backed techniques to maintain natural energy levels."
+            bgColor="bg-blue-50"
+            iconColor="text-blue-600"
+          />
+          
+          <HolisticCard 
+            title="Mood Enhancement" 
+            icon={<Heart className="h-10 w-10" />}
+            description="Stabilize emotions and reduce irritability with practical exercises designed for nicotine withdrawal."
+            bgColor="bg-green-50"
+            iconColor="text-green-600"
+          />
+          
+          <HolisticCard 
+            title="Focus Improvement" 
+            icon={<Brain className="h-10 w-10" />}
+            description="Maintain mental clarity and overcome brain fog with techniques that enhance concentration."
+            bgColor="bg-purple-50"
+            iconColor="text-purple-600"
+          />
+          
+          <HolisticCard 
+            title="Craving Management" 
+            icon={<Zap className="h-10 w-10" />}
+            description="Effectively navigate through cravings with evidence-based approaches that break the dependency cycle."
+            bgColor="bg-rose-50"
+            iconColor="text-rose-600"
+          />
+        </div>
+      </div>
+      
+      <div className="bg-gradient-to-br from-fresh-50 to-fresh-100 p-8 rounded-xl shadow-sm">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl font-bold mb-4">Want More Personalized Support?</h2>
           <p className="text-lg mb-6">
@@ -155,6 +198,32 @@ const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link, bgC
         </Button>
       </CardFooter>
     </Card>
+  );
+};
+
+interface HolisticCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  bgColor: string;
+  iconColor: string;
+}
+
+const HolisticCard: React.FC<HolisticCardProps> = ({ title, description, icon, bgColor, iconColor }) => {
+  return (
+    <div className={`${bgColor} rounded-lg p-6 transition-all hover:shadow-md`}>
+      <div className="flex flex-col items-center text-center">
+        <div className={`mb-4 ${iconColor}`}>{icon}</div>
+        <h3 className="text-lg font-semibold mb-2">{title}</h3>
+        <p className="text-muted-foreground text-sm">{description}</p>
+        <Button asChild variant="link" className="mt-4 text-fresh-600 hover:text-fresh-700 p-0">
+          <Link to="/tools/holistic-health" className="flex items-center">
+            Learn more
+            <ArrowRight className="ml-2 w-4 h-4" />
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 };
 
