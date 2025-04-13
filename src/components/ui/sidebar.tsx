@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import {
@@ -96,7 +97,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       setOpenMobile((prev) => !prev)
     }, [])
 
-    const navRef = useRef<HTMLElement>(null);
+    const navRef = React.useRef<HTMLElement>(null);
 
     return (
       <>
