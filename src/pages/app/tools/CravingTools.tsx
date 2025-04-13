@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lungs, Brain, Clock, Timer } from 'lucide-react';
+import { Wind, Brain, Clock, Timer } from 'lucide-react';
 import BreathingExercise from '@/components/tools/breathing/BreathingExercise';
 import { toast } from 'sonner';
 
@@ -27,7 +26,7 @@ const CravingTools: React.FC = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="grid grid-cols-4 mb-4">
           <TabsTrigger value="breathing" className="flex flex-col items-center gap-2 py-3">
-            <Lungs className="h-5 w-5" />
+            <Wind className="h-5 w-5" />
             <span>Breathing</span>
           </TabsTrigger>
           <TabsTrigger value="distraction" className="flex flex-col items-center gap-2 py-3">
@@ -236,7 +235,6 @@ const CravingTools: React.FC = () => {
           </Card>
         </TabsContent>
         
-        {/* Specific breathing exercises */}
         <TabsContent value="box-breathing">
           <Button 
             variant="ghost" 

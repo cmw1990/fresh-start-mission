@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface OfflineData {
   key: string;
@@ -54,6 +55,8 @@ export const useOfflineSupport = () => {
         timestamp: Date.now()
       }
     ]);
+    
+    return true; // Return success status
   };
   
   // Get offline data by key
@@ -76,12 +79,41 @@ export const useOfflineSupport = () => {
     return offlineData;
   };
   
+  // Sync offline data with backend when online
+  const syncOfflineData = async () => {
+    if (!isOnline || offlineData.length === 0) {
+      return false;
+    }
+    
+    try {
+      // In a real implementation, we would send data to the backend
+      // For demo purposes, we'll just simulate success and clear the data
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Clear all synced data
+      clearAllOfflineData();
+      
+      toast.success(`Successfully synced ${offlineData.length} items`);
+      return true;
+    } catch (error) {
+      console.error('Error syncing offline data:', error);
+      toast.error('Failed to sync offline data');
+      return false;
+    }
+  };
+  
+  // Calculate the number of pending items
+  const pendingItemsCount = offlineData.length;
+  
   return {
     isOnline,
+    offlineData,
     saveOfflineData,
     getOfflineData,
     clearOfflineData,
     clearAllOfflineData,
-    getPendingOfflineData
+    getPendingOfflineData,
+    syncOfflineData,
+    pendingItemsCount
   };
 };

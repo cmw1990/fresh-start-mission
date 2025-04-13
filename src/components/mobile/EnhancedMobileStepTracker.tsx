@@ -67,7 +67,7 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
     if (highestMilestoneIndex >= 0) {
       setActiveIndex(highestMilestoneIndex);
       setShowAnimation(true);
-      notification('SUCCESS');
+      notification();
       setReachedMilestones(prev => [...prev, highestMilestoneIndex]);
       
       toast.success(`🎉 ${MILESTONES[highestMilestoneIndex].name} Achievement!`, {

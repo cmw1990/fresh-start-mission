@@ -53,7 +53,7 @@ const AdvancedHealthIntegrations = () => {
     garmin: false
   });
   
-  const { impact, notification } = useHaptics(); // Make sure we're using the named exports correctly
+  const { impact, notification } = useHaptics();
 
   const handleConnect = (service: keyof typeof connections) => {
     setConnections(prev => ({
@@ -61,9 +61,9 @@ const AdvancedHealthIntegrations = () => {
       [service]: !prev[service]
     }));
     
-    // Use the correct haptic function from useHaptics
+    // Use the correct notification function without arguments
     if (!connections[service]) {
-      notification('SUCCESS'); // Use notification instead of triggerHaptic
+      notification();
     }
   };
 

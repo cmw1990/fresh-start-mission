@@ -51,7 +51,7 @@ export function useApiErrorHandler(options: ApiErrorHandlerOptions = {}) {
         setIsLoading(false);
         const saved = saveOfflineData(offlineAction, offlineData);
         
-        if (saved) {
+        if (saved === true) { // Check for true explicitly
           if (haptic) impact(HapticImpact.LIGHT);
           if (toastErrors) toast.info('You are offline. Your data will be saved and synced when you reconnect.');
         } else {
