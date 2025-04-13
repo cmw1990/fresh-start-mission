@@ -38,8 +38,4 @@ export function useIsMobile(breakpoint = 768) {
   return { isMobile, isNativeApp, isMobileOrNative: isMobile || isNativeApp };
 }
 
-// Export a simplified version of the hook for backward compatibility
-export function useIsMobile() {
-  const { isMobile } = useIsMobile();
-  return isMobile;
-}
+// Remove the duplicate export to fix the error

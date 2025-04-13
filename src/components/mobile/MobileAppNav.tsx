@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BarChart2, PlusCircle, Tool, Menu } from 'lucide-react';
+import { Home, BarChart2, PlusCircle, Wrench, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
@@ -31,7 +31,7 @@ const MobileAppNav = () => {
     },
     {
       name: 'Tools',
-      icon: <Tool className="h-6 w-6" />,
+      icon: <Wrench className="h-6 w-6" />,
       path: '/app/tools',
     },
     {
