@@ -213,6 +213,7 @@ const ProductDetails = () => {
         Back to Directory
       </Button>
 
+      {/* Product Details Card */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
