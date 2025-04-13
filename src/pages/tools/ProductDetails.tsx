@@ -1,14 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { addProductReview } from '@/services/productService';
-import ProductReviewForm from '@/components/tools/ProductReviewForm';
 import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile';
+import ProductInfo from '@/components/tools/ProductInfo';
+import ReviewList from '@/components/tools/ReviewList';
 
 interface Review {
   id: string;
@@ -29,13 +29,12 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  price: string; // Will be derived from data or set to default
-  category: string; // Will be derived from data or set to default
-  nicotine_content: string; // Will be derived from data or set to default
-  manufacturer: string; // Will be derived from data or set to default
+  price: string;
+  category: string;
+  nicotine_content: string;
+  manufacturer: string;
   image_url?: string;
   average_rating?: number;
-  // Additional properties from the returned data
   brand?: string;
   created_at?: string; 
   expert_notes_chemicals?: string;
@@ -73,7 +72,6 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!id) {
@@ -212,117 +210,17 @@ const ProductDetails = () => {
         Back to Directory
       </Button>
 
-      {/* Product Details Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>{product.name}</span>
-            {product.average_rating && (
-              <span className="flex items-center text-sm">
-                <Star className="h-4 w-4 fill-primary text-primary mr-1" />
-                {product.average_rating.toFixed(1)}
-              </span>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className={`grid ${isMobile ? 'gap-4' : 'gap-6 lg:grid-cols-2'}`}>
-          {product.image_url && (
-            <img 
-              src={product.image_url} 
-              alt={product.name}
-              className="w-full max-w-md mx-auto rounded-lg shadow-lg"
-            />
-          )}
-          <div className="grid gap-4">
-            <p className="text-muted-foreground">{product.description}</p>
-            <div className="grid grid-cols-2 gap-4 mt-2">
-              <div>
-                <p className="font-medium">Manufacturer</p>
-                <p className="text-muted-foreground">{product.manufacturer}</p>
-              </div>
-              <div>
-                <p className="font-medium">Category</p>
-                <p className="text-muted-foreground">{product.category}</p>
-              </div>
-              <div>
-                <p className="font-medium">Price</p>
-                <p className="text-muted-foreground">{product.price}</p>
-              </div>
-              <div>
-                <p className="font-medium">Nicotine Content</p>
-                <p className="text-muted-foreground">{product.nicotine_content}</p>
-              </div>
-            </div>
-            {product.expert_notes_chemicals && (
-              <div className="mt-4">
-                <p className="font-medium">Expert Notes on Chemicals</p>
-                <p className="text-muted-foreground">{product.expert_notes_chemicals}</p>
-              </div>
-            )}
-            {product.expert_notes_gum_health && (
-              <div className="mt-2">
-                <p className="font-medium">Expert Notes on Gum Health</p>
-                <p className="text-muted-foreground">{product.expert_notes_gum_health}</p>
-              </div>
-            )}
-            {product.ingredients && product.ingredients.length > 0 && (
-              <div className="mt-2">
-                <p className="font-medium">Ingredients</p>
-                <p className="text-muted-foreground">{product.ingredients.join(', ')}</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Product Details Component */}
+      <ProductInfo product={product} />
 
-      {/* Reviews Section */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Reviews</h2>
-        
-        <ProductReviewForm
-          productId={id!}
-          onSubmitSuccess={fetchProductDetails}
-          isLoading={isSubmitting}
-          mutationFn={handleReviewSubmit}
-        />
-
-        <div className="space-y-4 mt-8">
-          {reviews.map((review) => (
-            <Card key={review.id}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Star
-                        key={index}
-                        className={`h-4 w-4 ${
-                          index < review.rating
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-muted"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(review.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                {review.review_text && (
-                  <p className="mt-2 text-muted-foreground">{review.review_text}</p>
-                )}
-                <p className="text-sm text-muted-foreground mt-2">
-                  - {review.user?.user_metadata?.full_name || review.user?.email || 'Anonymous'}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-          {reviews.length === 0 && (
-            <p className="text-center text-muted-foreground">
-              No reviews yet. Be the first to review this product!
-            </p>
-          )}
-        </div>
-      </div>
+      {/* Reviews Section Component */}
+      <ReviewList 
+        reviews={reviews}
+        productId={id!}
+        isSubmitting={isSubmitting}
+        onSubmitReview={handleReviewSubmit}
+        onSubmitSuccess={fetchProductDetails}
+      />
     </div>
   );
 };
