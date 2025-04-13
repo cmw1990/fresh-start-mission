@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Features from './pages/Features';
 import HowItWorks from './pages/HowItWorks';
@@ -48,47 +47,47 @@ function App() {
       {isSplashScreenVisible && <SplashScreen />}
       <ToastProvider />
       <Routes>
-        {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/features" element={<Features />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/auth" element={<AuthPage />} />
         
-        {/* Web tools - public access */}
         <Route path="/tools" element={<WebToolsLayout />}>
           <Route index element={<WebToolsIndex />} />
           <Route path="nrt-guide" element={<NRTGuide />} />
           <Route path="smokeless-directory" element={<SmokelessDirectory />} />
-          <Route path="product/:id" element={<ProductDetails />} />
+          <Route path="smokeless-directory/:id" element={<ProductDetails />} />
           <Route path="quit-methods" element={<QuitMethods />} />
           <Route path="calculators" element={<CalculatorsPage />} />
           <Route path="holistic-health" element={<HolisticHealth />} />
         </Route>
         
-        {/* App routes - protected */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        
         <Route path="/app" element={
           <AuthGuard>
             <AppLayout />
           </AuthGuard>
         }>
-          <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="/app/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="log" element={<LogEntry />} />
           <Route path="goals" element={<Goals />} />
           <Route path="progress" element={<Progress />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="profile" element={<Profile />} />
           <Route path="step-rewards" element={<StepRewards />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="community" element={<Community />} />
+          <Route path="health-integrations" element={<HealthIntegrations />} />
           
-          {/* Support tools */}
-          <Route path="tools/craving" element={<CravingTools />} />
-          <Route path="tools/energy" element={<EnergyTools />} />
-          <Route path="tools/mood" element={<MoodTools />} />
-          <Route path="tools/focus" element={<FocusTools />} />
+          <Route path="tools">
+            <Route path="cravings" element={<CravingTools />} />
+            <Route path="energy" element={<EnergyTools />} />
+            <Route path="mood" element={<MoodTools />} />
+            <Route path="focus" element={<FocusTools />} />
+          </Route>
         </Route>
         
-        {/* Catch-all route for 404s */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

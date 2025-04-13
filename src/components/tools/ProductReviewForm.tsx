@@ -1,12 +1,19 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, Loader2 } from 'lucide-react';
+import { Star, Loader2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ProductReviewFormProps {
   productId: string;
@@ -61,7 +68,19 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, onSubm
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Write a Review</CardTitle>
+        <CardTitle className="text-lg flex items-center gap-2">
+          Write a Review
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info size={16} className="text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm">
+                <p>Your review will be visible after moderation. We typically approve reviews within 24 hours.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </CardTitle>
         {!user && <CardDescription className="text-destructive">You must be logged in to submit a review.</CardDescription>}
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -99,8 +118,8 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, onSubm
             />
           </div>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" disabled={!user || rating === 0 || isLoading}>
+        <CardFooter className="flex flex-col items-stretch gap-2">
+          <Button type="submit" disabled={!user || rating === 0 || isLoading} className="w-full">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -110,6 +129,9 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, onSubm
               "Submit Review"
             )}
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Reviews are moderated to ensure quality and helpfulness.
+          </p>
         </CardFooter>
       </form>
     </Card>

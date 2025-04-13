@@ -1,171 +1,156 @@
-
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  FileInput,
+  ClipboardList,
   Target,
-  LineChart,
-  Flame,
-  BatteryCharging,
-  Sparkles,
-  Brain,
-  Award,
-  Droplets,
+  BarChart,
+  Wrench,
+  Wind,
+  Zap,
+  Smile,
   Settings,
-  LogOut,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+  Footprints,
+  Users,
+  Activity
+} from 'lucide-react';
 
-interface SidebarLinkProps {
-  href: string;
+interface MenuItem {
+  path?: string;
+  label: string;
   icon: React.ReactNode;
-  title: string;
-  active?: boolean;
+  children?: MenuItem[];
 }
-
-const SidebarLink = ({ href, icon, title, active }: SidebarLinkProps) => {
-  return (
-    <Link to={href} className="w-full">
-      <Button
-        variant="ghost"
-        className={cn(
-          "w-full justify-start gap-2",
-          active
-            ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
-            : "text-muted-foreground hover:bg-background hover:text-foreground"
-        )}
-      >
-        {icon}
-        <span>{title}</span>
-      </Button>
-    </Link>
-  );
-};
 
 const Sidebar = () => {
   const location = useLocation();
-  const path = location.pathname;
-  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [open, setOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await signOut();
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const menuItems = [
+    { path: '/app/dashboard', icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard' },
+    { path: '/app/log', icon: <ClipboardList className="h-5 w-5" />, label: 'Log Entry' },
+    { path: '/app/goals', icon: <Target className="h-5 w-5" />, label: 'Goals' },
+    { path: '/app/progress', icon: <BarChart className="h-5 w-5" />, label: 'Progress' },
+    { 
+      label: 'Support Tools',
+      icon: <Wrench className="h-5 w-5" />,
+      children: [
+        { path: '/app/tools/cravings', icon: <Wind className="h-5 w-5" />, label: 'Craving Tools' },
+        { path: '/app/tools/energy', icon: <Zap className="h-5 w-5" />, label: 'Energy Tools' },
+        { path: '/app/tools/mood', icon: <Smile className="h-5 w-5" />, label: 'Mood Tools' },
+        { path: '/app/tools/focus', icon: <Target className="h-5 w-5" />, label: 'Focus Tools' },
+      ]
+    },
+    { path: '/app/step-rewards', icon: <Footprints className="h-5 w-5" />, label: 'Step Rewards' },
+    { path: '/app/community', icon: <Users className="h-5 w-5" />, label: 'Community' },
+    { path: '/app/health-integrations', icon: <Activity className="h-5 w-5" />, label: 'Health' },
+    { path: '/app/settings', icon: <Settings className="h-5 w-5" />, label: 'Settings' },
+  ];
+
   return (
-    <aside className="hidden md:flex flex-col h-screen w-64 border-r bg-background">
-      <div className="flex items-center gap-2 p-6">
-        <div className="rounded-full bg-primary p-1.5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5 text-white"
-          >
-            <path d="M18 16.98h-5.99c-1.66 0-3.01-1.34-3.01-3s1.34-3 3.01-3H18" />
-            <path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z" />
-          </svg>
-        </div>
-        <span className="text-xl font-bold text-foreground">Mission Fresh</span>
-      </div>
-
-      <div className="flex-1 overflow-auto py-4 px-3">
-        <nav className="space-y-1">
-          <SidebarLink
-            href="/app/dashboard"
-            icon={<LayoutDashboard size={20} />}
-            title="Dashboard"
-            active={path === "/app/dashboard"}
-          />
-          <SidebarLink
-            href="/app/log"
-            icon={<FileInput size={20} />}
-            title="Log Entry"
-            active={path === "/app/log"}
-          />
-          <SidebarLink
-            href="/app/goals"
-            icon={<Target size={20} />}
-            title="Goals"
-            active={path === "/app/goals"}
-          />
-          <SidebarLink
-            href="/app/progress"
-            icon={<LineChart size={20} />}
-            title="Progress"
-            active={path === "/app/progress"}
-          />
-
-          <div className="pt-4 pb-2">
-            <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Support Tools
-            </p>
-          </div>
-
-          <SidebarLink
-            href="/app/tools/cravings"
-            icon={<Flame size={20} />}
-            title="Craving Tools"
-            active={path === "/app/tools/cravings"}
-          />
-          <SidebarLink
-            href="/app/tools/energy"
-            icon={<BatteryCharging size={20} />}
-            title="Energy Tools"
-            active={path === "/app/tools/energy"}
-          />
-          <SidebarLink
-            href="/app/tools/mood"
-            icon={<Sparkles size={20} />}
-            title="Mood Tools"
-            active={path === "/app/tools/mood"}
-          />
-          <SidebarLink
-            href="/app/tools/focus"
-            icon={<Brain size={20} />}
-            title="Focus Tools"
-            active={path === "/app/tools/focus"}
-          />
-
-          <div className="pt-4 pb-2">
-            <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              More
-            </p>
-          </div>
-
-          <SidebarLink
-            href="/app/rewards"
-            icon={<Award size={20} />}
-            title="Step Rewards"
-            active={path === "/app/rewards"}
-          />
-          <SidebarLink
-            href="/tools/smokeless-directory"
-            icon={<Droplets size={20} />}
-            title="Smokeless Directory"
-            active={path === "/tools/smokeless-directory"}
-          />
-          <SidebarLink
-            href="/app/settings"
-            icon={<Settings size={20} />}
-            title="Settings"
-            active={path === "/app/settings"}
-          />
-        </nav>
-      </div>
-
-      <div className="p-4 border-t">
-        <Button variant="outline" className="w-full justify-start gap-2" onClick={handleLogout}>
-          <LogOut size={20} />
-          <span>Log Out</span>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="absolute left-4 top-4 rounded-full lg:hidden">
+          Menu
         </Button>
-      </div>
-    </aside>
+      </SheetTrigger>
+      <SheetContent className="w-full sm:w-64">
+        <SheetHeader className="text-left">
+          <SheetTitle>Mission Fresh</SheetTitle>
+          <SheetDescription>
+            Navigate your journey
+          </SheetDescription>
+        </SheetHeader>
+        <Separator className="my-4" />
+        <div className="flex flex-col space-y-2.5">
+          {menuItems.map((item, index) => (
+            item.path ? (
+              <Button
+                key={index}
+                variant="ghost"
+                className={cn(
+                  "justify-start px-4",
+                  isActive(item.path) ? "font-semibold" : "font-normal"
+                )}
+                onClick={() => {
+                  navigate(item.path);
+                  setOpen(false); // Close sidebar on navigation
+                }}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Button>
+            ) : (
+              <Accordion type="single" collapsible key={index}>
+                <AccordionItem value={`item-${index}`}>
+                  <AccordionTrigger className="px-4">{item.label}</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col space-y-2">
+                      {item.children?.map((child, childIndex) => (
+                        <Button
+                          key={childIndex}
+                          variant="ghost"
+                          className={cn(
+                            "justify-start pl-8",
+                            isActive(child.path || '') ? "font-semibold" : "font-normal"
+                          )}
+                          onClick={() => {
+                            if (child.path) {
+                              navigate(child.path);
+                              setOpen(false); // Close sidebar on navigation
+                            }
+                          }}
+                        >
+                          {child.icon}
+                          <span>{child.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            )
+          ))}
+        </div>
+        <Separator className="my-4" />
+        <Button variant="destructive" onClick={handleLogout} className="w-full">
+          Log Out
+        </Button>
+      </SheetContent>
+    </Sheet>
   );
 };
 
