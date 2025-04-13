@@ -1,200 +1,99 @@
 
-import { useState, useEffect } from 'react';
-import { Capacitor } from '@capacitor/core';
+import { useState, useEffect, useCallback } from 'react';
 import { logSteps } from '@/services/rewardService';
 import { toast } from 'sonner';
-import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
-import { useOfflineSupport } from '@/hooks/useOfflineSupport';
+import { useHaptics, HapticImpact } from './useHaptics';
 
-type StepData = {
+interface StepData {
   steps: number;
-  lastUpdated: Date | null;
-};
+  date: string;
+  source: 'health-api' | 'manual' | 'mock';
+}
 
-export const useStepTracking = () => {
-  const [stepData, setStepData] = useState<StepData>({ 
-    steps: 0, 
-    lastUpdated: null 
+export function useStepTracking() {
+  const [stepData, setStepData] = useState<StepData>({
+    steps: 0,
+    date: new Date().toISOString().split('T')[0],
+    source: 'mock'
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isNative, setIsNative] = useState(false);
-  const [hasPermission, setHasPermission] = useState(false);
+  const [hasPermission, setHasPermission] = useState(true); // Assume permission for now
   const { impact } = useHaptics();
-  const { isOnline, saveOfflineData } = useOfflineSupport();
-
-  // Check if running on native platform
-  useEffect(() => {
-    const checkPlatform = async () => {
-      try {
-        const isMobile = Capacitor.isNativePlatform();
-        setIsNative(isMobile);
-        
-        // Check if we have permissions already stored
-        const storedPermission = localStorage.getItem('stepTrackingPermission');
-        if (storedPermission === 'granted') {
-          setHasPermission(true);
-        }
-      } catch (e) {
-        console.error("Error checking platform:", e);
-      }
-    };
-    
-    checkPlatform();
-  }, []);
-
-  // Request step tracking permissions
-  const requestPermissions = async () => {
-    setIsLoading(true);
+  
+  // Function to fetch steps from health APIs (mock for now)
+  const fetchSteps = useCallback(async () => {
     try {
-      if (!isNative) {
-        setHasPermission(true);
-        localStorage.setItem('stepTrackingPermission', 'granted');
-        toast.success('Step tracking enabled for demo purposes');
-        impact(HapticImpact.LIGHT);
-        await fetchSteps();
-        return;
-      }
+      setIsLoading(true);
       
-      // In a real implementation with Capacitor Health plugin:
-      try {
-        // This is just placeholder code - in a real app you'd use the Health plugin
-        // const healthPlugin = CapacitorHealth;
-        // const result = await healthPlugin.requestPermission({
-        //   permissions: ['steps']  
-        // });
-        // setHasPermission(result.granted);
-        
-        // Simulate permission success
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setHasPermission(true);
-        localStorage.setItem('stepTrackingPermission', 'granted');
-        
-        toast.success('Step tracking permissions granted');
-        impact(HapticImpact.LIGHT);
-        
-        // Immediately fetch steps
-        await fetchSteps();
-      } catch (e) {
-        console.error("Error requesting health permissions:", e);
-        toast.error('Could not get step tracking permissions');
-        setHasPermission(false);
-      }
-    } catch (error) {
-      console.error('Error requesting permissions:', error);
-      toast.error('Failed to get step tracking permissions');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fetch steps from health APIs
-  const fetchSteps = async () => {
-    setIsLoading(true);
-    try {
-      if (isNative && hasPermission) {
-        // In a real implementation, we'd use the Capacitor Health plugin
-        // Try to fetch today's steps from HealthKit/Google Fit
-        
-        // Simulate fetching steps
-        const today = new Date();
-        // Generate a somewhat realistic step count that varies but doesn't reset
-        const hour = today.getHours();
-        const dayOfMonth = today.getDate();
-        const baseSteps = 5000 + (dayOfMonth * 100); // Different base steps each day
-        const hourMultiplier = hour / 24;
-        const steps = Math.floor(baseSteps * (hourMultiplier === 0 ? 0.1 : hourMultiplier));
-        
-        setStepData({
-          steps,
-          lastUpdated: today
-        });
-        
-        // Log steps to the backend or store offline
-        if (isOnline) {
-          await logSteps(steps);
-        } else {
-          saveOfflineData('steps', { steps, date: today.toISOString().split('T')[0] });
-        }
-        
-        impact(HapticImpact.LIGHT);
-      } else if (!isNative && hasPermission) {
-        // For web demo, simulate random step counts
-        const today = new Date();
-        const hour = today.getHours();
-        const baseSteps = 3000 + Math.floor(Math.random() * 2000);
-        const hourMultiplier = hour / 24;
-        const steps = Math.floor(baseSteps * (hourMultiplier === 0 ? 0.1 : hourMultiplier));
-        
-        setStepData({
-          steps,
-          lastUpdated: today
-        });
-        
-        // Log demo steps
-        if (isOnline) {
-          await logSteps(steps);
-        } else {
-          saveOfflineData('steps', { steps, date: today.toISOString().split('T')[0] });
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching steps:', error);
-      toast.error('Failed to fetch step data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Function for manual step entry
-  const logManualSteps = async (steps: number) => {
-    setIsLoading(true);
-    try {
+      // In a real implementation, we would connect to HealthKit/Google Fit
+      // For now, we'll simulate with random step data
+      const mockSteps = Math.floor(Math.random() * 8000) + 2000; // Random between 2000-10000
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Set the step data
       setStepData({
-        steps,
-        lastUpdated: new Date()
+        steps: mockSteps,
+        date: today,
+        source: 'mock'
       });
       
-      if (isOnline) {
-        await logSteps(steps);
-      } else {
-        saveOfflineData('steps', { 
-          steps, 
-          date: new Date().toISOString().split('T')[0] 
-        });
-      }
+      // Log to the backend
+      await logSteps(mockSteps);
       
-      toast.success(`Logged ${steps} steps manually`);
-      impact(HapticImpact.MEDIUM);
+      return mockSteps;
     } catch (error) {
-      console.error('Error logging steps manually:', error);
-      toast.error('Failed to log steps');
+      console.error('Error fetching step data:', error);
+      toast.error('Failed to fetch step data');
+      setHasPermission(false);
+      return 0;
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Set up automatic sync interval
+  }, []);
+  
+  // Function to manually log step count
+  const logManualSteps = useCallback(async (steps: number) => {
+    try {
+      if (steps <= 0) {
+        toast.error('Please enter a valid step count greater than 0');
+        return false;
+      }
+      
+      setIsLoading(true);
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Set the step data
+      setStepData({
+        steps,
+        date: today,
+        source: 'manual'
+      });
+      
+      // Log to the backend
+      await logSteps(steps);
+      
+      toast.success(`Logged ${steps} steps successfully`);
+      impact(HapticImpact.LIGHT);
+      return true;
+    } catch (error) {
+      console.error('Error logging manual steps:', error);
+      toast.error('Failed to log steps');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [impact]);
+  
+  // Fetch steps on component mount
   useEffect(() => {
-    if (!isNative || !hasPermission) return;
-    
-    // Fetch initial data
     fetchSteps();
-    
-    // Set up periodic sync (every 30 minutes)
-    const syncInterval = setInterval(() => {
-      fetchSteps();
-    }, 30 * 60 * 1000);
-    
-    return () => clearInterval(syncInterval);
-  }, [isNative, hasPermission]);
-
+  }, [fetchSteps]);
+  
   return {
     stepData,
-    isNative,
     isLoading,
     hasPermission,
-    requestPermissions,
     fetchSteps,
     logManualSteps
   };
-};
+}

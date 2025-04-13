@@ -1,209 +1,197 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Pause, Play, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { Progress } from "@/components/ui/progress";
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
 interface BreathingExerciseProps {
-  exerciseType?: 'box' | 'relaxing' | 'energizing';
-  duration?: number; // in seconds
-  onComplete?: () => void;
+  onComplete: () => void;
+  type: 'box' | '478' | 'deep';
+  duration?: number; // in seconds, default to 3 minutes
 }
 
-type BreathingPhase = 'inhale' | 'hold' | 'exhale' | 'rest';
+type BreathingPhase = 'inhale' | 'hold1' | 'exhale' | 'hold2';
 
 interface BreathingPattern {
   inhale: number;
-  hold: number;
+  hold1: number;
   exhale: number;
-  rest: number;
+  hold2: number;
 }
 
-const BREATHING_PATTERNS: Record<string, BreathingPattern> = {
-  box: { inhale: 4, hold: 4, exhale: 4, rest: 4 },
-  relaxing: { inhale: 4, hold: 7, exhale: 8, rest: 0 },
-  energizing: { inhale: 6, hold: 0, exhale: 2, rest: 0 }
-};
-
-const BreathingExercise: React.FC<BreathingExerciseProps> = ({
-  exerciseType = 'box',
-  duration = 120, // 2 minutes by default
-  onComplete
+export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ 
+  onComplete,
+  type = 'deep',
+  duration = 180 // 3 minutes default
 }) => {
-  const [isActive, setIsActive] = useState(false);
+  const { impact } = useHaptics();
+  const [secondsRemaining, setSecondsRemaining] = useState(duration);
   const [currentPhase, setCurrentPhase] = useState<BreathingPhase>('inhale');
-  const [timeLeft, setTimeLeft] = useState(duration);
   const [phaseProgress, setPhaseProgress] = useState(0);
-  const pattern = BREATHING_PATTERNS[exerciseType];
+  const [breathCount, setBreathCount] = useState(0);
   
-  // Calculate total cycle time
-  const cycleTime = pattern.inhale + pattern.hold + pattern.exhale + pattern.rest;
+  // Define breathing patterns based on type
+  const patterns: Record<string, BreathingPattern> = {
+    box: { inhale: 4, hold1: 4, exhale: 4, hold2: 4 },
+    '478': { inhale: 4, hold1: 7, exhale: 8, hold2: 0 },
+    deep: { inhale: 5, hold1: 2, exhale: 6, hold2: 0 }
+  };
   
-  // Reset the exercise
-  const resetExercise = useCallback(() => {
-    setIsActive(false);
-    setCurrentPhase('inhale');
-    setTimeLeft(duration);
-    setPhaseProgress(0);
-  }, [duration]);
+  const currentPattern = patterns[type];
   
-  // Toggle play/pause
-  const toggleActive = useCallback(() => {
-    if (!isActive && timeLeft === 0) {
-      resetExercise();
-    }
-    setIsActive(prev => !prev);
-  }, [isActive, timeLeft, resetExercise]);
+  // Phase labels
+  const phaseLabels: Record<BreathingPhase, string> = {
+    inhale: 'Breathe In',
+    hold1: 'Hold',
+    exhale: 'Breathe Out',
+    hold2: 'Hold'
+  };
+  
+  // Get total cycle time
+  const getCycleTime = (): number => {
+    const { inhale, hold1, exhale, hold2 } = currentPattern;
+    return inhale + hold1 + exhale + hold2;
+  };
   
   // Get current phase time
-  const getCurrentPhaseTime = useCallback((phase: BreathingPhase): number => {
-    switch (phase) {
-      case 'inhale': return pattern.inhale;
-      case 'hold': return pattern.hold;
-      case 'exhale': return pattern.exhale;
-      case 'rest': return pattern.rest;
-      default: return 4; // Default fallback
-    }
-  }, [pattern]);
+  const getCurrentPhaseTime = (): number => {
+    return currentPattern[currentPhase];
+  };
   
-  // Get color for current phase
-  const getPhaseColor = useCallback((): string => {
-    switch (currentPhase) {
-      case 'inhale': return 'bg-blue-500';
-      case 'hold': return 'bg-amber-500';
-      case 'exhale': return 'bg-green-500';
-      case 'rest': return 'bg-slate-400';
-      default: return 'bg-blue-500';
-    }
-  }, [currentPhase]);
-  
-  // Get instruction text for current phase
-  const getPhaseInstruction = useCallback((): string => {
-    switch (currentPhase) {
-      case 'inhale': return 'Breathe In...';
-      case 'hold': return 'Hold...';
-      case 'exhale': return 'Breathe Out...';
-      case 'rest': return 'Rest...';
-      default: return '';
-    }
-  }, [currentPhase]);
-  
+  // Effect for countdown timer
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        // Update overall time remaining
-        setTimeLeft(prev => prev - 1);
-        
-        // Calculate phase progress
-        const phaseTime = getCurrentPhaseTime(currentPhase);
-        const newPhaseProgress = (phaseProgress + 1) % phaseTime;
-        setPhaseProgress(newPhaseProgress);
-        
-        // Move to next phase if current is complete
-        if (newPhaseProgress === 0) {
-          // Determine next phase in cycle
-          switch (currentPhase) {
-            case 'inhale':
-              setCurrentPhase(pattern.hold > 0 ? 'hold' : 'exhale');
-              break;
-            case 'hold':
-              setCurrentPhase('exhale');
-              break;
-            case 'exhale':
-              setCurrentPhase(pattern.rest > 0 ? 'rest' : 'inhale');
-              break;
-            case 'rest':
-              setCurrentPhase('inhale');
-              break;
-          }
-        }
-      }, 1000);
-    } else if (timeLeft === 0) {
-      // Exercise complete
-      onComplete?.();
+    if (secondsRemaining <= 0) {
+      // Exercise completed
+      impact(HapticImpact.MEDIUM);
+      onComplete();
+      return;
     }
+    
+    const timer = setTimeout(() => {
+      setSecondsRemaining(prev => prev - 1);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [secondsRemaining, impact, onComplete]);
+  
+  // Effect for breathing phases
+  useEffect(() => {
+    let phaseLength = getCurrentPhaseTime();
+    if (phaseLength === 0) {
+      // Skip phases with zero duration
+      moveToNextPhase();
+      return;
+    }
+    
+    let interval: NodeJS.Timeout;
+    let phaseTimer: NodeJS.Timeout;
+    
+    // Update progress every 100ms
+    interval = setInterval(() => {
+      setPhaseProgress(prev => {
+        const increment = 100 / (phaseLength * 10);
+        return Math.min(prev + increment, 100);
+      });
+    }, 100);
+    
+    // Move to next phase after phase time
+    phaseTimer = setTimeout(() => {
+      moveToNextPhase();
+    }, phaseLength * 1000);
+    
+    // Provide haptic feedback at phase change
+    impact(HapticImpact.LIGHT);
     
     return () => {
-      if (interval) clearInterval(interval);
+      clearInterval(interval);
+      clearTimeout(phaseTimer);
     };
-  }, [isActive, timeLeft, currentPhase, phaseProgress, pattern, getCurrentPhaseTime, onComplete]);
+  }, [currentPhase, breathCount]);
   
-  // Calculate progress for visualization
-  const calculateCirclePercentage = useCallback((): number => {
-    const phaseTime = getCurrentPhaseTime(currentPhase);
-    return ((phaseTime - phaseProgress) / phaseTime) * 100;
-  }, [currentPhase, phaseProgress, getCurrentPhaseTime]);
-
+  const moveToNextPhase = () => {
+    setPhaseProgress(0);
+    
+    // Determine next phase
+    switch (currentPhase) {
+      case 'inhale':
+        setCurrentPhase('hold1');
+        break;
+      case 'hold1':
+        setCurrentPhase('exhale');
+        break;
+      case 'exhale':
+        setCurrentPhase('hold2');
+        break;
+      case 'hold2':
+        // Complete one full breath
+        setCurrentPhase('inhale');
+        setBreathCount(prev => prev + 1);
+        break;
+    }
+  };
+  
+  // Format time remaining
+  const formatTimeRemaining = (): string => {
+    const minutes = Math.floor(secondsRemaining / 60);
+    const seconds = secondsRemaining % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="text-center">
-          {exerciseType === 'box' ? '4-4-4-4 Box Breathing'
-            : exerciseType === 'relaxing' ? '4-7-8 Relaxing Breath'
-            : '6-2 Energizing Breath'}
-        </CardTitle>
-        <CardDescription className="text-center">
-          {exerciseType === 'box' ? 'Reduce stress and manage cravings'
-            : exerciseType === 'relaxing' ? 'Calm your body and mind'
-            : 'Boost your energy and focus'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center">
-        {/* Breathing circle visualization */}
-        <div className="relative w-48 h-48 mb-8">
-          <div 
-            className={`absolute inset-0 rounded-full ${getPhaseColor()} bg-opacity-20
-              transition-transform duration-1000 ease-in-out`}
-            style={{
-              transform: currentPhase === 'inhale' 
-                ? `scale(${1 + (phaseProgress / getCurrentPhaseTime(currentPhase)) * 0.5})` 
-                : currentPhase === 'exhale'
-                ? `scale(${1.5 - (phaseProgress / getCurrentPhaseTime(currentPhase)) * 0.5})`
-                : 'scale(1.5)'
-            }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-2xl font-bold">{getPhaseInstruction()}</div>
-          </div>
+    <div className="flex flex-col items-center justify-center p-6 max-w-md mx-auto">
+      <div className="text-center mb-8">
+        <div className="text-2xl mb-3 font-semibold">
+          {type === 'box' ? 'Box Breathing' : 
+           type === '478' ? '4-7-8 Breathing' :
+           'Deep Breathing'}
         </div>
-        
-        {/* Progress bar */}
-        <Progress value={calculateCirclePercentage()} className="w-full mb-4" />
-        
-        {/* Time remaining */}
-        <div className="text-sm text-muted-foreground mb-4">
-          Time left: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+        <div className="text-sm text-muted-foreground mb-6">
+          {type === 'box' ? 'Equal inhale, hold, exhale, and hold' : 
+           type === '478' ? 'Inhale for 4, hold for 7, exhale for 8' :
+           'Long, deep breaths to activate relaxation'}
         </div>
-        
-        {/* Controls */}
-        <div className="flex justify-center items-center space-x-4">
-          <Button variant="outline" size="icon" onClick={resetExercise}>
-            <RotateCcw className="h-5 w-5" />
-            <span className="sr-only">Reset</span>
-          </Button>
-          
-          <Button 
-            variant="default" 
-            size="lg" 
-            onClick={toggleActive} 
-            className="w-16 h-16 rounded-full"
-          >
-            {isActive ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-            <span className="sr-only">{isActive ? 'Pause' : 'Play'}</span>
-          </Button>
+        <div className="text-3xl font-mono mb-2">
+          {formatTimeRemaining()}
         </div>
-      </CardContent>
-      <CardFooter className="flex flex-col space-y-2">
-        <p className="text-xs text-center text-muted-foreground">
-          Find a comfortable position and focus on your breath. 
-          This exercise will guide you through timed breathing patterns.
-        </p>
-      </CardFooter>
-    </Card>
+        <div className="text-sm text-muted-foreground">
+          {breathCount} breaths completed
+        </div>
+      </div>
+      
+      <div className="w-full mb-8">
+        <div className="text-center mb-2 text-xl font-medium">
+          {phaseLabels[currentPhase]}
+        </div>
+        <Progress value={phaseProgress} className="h-3" />
+      </div>
+      
+      <div className="relative w-40 h-40 mb-8">
+        {/* Animated breathing circle */}
+        <div 
+          className={`absolute inset-0 rounded-full border-4 border-primary transition-all duration-1000 flex items-center justify-center`}
+          style={{ 
+            transform: `scale(${currentPhase === 'inhale' ? 1.5 : 
+                           currentPhase === 'exhale' ? 1 : 
+                           currentPhase === 'hold1' || currentPhase === 'hold2' ? 1.5 : 1})`,
+            opacity: 0.3
+          }}
+        />
+        <div 
+          className="absolute inset-0 rounded-full bg-primary/10 transition-all duration-1000 flex items-center justify-center"
+          style={{ 
+            transform: `scale(${currentPhase === 'inhale' ? 1.3 : 
+                           currentPhase === 'exhale' ? 0.9 : 
+                           currentPhase === 'hold1' || currentPhase === 'hold2' ? 1.3 : 1})`
+          }}
+        />
+      </div>
+      
+      {/* Guidance text */}
+      <div className="text-center text-sm text-muted-foreground">
+        {currentPhase === 'inhale' && 'Breathe in slowly through your nose...'}
+        {currentPhase === 'hold1' && 'Hold your breath...'}
+        {currentPhase === 'exhale' && 'Exhale slowly through your mouth...'}
+        {currentPhase === 'hold2' && 'Hold your breath before the next cycle...'}
+      </div>
+    </div>
   );
 };
-
-export default BreathingExercise;

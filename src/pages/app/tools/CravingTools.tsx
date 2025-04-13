@@ -1,282 +1,233 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wind, Brain, Clock, Timer } from 'lucide-react';
-import BreathingExercise from '@/components/tools/breathing/BreathingExercise';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
+import { Wind, Brain, Clock, Award } from 'lucide-react'; // Remove Lungs import
+import { BreathingExercise } from '@/components/tools/breathing/BreathingExercise';
+import { ExerciseModal } from '@/components/tools/ExerciseModal';
 import { toast } from 'sonner';
 
-const CravingTools: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('breathing');
+const CravingTools = () => {
+  const { impact } = useHaptics();
+  const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+  const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
   
-  const handleExerciseComplete = () => {
-    toast.success("Exercise completed! Great job managing your craving.");
+  const openExercise = (exerciseName: string) => {
+    setSelectedExercise(exerciseName);
+    setIsExerciseModalOpen(true);
+    impact(HapticImpact.LIGHT);
   };
   
+  const handleExerciseComplete = () => {
+    impact(HapticImpact.MEDIUM);
+    setIsExerciseModalOpen(false);
+    toast.success("Great job completing the exercise!", {
+      description: "You're one step closer to managing your cravings effectively."
+    });
+  };
+  
+  const breathingExercises = [
+    { 
+      name: "4-7-8 Breathing",
+      description: "Inhale for 4 seconds, hold for 7, exhale for 8. Calms the nervous system quickly.",
+      icon: <Wind className="h-12 w-12 text-blue-500" />,
+      duration: "2 minutes"
+    },
+    { 
+      name: "Box Breathing",
+      description: "Equal duration inhale, hold, exhale, and hold. Used by Navy SEALs for stress management.",
+      icon: <Wind className="h-12 w-12 text-indigo-500" />,
+      duration: "3 minutes"
+    },
+    { 
+      name: "Deep Diaphragmatic Breathing",
+      description: "Slow, deep belly breathing that activates the parasympathetic nervous system.",
+      icon: <Wind className="h-12 w-12 text-cyan-500" />,
+      duration: "5 minutes"
+    }
+  ];
+  
+  const mindfulnessExercises = [
+    {
+      name: "Craving Surfing",
+      description: "Observe your craving like a wave that rises, crests, and eventually subsides.",
+      icon: <Brain className="h-12 w-12 text-purple-500" />,
+      duration: "5 minutes"
+    },
+    {
+      name: "Body Scan",
+      description: "Systematically notice sensations throughout your body without judgment.",
+      icon: <Brain className="h-12 w-12 text-violet-500" />,
+      duration: "7 minutes"
+    },
+    {
+      name: "Mindful Walking",
+      description: "Focus completely on the experience of walking and your surroundings.",
+      icon: <Brain className="h-12 w-12 text-fuchsia-500" />,
+      duration: "10 minutes"
+    }
+  ];
+  
+  const delayTechniques = [
+    {
+      name: "5-Minute Rule",
+      description: "Commit to waiting just 5 minutes before giving in to a craving.",
+      icon: <Clock className="h-12 w-12 text-amber-500" />,
+      duration: "5 minutes"
+    },
+    {
+      name: "H.A.L.T. Check-in",
+      description: "Check if you're Hungry, Angry, Lonely or Tired - common craving triggers.",
+      icon: <Clock className="h-12 w-12 text-yellow-500" />,
+      duration: "2 minutes"
+    },
+    {
+      name: "Urge Logging",
+      description: "Record the time, intensity, and context of your craving to identify patterns.",
+      icon: <Clock className="h-12 w-12 text-orange-500" />,
+      duration: "3 minutes"
+    }
+  ];
+  
+  const cbtTechniques = [
+    {
+      name: "Thought Challenging",
+      description: "Identify and question thoughts that make cravings seem irresistible.",
+      icon: <Award className="h-12 w-12 text-green-500" />,
+      duration: "5 minutes"
+    },
+    {
+      name: "Craving Pros & Cons",
+      description: "Quickly list the real costs and benefits of giving in to the craving.",
+      icon: <Award className="h-12 w-12 text-emerald-500" />,
+      duration: "3 minutes"
+    },
+    {
+      name: "Future Self Visualization",
+      description: "Connect with your future self who has successfully overcome this craving.",
+      icon: <Award className="h-12 w-12 text-teal-500" />,
+      duration: "7 minutes"
+    }
+  ];
+
+  const renderExerciseCards = (exercises: any[]) => {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {exercises.map((exercise, index) => (
+          <Card key={index} className="hover:shadow-md transition-shadow hover-scale">
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto mb-2">{exercise.icon}</div>
+              <CardTitle>{exercise.name}</CardTitle>
+              <CardDescription>{exercise.duration}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-center">{exercise.description}</p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full"
+                variant="default" 
+                onClick={() => openExercise(exercise.name)}
+              >
+                Start Exercise
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="container max-w-4xl mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-6">Craving Management Tools</h1>
+    <div className="container py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Craving Coping Toolkit</h1>
+        <p className="text-muted-foreground mt-1">
+          Evidence-based techniques to help you manage cravings effectively.
+        </p>
+      </div>
       
-      <p className="text-muted-foreground mb-6">
-        These evidence-based techniques can help you manage cravings as they arise. 
-        Practice them regularly for best results. When a craving hits, try one of these 
-        exercises instead of reaching for nicotine.
-      </p>
+      <div className="grid gap-8">
+        <Card className="bg-blue-50/50 border-blue-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg text-blue-700">Need Immediate Help?</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-blue-700">
+              If you're experiencing an intense craving right now, try our quick 1-minute breathing exercise:
+            </p>
+            <div className="mt-4">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => openExercise("Emergency Breathing")}
+              >
+                Start 1-Minute Emergency Breathing
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="breathing" className="flex flex-col items-center gap-2 py-3">
-            <Wind className="h-5 w-5" />
-            <span>Breathing</span>
-          </TabsTrigger>
-          <TabsTrigger value="distraction" className="flex flex-col items-center gap-2 py-3">
-            <Brain className="h-5 w-5" />
-            <span>Distraction</span>
-          </TabsTrigger>
-          <TabsTrigger value="delay" className="flex flex-col items-center gap-2 py-3">
-            <Clock className="h-5 w-5" />
-            <span>Delay</span>
-          </TabsTrigger>
-          <TabsTrigger value="mindfulness" className="flex flex-col items-center gap-2 py-3">
-            <Timer className="h-5 w-5" />
-            <span>Mindfulness</span>
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="breathing" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card className="cursor-pointer hover:border-primary transition-colors">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Box Breathing</CardTitle>
-                <CardDescription>4-4-4-4 pattern</CardDescription>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <p className="text-sm text-muted-foreground">
-                  Equal counts for inhale, hold, exhale, and rest. Great for reducing anxiety during cravings.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setActiveTab('box-breathing')}
-                >
-                  Start Exercise
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            <Card className="cursor-pointer hover:border-primary transition-colors">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Relaxing Breath</CardTitle>
-                <CardDescription>4-7-8 pattern</CardDescription>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <p className="text-sm text-muted-foreground">
-                  Activate your parasympathetic nervous system to calm intense cravings.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setActiveTab('relaxing-breathing')}
-                >
-                  Start Exercise
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            <Card className="cursor-pointer hover:border-primary transition-colors">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Energizing Breath</CardTitle>
-                <CardDescription>6-0-2 pattern</CardDescription>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <p className="text-sm text-muted-foreground">
-                  Use when cravings are associated with low energy or fatigue.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setActiveTab('energizing-breathing')}
-                >
-                  Start Exercise
-                </Button>
-              </CardFooter>
-            </Card>
+        <Tabs defaultValue="breathing">
+          <TabsList className="grid grid-cols-4 mb-6">
+            <TabsTrigger value="breathing">Breathing</TabsTrigger>
+            <TabsTrigger value="mindfulness">Mindfulness</TabsTrigger>
+            <TabsTrigger value="delay">Delay Techniques</TabsTrigger>
+            <TabsTrigger value="cbt">CBT</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="breathing" className="space-y-4">
+            {renderExerciseCards(breathingExercises)}
+          </TabsContent>
+          
+          <TabsContent value="mindfulness" className="space-y-4">
+            {renderExerciseCards(mindfulnessExercises)}
+          </TabsContent>
+          
+          <TabsContent value="delay" className="space-y-4">
+            {renderExerciseCards(delayTechniques)}
+          </TabsContent>
+          
+          <TabsContent value="cbt" className="space-y-4">
+            {renderExerciseCards(cbtTechniques)}
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Modal for exercises */}
+      <ExerciseModal
+        isOpen={isExerciseModalOpen}
+        onClose={() => setIsExerciseModalOpen(false)}
+        onComplete={handleExerciseComplete}
+        title={selectedExercise || "Exercise"}
+      >
+        {selectedExercise?.includes("Breathing") && (
+          <BreathingExercise 
+            onComplete={handleExerciseComplete} 
+            type={selectedExercise === "Box Breathing" ? "box" : 
+                 selectedExercise === "4-7-8 Breathing" ? "478" : "deep"}
+            duration={selectedExercise === "Emergency Breathing" ? 60 : 180}
+          />
+        )}
+        {!selectedExercise?.includes("Breathing") && (
+          <div className="p-6 text-center">
+            <p className="mb-4">
+              Follow these steps for {selectedExercise}:
+            </p>
+            <ol className="text-left space-y-2 mb-6">
+              <li>1. Find a quiet, comfortable place</li>
+              <li>2. Close your eyes or maintain a soft focus</li>
+              <li>3. Follow the instructions specific to this technique</li>
+              <li>4. Acknowledge when your mind wanders and gently return focus</li>
+              <li>5. Upon completion, notice how your body and mind feel</li>
+            </ol>
+            <Button onClick={handleExerciseComplete}>
+              Mark as Complete
+            </Button>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="distraction">
-          <Card>
-            <CardHeader>
-              <CardTitle>Distraction Techniques</CardTitle>
-              <CardDescription>Redirect your focus away from cravings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>When a craving strikes, try these evidence-based distraction techniques:</p>
-                
-                <ol className="list-decimal pl-5 space-y-2">
-                  <li>
-                    <span className="font-medium">The 5-Minute Rule</span>: 
-                    Promise yourself to wait just 5 minutes before giving into a craving. 
-                    Most cravings pass within this timeframe.
-                  </li>
-                  <li>
-                    <span className="font-medium">Physical Displacement</span>: 
-                    Change your physical location immediately. Go to a different room, 
-                    step outside, or walk around the block.
-                  </li>
-                  <li>
-                    <span className="font-medium">Mental Distraction</span>: 
-                    Play a quick game on your phone, call a friend, or do a crossword puzzle.
-                  </li>
-                  <li>
-                    <span className="font-medium">Sensory Replacement</span>: 
-                    Try sugar-free gum, hard candy, or a cold glass of water to engage your senses.
-                  </li>
-                  <li>
-                    <span className="font-medium">Hand Occupation</span>: 
-                    Find something to do with your hands, like squeezing a stress ball or fidgeting with a pen.
-                  </li>
-                </ol>
-                
-                <p className="text-sm text-muted-foreground mt-4">
-                  Remember: The more you practice different distraction techniques, 
-                  the better you'll become at finding what works specifically for you.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="delay">
-          <Card>
-            <CardHeader>
-              <CardTitle>Delay & Disconnect</CardTitle>
-              <CardDescription>Learn to ride the wave of a craving</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">
-                Cravings typically last 3-5 minutes if you don't feed them. Learning to delay, wait them out, 
-                and disconnect from the urge is a powerful technique.
-              </p>
-              
-              <div className="space-y-4 mb-4">
-                <h3 className="font-medium">Urge Surfing Technique:</h3>
-                <ol className="list-decimal pl-5 space-y-2">
-                  <li>Notice the craving without immediately reacting</li>
-                  <li>Observe where you feel it in your body (chest tightness, tingling, etc.)</li>
-                  <li>Imagine the craving as a wave that rises, peaks, and eventually falls</li>
-                  <li>Focus on "riding" this wave rather than fighting it</li>
-                  <li>Remind yourself that the wave will pass, no matter how intense it feels</li>
-                </ol>
-              </div>
-              
-              <div className="border-t pt-4">
-                <h3 className="font-medium mb-2">Start a Delay Timer:</h3>
-                <div className="flex justify-center gap-4">
-                  <Button variant="outline">3 Minutes</Button>
-                  <Button variant="outline">5 Minutes</Button>
-                  <Button variant="outline">10 Minutes</Button>
-                </div>
-                <p className="text-sm text-muted-foreground text-center mt-4">
-                  Set a timer and promise not to use nicotine until it ends. 
-                  Most cravings will subside before the timer is up.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="mindfulness">
-          <Card>
-            <CardHeader>
-              <CardTitle>Mindfulness Techniques</CardTitle>
-              <CardDescription>Develop awareness of cravings without judgment</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">
-                Mindfulness helps you observe cravings without automatically acting on them. 
-                With practice, this creates space between stimulus and response.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="bg-slate-50 p-4 rounded-md">
-                  <h3 className="font-medium mb-2">Craving Observation Practice:</h3>
-                  <p className="text-sm mb-2">
-                    Try this 2-minute exercise when you feel a craving:
-                  </p>
-                  <ol className="list-decimal pl-5 space-y-2 text-sm">
-                    <li>Sit comfortably and focus on your breathing</li>
-                    <li>Notice the craving sensations in your body without judging them</li>
-                    <li>Label what you're experiencing: "This is just a craving"</li>
-                    <li>Remind yourself that cravings are temporary states, not commands</li>
-                    <li>Notice how the sensations change moment to moment</li>
-                    <li>Return focus to your breathing whenever your mind wanders</li>
-                  </ol>
-                </div>
-                
-                <div className="mt-4">
-                  <h3 className="font-medium mb-2">RAIN Technique for Cravings:</h3>
-                  <ul className="space-y-2">
-                    <li><span className="font-bold">R</span>ecognize the craving</li>
-                    <li><span className="font-bold">A</span>llow it to exist without fighting it</li>
-                    <li><span className="font-bold">I</span>nvestigate how it feels in your body</li>
-                    <li><span className="font-bold">N</span>on-identification - remember you are not your cravings</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="box-breathing">
-          <Button 
-            variant="ghost" 
-            className="mb-4"
-            onClick={() => setActiveTab('breathing')}
-          >
-            ← Back to Breathing Exercises
-          </Button>
-          <BreathingExercise 
-            exerciseType="box" 
-            onComplete={handleExerciseComplete} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="relaxing-breathing">
-          <Button 
-            variant="ghost" 
-            className="mb-4"
-            onClick={() => setActiveTab('breathing')}
-          >
-            ← Back to Breathing Exercises
-          </Button>
-          <BreathingExercise 
-            exerciseType="relaxing" 
-            onComplete={handleExerciseComplete} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="energizing-breathing">
-          <Button 
-            variant="ghost" 
-            className="mb-4"
-            onClick={() => setActiveTab('breathing')}
-          >
-            ← Back to Breathing Exercises
-          </Button>
-          <BreathingExercise 
-            exerciseType="energizing" 
-            onComplete={handleExerciseComplete} 
-          />
-        </TabsContent>
-      </Tabs>
+        )}
+      </ExerciseModal>
     </div>
   );
 };

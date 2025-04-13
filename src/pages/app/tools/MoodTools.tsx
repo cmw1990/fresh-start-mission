@@ -1,316 +1,302 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Heart, Smile, Pencil, Music, FlowerIcon, BrainCircuit, SunMedium } from "lucide-react";
-import ToolExerciseCard from "@/components/tools/ToolExerciseCard";
-import QuickToolCard from "@/components/tools/QuickToolCard";
-import ExerciseModal from "@/components/tools/ExerciseModal";
-import { ExerciseStep } from "@/components/tools/ExerciseModal";
-import { toast } from "sonner";
-
-// Exercise definitions
-const gratitudeExercise = {
-  title: "Gratitude Practice",
-  description: "A guided exercise to identify and appreciate positive aspects of your life, shifting your mood toward positivity.",
-  steps: [
-    {
-      title: "Settle In",
-      instructions: "Find a comfortable position. Take three slow, deep breaths to center yourself.",
-      duration: 15,
-    },
-    {
-      title: "Present Moment",
-      instructions: "Bring your attention to the present moment. Notice small things around you that you can appreciate right now.",
-      duration: 20,
-    },
-    {
-      title: "Simple Pleasures",
-      instructions: "Think of one simple pleasure you've experienced today. Perhaps a warm drink, a kind word, or a moment of comfort. Allow yourself to feel genuine appreciation for it.",
-      duration: 30,
-    },
-    {
-      title: "People Connection",
-      instructions: "Bring to mind someone who has helped you on your fresh journey or in life generally. Feel gratitude for their presence or support.",
-      duration: 30,
-    },
-    {
-      title: "Personal Strength",
-      instructions: "Acknowledge one personal strength or quality that has helped you progress on your fresh journey. Be grateful for this aspect of yourself.",
-      duration: 30,
-    },
-    {
-      title: "Body Appreciation",
-      instructions: "Express gratitude for your body's resilience during this challenging process. Your body is working hard to heal and adapt.",
-      duration: 30,
-    },
-    {
-      title: "Note Your Feelings",
-      instructions: "Notice how focusing on gratitude affects your emotional state. Has your mood shifted at all?",
-      duration: 15,
-    },
-    {
-      title: "Optional Journaling",
-      instructions: "After this exercise, consider writing down 3-5 things you're grateful for to reinforce the practice.",
-      duration: 10,
-    },
-  ] as ExerciseStep[],
-};
-
-const selfCompassionExercise = {
-  title: "Self-Compassion Break",
-  description: "A brief practice to cultivate kindness toward yourself during difficult moments in your journey.",
-  steps: [
-    {
-      title: "Acknowledge Difficulty",
-      instructions: "Take a moment to acknowledge that you're experiencing a difficult emotion or situation. Simply notice it without judgment.",
-      duration: 15,
-    },
-    {
-      title: "Common Humanity",
-      instructions: "Remind yourself that struggling with nicotine withdrawal is a common human experience. Thousands of others are feeling similar challenges right now.",
-      duration: 20,
-    },
-    {
-      title: "Physical Comfort",
-      instructions: "Place your hand over your heart or another spot that feels soothing. Feel the warmth and gentle pressure of your hand.",
-      duration: 15,
-    },
-    {
-      title: "Self-Kindness Phrase",
-      instructions: "Silently repeat: 'This is a moment of difficulty. May I be kind to myself in this moment.'",
-      duration: 30,
-    },
-    {
-      title: "Giving Yourself Support",
-      instructions: "Ask yourself: 'What do I need to hear right now to feel supported?' Offer yourself those words of kindness.",
-      duration: 30,
-    },
-    {
-      title: "Soothing Touch",
-      instructions: "Continue with your hand over your heart. Breathe gently and feel the sensation of touch and support.",
-      duration: 30,
-    },
-    {
-      title: "Compassionate Message",
-      instructions: "Repeat to yourself: 'I'm doing the best I can. This challenge is temporary, and I can move through it with kindness.'",
-      duration: 20,
-    },
-    {
-      title: "Reflection",
-      instructions: "Notice how you feel now. Remember you can return to this practice whenever needed throughout your day.",
-      duration: 15,
-    },
-  ] as ExerciseStep[],
-};
-
-const positiveMemoryExercise = {
-  title: "Positive Memory Anchor",
-  description: "Create a mental anchor to a positive memory that you can return to whenever you need a mood boost.",
-  steps: [
-    {
-      title: "Relaxed Position",
-      instructions: "Find a comfortable position and close your eyes or soften your gaze.",
-      duration: 10,
-    },
-    {
-      title: "Select a Memory",
-      instructions: "Think of a positive, happy memory - a time when you felt joyful, peaceful, proud, or loved. Choose one that feels vivid and emotionally powerful.",
-      duration: 20,
-    },
-    {
-      title: "Enter the Scene",
-      instructions: "Mentally place yourself back in that moment. Where are you? Who is with you? What's happening around you?",
-      duration: 30,
-    },
-    {
-      title: "Visual Details",
-      instructions: "Notice the visual details of this memory. Colors, light, surroundings, faces. Make the image as clear as possible.",
-      duration: 30,
-    },
-    {
-      title: "Sounds and Smells",
-      instructions: "Add in any sounds, music, voices, or smells that were part of this memory. Engage all your senses.",
-      duration: 20,
-    },
-    {
-      title: "Physical Sensations",
-      instructions: "Feel the physical sensations associated with this memory - perhaps warmth, lightness, relaxation, or excitement in your body.",
-      duration: 20,
-    },
-    {
-      title: "Emotional Response",
-      instructions: "Let yourself fully experience the positive emotions of this moment. Allow them to grow stronger.",
-      duration: 30,
-    },
-    {
-      title: "Create an Anchor",
-      instructions: "While feeling these positive emotions, create a physical anchor - perhaps touching your thumb and finger together, or placing your hand over your heart.",
-      duration: 20,
-    },
-    {
-      title: "Seal the Practice",
-      instructions: "Take three deep breaths while maintaining your anchor gesture. This gesture can now help you recall these positive feelings anytime.",
-      duration: 15,
-    },
-  ] as ExerciseStep[],
-};
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
+import { Heart, Music, Book, Sun } from 'lucide-react';
+import { ExerciseModal } from '@/components/tools/ExerciseModal';
+import { toast } from 'sonner';
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const MoodTools = () => {
-  const [activeExercise, setActiveExercise] = useState<any | null>(null);
-  const [exerciseModalOpen, setExerciseModalOpen] = useState(false);
-
-  const startExercise = (exercise: any) => {
-    setActiveExercise(exercise);
-    setExerciseModalOpen(true);
+  const { impact } = useHaptics();
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [journalEntry, setJournalEntry] = useState("");
+  const [gratitudeItems, setGratitudeItems] = useState(["", "", ""]);
+  
+  const openTool = (toolName: string) => {
+    setSelectedTool(toolName);
+    setIsModalOpen(true);
+    impact(HapticImpact.LIGHT);
   };
-
-  const handleQuickTool = (toolName: string) => {
-    // For now just show a toast - these could be expanded into mini-exercises later
-    toast.success(`${toolName} activated!`, {
-      description: "This mood tool would provide immediate support."
+  
+  const handleToolComplete = () => {
+    impact(HapticImpact.MEDIUM);
+    setIsModalOpen(false);
+    
+    // Clear form data
+    setJournalEntry("");
+    setGratitudeItems(["", "", ""]);
+    
+    toast.success("Mood exercise completed!", {
+      description: "Taking time for your emotional wellbeing is an important part of your journey."
     });
+  };
+  
+  const updateGratitudeItem = (index: number, value: string) => {
+    const newItems = [...gratitudeItems];
+    newItems[index] = value;
+    setGratitudeItems(newItems);
+  };
+  
+  const journalingPrompts = [
+    { 
+      name: "Mood Reflection",
+      description: "Explore your current emotions and their connection to nicotine cravings.",
+      icon: <Heart className="h-12 w-12 text-rose-500" />,
+      prompt: "How am I feeling right now, and how might these feelings be connected to my cravings? What triggered these emotions?"
+    },
+    { 
+      name: "Future Self",
+      description: "Write a letter to your future self who has successfully achieved your nicotine goals.",
+      icon: <Heart className="h-12 w-12 text-pink-500" />,
+      prompt: "Dear Future Me, I'm writing to you now that you've successfully [achieved your goal]. I want you to know..."
+    },
+    { 
+      name: "Challenge Navigator",
+      description: "Work through a specific challenge you're facing in your journey.",
+      icon: <Heart className="h-12 w-12 text-fuchsia-500" />,
+      prompt: "The specific challenge I'm facing right now is... My options for handling this are... The approach I'm going to try is..."
+    }
+  ];
+  
+  const relaxationTools = [
+    {
+      name: "Guided Visualization",
+      description: "Brief guided imagery exercise to create mental calmness and reduce stress.",
+      icon: <Sun className="h-12 w-12 text-yellow-500" />,
+      duration: "3 minutes"
+    },
+    {
+      name: "Progressive Muscle Relaxation",
+      description: "Systematically tense and release muscle groups to reduce physical tension.",
+      icon: <Sun className="h-12 w-12 text-amber-500" />,
+      duration: "5 minutes"
+    },
+    {
+      name: "Gratitude Practice",
+      description: "Identify specific things you're grateful for to shift focus and improve mood.",
+      icon: <Sun className="h-12 w-12 text-orange-500" />,
+      duration: "2 minutes"
+    }
+  ];
+  
+  const soundTherapies = [
+    {
+      name: "Calming Nature Sounds",
+      description: "Ocean waves, rainfall, forest sounds, and other natural ambient sounds.",
+      icon: <Music className="h-12 w-12 text-cyan-500" />,
+      duration: "Variable"
+    },
+    {
+      name: "Binaural Beats",
+      description: "Sound technology designed to induce relaxation and reduce stress.",
+      icon: <Music className="h-12 w-12 text-blue-500" />,
+      duration: "10-15 minutes"
+    },
+    {
+      name: "Guided Meditation",
+      description: "Voice-guided meditation specifically for mood regulation during withdrawal.",
+      icon: <Music className="h-12 w-12 text-indigo-500" />,
+      duration: "5-10 minutes"
+    }
+  ];
+
+  const renderToolCards = (tools: any[]) => {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {tools.map((tool, index) => (
+          <Card key={index} className="hover:shadow-md transition-shadow hover-scale">
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto mb-2">{tool.icon}</div>
+              <CardTitle>{tool.name}</CardTitle>
+              {tool.duration && <CardDescription>{tool.duration}</CardDescription>}
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-center">{tool.description}</p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full"
+                variant="default" 
+                onClick={() => openTool(tool.name)}
+              >
+                Open Tool
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+  
+  const getSelectedPrompt = () => {
+    const prompt = journalingPrompts.find(p => p.name === selectedTool);
+    return prompt ? prompt.prompt : "";
   };
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Mood Tools</h1>
-        <p className="text-muted-foreground">
-          Elevate your mood and cultivate emotional balance during your fresh journey
+        <h1 className="text-3xl font-bold">Mood Regulation Tools</h1>
+        <p className="text-muted-foreground mt-1">
+          Techniques to manage mood fluctuations during your nicotine-free journey.
         </p>
       </div>
-
-      <Tabs defaultValue="exercises">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="exercises">Guided Exercises</TabsTrigger>
-          <TabsTrigger value="quick-tools">Quick Lifters</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="exercises" className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ToolExerciseCard
-              title={gratitudeExercise.title}
-              description={gratitudeExercise.description}
-              duration="3 minutes"
-              difficulty="easy"
-              tags={["Gratitude", "Positivity"]}
-              popular={true}
-              onStart={() => startExercise(gratitudeExercise)}
-            />
-            
-            <ToolExerciseCard
-              title={selfCompassionExercise.title}
-              description={selfCompassionExercise.description}
-              duration="3 minutes"
-              difficulty="easy"
-              tags={["Self-care", "Compassion"]}
-              onStart={() => startExercise(selfCompassionExercise)}
-            />
-            
-            <ToolExerciseCard
-              title={positiveMemoryExercise.title}
-              description={positiveMemoryExercise.description}
-              duration="4 minutes"
-              difficulty="moderate"
-              tags={["Visualization", "Memory"]}
-              onStart={() => startExercise(positiveMemoryExercise)}
-            />
-
-            <ToolExerciseCard
-              title="Mood Tracking Reflection"
-              description="Review your mood patterns and identify triggers for low moods as well as effective mood boosters."
-              duration="5 minutes"
-              difficulty="moderate"
-              tags={["Self-awareness", "Analysis"]}
-              onStart={() => toast.info("This exercise will be available soon!")}
-            />
-
-            <ToolExerciseCard
-              title="Progressive Relaxation"
-              description="Systematically relax each part of your body to release tension and improve your mood."
-              duration="6 minutes"
-              difficulty="easy"
-              tags={["Relaxation", "Physical"]}
-              onStart={() => toast.info("This exercise will be available soon!")}
-            />
+      
+      <div className="mb-6 p-4 bg-purple-50 border border-purple-100 rounded-md">
+        <h3 className="text-lg font-medium text-purple-800 mb-2">Why Focus on Mood?</h3>
+        <p className="text-purple-700 text-sm">
+          Nicotine withdrawal commonly affects mood due to changes in brain chemistry. The tools on this page are specifically designed to help regulate emotions during this temporary adjustment period. Consistent practice can significantly reduce mood-related withdrawal symptoms.
+        </p>
+      </div>
+      
+      <div className="grid gap-8">      
+        <Tabs defaultValue="journaling">
+          <TabsList className="grid grid-cols-3 mb-6">
+            <TabsTrigger value="journaling">Journaling</TabsTrigger>
+            <TabsTrigger value="relaxation">Relaxation</TabsTrigger>
+            <TabsTrigger value="sound">Sound Therapy</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="journaling" className="space-y-4">
+            {renderToolCards(journalingPrompts)}
+          </TabsContent>
+          
+          <TabsContent value="relaxation" className="space-y-4">
+            {renderToolCards(relaxationTools)}
+          </TabsContent>
+          
+          <TabsContent value="sound" className="space-y-4">
+            {renderToolCards(soundTherapies)}
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Modal for tools */}
+      <ExerciseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onComplete={handleToolComplete}
+        title={selectedTool || "Mood Tool"}
+      >
+        {/* Journaling Prompts */}
+        {journalingPrompts.find(p => p.name === selectedTool) && (
+          <div className="p-6">
+            <p className="italic text-muted-foreground mb-4">{getSelectedPrompt()}</p>
+            <div className="mb-6">
+              <Textarea 
+                value={journalEntry}
+                onChange={(e) => setJournalEntry(e.target.value)}
+                placeholder="Start writing here..."
+                className="min-h-[200px]"
+              />
+            </div>
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+              <Button onClick={handleToolComplete}>Complete</Button>
+            </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="quick-tools">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <QuickToolCard
-              title="Smile Practice"
-              description="Hold a genuine smile for 30 seconds to trigger positive neural circuits."
-              icon={Smile}
-              iconColor="text-yellow-500"
-              iconBgColor="bg-yellow-50"
-              onClick={() => handleQuickTool("Smile Practice")}
-            />
-            
-            <QuickToolCard
-              title="3 Good Things"
-              description="Quickly list three positive things that have happened today, no matter how small."
-              icon={Heart}
-              iconColor="text-red-500"
-              iconBgColor="bg-red-50"
-              onClick={() => handleQuickTool("3 Good Things")}
-            />
-            
-            <QuickToolCard
-              title="Mood Playlist"
-              description="Access a curated list of mood-boosting songs for an instant lift."
-              icon={Music}
-              iconColor="text-purple-500"
-              iconBgColor="bg-purple-50"
-              onClick={() => handleQuickTool("Mood Playlist")}
-            />
-            
-            <QuickToolCard
-              title="Nature Connection"
-              description="Step outside or look at nature photos to improve your mood."
-              icon={FlowerIcon}
-              iconColor="text-green-500"
-              iconBgColor="bg-green-50"
-              onClick={() => handleQuickTool("Nature Connection")}
-            />
-            
-            <QuickToolCard
-              title="One-Minute Journal"
-              description="Express your feelings briefly to acknowledge and process emotions."
-              icon={Pencil}
-              iconColor="text-blue-500"
-              iconBgColor="bg-blue-50"
-              onClick={() => handleQuickTool("One-Minute Journal")}
-            />
-            
-            <QuickToolCard
-              title="Mood Mantra"
-              description="Repeat a personalized positive phrase to shift your mindset."
-              icon={BrainCircuit}
-              iconColor="text-indigo-500"
-              iconBgColor="bg-indigo-50"
-              onClick={() => handleQuickTool("Mood Mantra")}
-            />
-            
-            <QuickToolCard
-              title="Light Therapy"
-              description="Spend 2 minutes in bright natural light to boost mood neurotransmitters."
-              icon={SunMedium}
-              iconColor="text-amber-500"
-              iconBgColor="bg-amber-50"
-              onClick={() => handleQuickTool("Light Therapy")}
-            />
+        )}
+        
+        {/* Gratitude Practice */}
+        {selectedTool === "Gratitude Practice" && (
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-4">Gratitude Practice</h3>
+            <p className="mb-4">List three things you're grateful for today:</p>
+            <div className="space-y-4 mb-6">
+              {gratitudeItems.map((item, index) => (
+                <div key={index} className="space-y-2">
+                  <Label htmlFor={`gratitude-${index}`}>{index + 1}.</Label>
+                  <Input 
+                    id={`gratitude-${index}`}
+                    value={item}
+                    onChange={(e) => updateGratitudeItem(index, e.target.value)}
+                    placeholder="I'm grateful for..."
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Research shows that regular gratitude practice can help reduce negative emotions and improve resilience during challenging times like nicotine withdrawal.
+            </p>
+            <Button onClick={handleToolComplete} className="w-full">
+              Complete Practice
+            </Button>
           </div>
-        </TabsContent>
-      </Tabs>
-
-      {activeExercise && (
-        <ExerciseModal
-          exercise={activeExercise}
-          open={exerciseModalOpen}
-          onClose={() => setExerciseModalOpen(false)}
-        />
-      )}
+        )}
+        
+        {/* Guided Visualization */}
+        {selectedTool === "Guided Visualization" && (
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-4">Guided Visualization</h3>
+            <div className="mb-6 space-y-4">
+              <p>Find a comfortable position and follow these steps:</p>
+              <ol className="space-y-3">
+                <li className="p-2 bg-slate-50 rounded-md">Close your eyes and take three deep breaths.</li>
+                <li className="p-2 bg-slate-50 rounded-md">Imagine yourself in a peaceful place - perhaps a beach, forest, or mountain top.</li>
+                <li className="p-2 bg-slate-50 rounded-md">Visualize the details: What do you see? What sounds do you hear? What can you smell?</li>
+                <li className="p-2 bg-slate-50 rounded-md">Feel yourself becoming calmer in this safe, peaceful place.</li>
+                <li className="p-2 bg-slate-50 rounded-md">Imagine your stress and cravings dissolving away in this environment.</li>
+                <li className="p-2 bg-slate-50 rounded-md">When ready, take three more deep breaths and slowly open your eyes.</li>
+              </ol>
+            </div>
+            <Button onClick={handleToolComplete} className="w-full">
+              Complete Visualization
+            </Button>
+          </div>
+        )}
+        
+        {/* Sound Therapies */}
+        {selectedTool === "Calming Nature Sounds" && (
+          <div className="p-6 text-center">
+            <h3 className="text-xl font-semibold mb-4">Calming Nature Sounds</h3>
+            <div className="mb-6">
+              <p className="mb-4">Select a nature sound to play:</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="h-auto py-3 flex flex-col">
+                  <span className="block mb-1">🌊</span>
+                  <span className="text-sm">Ocean Waves</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-3 flex flex-col">
+                  <span className="block mb-1">🌧️</span>
+                  <span className="text-sm">Gentle Rain</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-3 flex flex-col">
+                  <span className="block mb-1">🌳</span>
+                  <span className="text-sm">Forest Sounds</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-3 flex flex-col">
+                  <span className="block mb-1">🔥</span>
+                  <span className="text-sm">Crackling Fire</span>
+                </Button>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                (Audio playback would be implemented in a production version)
+              </p>
+            </div>
+            <Button onClick={handleToolComplete}>
+              Complete Session
+            </Button>
+          </div>
+        )}
+        
+        {/* Fallback content for other tools */}
+        {!["Mood Reflection", "Future Self", "Challenge Navigator", "Gratitude Practice", "Guided Visualization", "Calming Nature Sounds"].includes(selectedTool || "") && (
+          <div className="p-6 text-center">
+            <p className="mb-6">
+              This tool will include more detailed content in the complete version.
+            </p>
+            <Button onClick={handleToolComplete}>
+              Close
+            </Button>
+          </div>
+        )}
+      </ExerciseModal>
     </div>
   );
 };

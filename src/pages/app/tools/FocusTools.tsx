@@ -1,311 +1,247 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Hourglass, Target, ClipboardList, AlignCenter, BookOpen, FoldVertical, CheckSquare } from "lucide-react";
-import ToolExerciseCard from "@/components/tools/ToolExerciseCard";
-import QuickToolCard from "@/components/tools/QuickToolCard";
-import ExerciseModal from "@/components/tools/ExerciseModal";
-import { ExerciseStep } from "@/components/tools/ExerciseModal";
-import { toast } from "sonner";
-
-// Exercise definitions
-const attentionResetExercise = {
-  title: "Attention Reset Practice",
-  description: "A quick mindfulness exercise to reset your focus and concentration, particularly helpful during brain fog.",
-  steps: [
-    {
-      title: "Settle In",
-      instructions: "Find a comfortable seated position with your back straight. Allow your hands to rest on your lap.",
-      duration: 10,
-    },
-    {
-      title: "Connect to Breath",
-      instructions: "Close your eyes or maintain a soft gaze. Take three deep breaths, feeling the sensation of air moving in and out.",
-      duration: 15,
-    },
-    {
-      title: "Notice Your Attention",
-      instructions: "Without judgment, notice where your attention currently is. Is your mind scattered? Foggy? Acknowledge its current state.",
-      duration: 20,
-    },
-    {
-      title: "Sound Awareness",
-      instructions: "Shift your attention to sounds in your environment. Notice distant sounds, then closer ones, without labeling or judging them.",
-      duration: 30,
-    },
-    {
-      title: "Body Sensation",
-      instructions: "Now bring your attention to physical sensations. Feel your feet on the floor, your body against the chair, the touch of clothing on your skin.",
-      duration: 30,
-    },
-    {
-      title: "Single-Point Focus",
-      instructions: "Choose a single focus point - your breath at the nostril, a specific sound, or a sensation. Hold your attention there exclusively.",
-      duration: 45,
-    },
-    {
-      title: "Notice Wandering",
-      instructions: "When your mind wanders (and it will), gently notice it without judgment, then guide your attention back to your chosen point of focus.",
-      duration: 30,
-    },
-    {
-      title: "Expand Awareness",
-      instructions: "Gradually expand your awareness to include your whole body, the room around you, and your place within it.",
-      duration: 20,
-    },
-    {
-      title: "Return",
-      instructions: "Slowly open your eyes if they were closed. Notice if there's any difference in your quality of attention.",
-      duration: 10,
-    },
-  ] as ExerciseStep[],
-};
-
-const pomodoroExercise = {
-  title: "Guided Pomodoro Focus Session",
-  description: "A structured focus technique alternating between intense concentration and brief breaks.",
-  steps: [
-    {
-      title: "Preparation",
-      instructions: "Clear your workspace of distractions. Have your task ready and clearly defined before beginning.",
-      duration: 10,
-    },
-    {
-      title: "Set Intention",
-      instructions: "Clearly state to yourself what you will focus on during this session. Make it specific and achievable.",
-      duration: 15,
-    },
-    {
-      title: "Focus Period Begins",
-      instructions: "For the next 25 minutes, focus exclusively on your chosen task. If your mind wanders, gently bring it back without judgment.",
-      duration: 60, // This would actually be 25 minutes (1500s) in a real implementation
-    },
-    {
-      title: "Short Break",
-      instructions: "Well done! Take a 5-minute break. Stand up, stretch, or get a glass of water. Avoid screens during this break if possible.",
-      duration: 20, // This would be 5 minutes (300s) in a real implementation
-    },
-    {
-      title: "Reflection",
-      instructions: "How was your focus during that session? Did you notice any patterns in how your mind responded?",
-      duration: 15,
-    },
-    {
-      title: "Next Steps",
-      instructions: "Consider doing another Pomodoro session. After completing 4 sessions, take a longer break of 15-30 minutes.",
-      duration: 10,
-    },
-  ] as ExerciseStep[],
-};
-
-const mindfulnessExercise = {
-  title: "Single-Task Mindfulness",
-  description: "Train your brain to focus deeply on one task at a time, counteracting the focus difficulties during withdrawal.",
-  steps: [
-    {
-      title: "Choose Your Task",
-      instructions: "Select a simple routine activity for this practice - eating a piece of fruit, washing dishes, or even just drinking water.",
-      duration: 10,
-    },
-    {
-      title: "Prepare",
-      instructions: "Remove distractions from your environment. Put aside your phone and turn off notifications.",
-      duration: 10,
-    },
-    {
-      title: "Set Intention",
-      instructions: "Take three deep breaths and set the intention to give this task your complete, undivided attention.",
-      duration: 15,
-    },
-    {
-      title: "Begin With Senses",
-      instructions: "As you start the task, notice all sensory aspects. What do you see? Feel? Hear? Smell? Taste (if applicable)?",
-      duration: 30,
-    },
-    {
-      title: "Notice Details",
-      instructions: "Observe details you normally overlook. The texture, temperature, weight, colors, or subtle sensations.",
-      duration: 30,
-    },
-    {
-      title: "When Mind Wanders",
-      instructions: "Your mind will naturally wander. When you notice this happening, gently return your focus to the sensory experience of the task.",
-      duration: 20,
-    },
-    {
-      title: "Maintain Presence",
-      instructions: "Continue with the task while maintaining full presence. Notice if you start rushing or thinking about finishing.",
-      duration: 60,
-    },
-    {
-      title: "Complete Mindfully",
-      instructions: "Finish the task with the same quality of attention you started with. Notice the completion of the activity.",
-      duration: 20,
-    },
-    {
-      title: "Reflection",
-      instructions: "How was this experience different from how you usually perform this task? Did you notice anything new?",
-      duration: 15,
-    },
-  ] as ExerciseStep[],
-};
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
+import { Timer, Brain, Target, RotateCw, Pause, Play } from 'lucide-react';
+import { toast } from 'sonner';
+import { Badge } from "@/components/ui/badge";
 
 const FocusTools = () => {
-  const [activeExercise, setActiveExercise] = useState<any | null>(null);
-  const [exerciseModalOpen, setExerciseModalOpen] = useState(false);
+  const { impact } = useHaptics();
+  const [activeTimer, setActiveTimer] = useState<string | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [totalTime, setTotalTime] = useState<number>(0);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [timerCompleted, setTimerCompleted] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
-  const startExercise = (exercise: any) => {
-    setActiveExercise(exercise);
-    setExerciseModalOpen(true);
-  };
+  // Effect for running the timer
+  useEffect(() => {
+    let timerId: number | null = null;
+    
+    if (isRunning && timeRemaining > 0) {
+      timerId = window.setInterval(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (isRunning && timeRemaining === 0 && !timerCompleted) {
+      setIsRunning(false);
+      setTimerCompleted(true);
+      impact(HapticImpact.MEDIUM);
+      toast.success("Focus session completed!", {
+        description: "Great job staying focused. Take a short break before starting another session."
+      });
+    }
+    
+    return () => {
+      if (timerId) clearInterval(timerId);
+    };
+  }, [isRunning, timeRemaining, impact, timerCompleted]);
 
-  const handleQuickTool = (toolName: string) => {
-    // For now just show a toast - these could be expanded into mini-exercises later
-    toast.success(`${toolName} activated!`, {
-      description: "This focus tool would provide immediate support."
+  const startTimer = (minutes: number, timerName: string) => {
+    // Convert minutes to seconds
+    const seconds = minutes * 60;
+    setTimeRemaining(seconds);
+    setTotalTime(seconds);
+    setActiveTimer(timerName);
+    setIsRunning(true);
+    setTimerCompleted(false);
+    setIsPaused(false);
+    impact(HapticImpact.LIGHT);
+    
+    toast.info(`${timerName} started`, {
+      description: `${minutes} minute focus session has begun. Stay focused!`
     });
   };
+  
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+    setIsRunning(!isRunning);
+    impact(HapticImpact.LIGHT);
+    
+    if (isRunning) {
+      toast.info("Timer paused", { description: "Resume when you're ready." });
+    } else {
+      toast.info("Timer resumed", { description: "Keep going!" });
+    }
+  };
+  
+  const resetTimer = () => {
+    setIsRunning(false);
+    setActiveTimer(null);
+    setTimeRemaining(0);
+    setTotalTime(0);
+    setTimerCompleted(false);
+    setIsPaused(false);
+    impact(HapticImpact.LIGHT);
+  };
+  
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const calculateProgress = (): number => {
+    if (totalTime === 0) return 0;
+    return ((totalTime - timeRemaining) / totalTime) * 100;
+  };
+  
+  const pomodoroTimers = [
+    { name: "Short Focus", duration: 25, icon: <Timer className="h-8 w-8 text-red-500" /> },
+    { name: "Standard Focus", duration: 45, icon: <Timer className="h-8 w-8 text-orange-500" /> },
+    { name: "Deep Focus", duration: 90, icon: <Timer className="h-8 w-8 text-amber-500" /> }
+  ];
+  
+  const focusTechniques = [
+    {
+      name: "Eliminate Distractions",
+      description: "Practical steps to create a distraction-free environment for maximum focus.",
+      icon: <Brain className="h-6 w-6 text-indigo-500" />,
+      tips: [
+        "Put your phone in another room or on Do Not Disturb mode",
+        "Close browser tabs and applications not needed for your task",
+        "Use noise-cancelling headphones or play ambient background sounds",
+        "Clear your physical workspace of clutter",
+        "Let others know you need uninterrupted time"
+      ]
+    },
+    {
+      name: "Task Breakdown",
+      description: "Techniques for breaking overwhelming tasks into manageable chunks.",
+      icon: <Target className="h-6 w-6 text-violet-500" />,
+      tips: [
+        "Divide large tasks into smaller, specific subtasks",
+        "Start with the easiest part to build momentum",
+        "Set a clear, achievable goal for each focus session",
+        "Focus on one subtask at a time, ignoring the others temporarily",
+        "Celebrate completing each chunk to maintain motivation"
+      ]
+    },
+    {
+      name: "The 2-Minute Rule",
+      description: "If a task takes less than 2 minutes, do it immediately without delay.",
+      icon: <RotateCw className="h-6 w-6 text-purple-500" />,
+      tips: [
+        "Identify quick tasks that can be completed immediately",
+        "Don't procrastinate on small tasks - they accumulate mental load",
+        "For longer tasks, just commit to 2 minutes to overcome initial resistance",
+        "Build momentum by clearing small tasks before tackling bigger ones",
+        "Apply this rule consistently to reduce cognitive overwhelm"
+      ]
+    }
+  ];
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Focus Tools</h1>
-        <p className="text-muted-foreground">
-          Sharpen your concentration and mental clarity during your fresh journey
+        <h1 className="text-3xl font-bold">Focus Enhancement Tools</h1>
+        <p className="text-muted-foreground mt-1">
+          Improve concentration during nicotine withdrawal with these evidence-based techniques.
         </p>
       </div>
-
-      <Tabs defaultValue="exercises">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="exercises">Guided Exercises</TabsTrigger>
-          <TabsTrigger value="quick-tools">Quick Focusers</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="exercises" className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ToolExerciseCard
-              title={attentionResetExercise.title}
-              description={attentionResetExercise.description}
-              duration="4 minutes"
-              difficulty="easy"
-              tags={["Mindfulness", "Brain Fog"]}
-              popular={true}
-              onStart={() => startExercise(attentionResetExercise)}
-            />
-            
-            <ToolExerciseCard
-              title={pomodoroExercise.title}
-              description={pomodoroExercise.description}
-              duration="30 minutes"
-              difficulty="moderate"
-              tags={["Productivity", "Time Management"]}
-              onStart={() => startExercise(pomodoroExercise)}
-            />
-            
-            <ToolExerciseCard
-              title={mindfulnessExercise.title}
-              description={mindfulnessExercise.description}
-              duration="5 minutes"
-              difficulty="moderate"
-              tags={["Mindfulness", "Single-Tasking"]}
-              onStart={() => startExercise(mindfulnessExercise)}
-            />
-
-            <ToolExerciseCard
-              title="Brain Dump Exercise"
-              description="Clear mental clutter by getting all your thoughts out of your head and onto paper."
-              duration="5 minutes"
-              difficulty="easy"
-              tags={["Organization", "Mental Clarity"]}
-              onStart={() => toast.info("This exercise will be available soon!")}
-            />
-
-            <ToolExerciseCard
-              title="Focus Environment Optimization"
-              description="A guided assessment of your workspace to eliminate distractions and enhance focus."
-              duration="7 minutes"
-              difficulty="easy"
-              tags={["Environment", "Setup"]}
-              onStart={() => toast.info("This exercise will be available soon!")}
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="quick-tools">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <QuickToolCard
-              title="Two-Minute Rule"
-              description="If a task takes less than two minutes, do it immediately instead of postponing."
-              icon={Hourglass}
-              iconColor="text-blue-500"
-              iconBgColor="bg-blue-50"
-              onClick={() => handleQuickTool("Two-Minute Rule")}
-            />
-            
-            <QuickToolCard
-              title="Focus Intention"
-              description="Set a clear, specific intention for your next 30 minutes of work."
-              icon={Target}
-              iconColor="text-red-500"
-              iconBgColor="bg-red-50"
-              onClick={() => handleQuickTool("Focus Intention")}
-            />
-            
-            <QuickToolCard
-              title="Task Breakdown"
-              description="Break your next task into smaller, manageable chunks to avoid feeling overwhelmed."
-              icon={ClipboardList}
-              iconColor="text-purple-500"
-              iconBgColor="bg-purple-50"
-              onClick={() => handleQuickTool("Task Breakdown")}
-            />
-            
-            <QuickToolCard
-              title="Centering Breath"
-              description="Take three deep breaths while mentally repeating 'Focus' with each exhale."
-              icon={AlignCenter}
-              iconColor="text-green-500"
-              iconBgColor="bg-green-50"
-              onClick={() => handleQuickTool("Centering Breath")}
-            />
-            
-            <QuickToolCard
-              title="Reading Focus"
-              description="Practice deep focus by reading one paragraph with complete attention."
-              icon={BookOpen}
-              iconColor="text-amber-500"
-              iconBgColor="bg-amber-50"
-              onClick={() => handleQuickTool("Reading Focus")}
-            />
-            
-            <QuickToolCard
-              title="Minimize Mode"
-              description="Close all unnecessary tabs, apps, and notifications for 20 minutes."
-              icon={FoldVertical}
-              iconColor="text-indigo-500"
-              iconBgColor="bg-indigo-50"
-              onClick={() => handleQuickTool("Minimize Mode")}
-            />
-            
-            <QuickToolCard
-              title="Next Action Clarity"
-              description="Identify the exact next physical action required to move forward on your task."
-              icon={CheckSquare}
-              iconColor="text-teal-500"
-              iconBgColor="bg-teal-50"
-              onClick={() => handleQuickTool("Next Action Clarity")}
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {activeExercise && (
-        <ExerciseModal
-          exercise={activeExercise}
-          open={exerciseModalOpen}
-          onClose={() => setExerciseModalOpen(false)}
-        />
+      
+      {/* Active Timer Section */}
+      {activeTimer && (
+        <Card className="mb-8 border-2 border-primary/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center justify-between">
+              <span>{activeTimer}</span>
+              <Badge variant="outline" className={timerCompleted ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
+                {timerCompleted ? "Completed" : "In Progress"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center">
+              <span className="text-4xl font-mono font-semibold">{formatTime(timeRemaining)}</span>
+            </div>
+            <Progress value={calculateProgress()} className="h-2" />
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button 
+              variant="outline" 
+              onClick={resetTimer}
+              className="w-1/3"
+            >
+              Reset
+            </Button>
+            <Button 
+              onClick={togglePause} 
+              className="w-2/3 ml-2"
+              disabled={timerCompleted}
+            >
+              {isPaused ? (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Resume
+                </>
+              ) : (
+                <>
+                  <Pause className="mr-2 h-4 w-4" />
+                  Pause
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       )}
+      
+      {/* Pomodoro Timers Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Focus Timers</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {pomodoroTimers.map((timer, i) => (
+            <Card key={i} className={`hover:shadow-md transition-shadow ${activeTimer === timer.name ? 'border-primary/50 bg-primary/5' : ''}`}>
+              <CardHeader className="pb-2">
+                <div className="flex justify-center">
+                  {timer.icon}
+                </div>
+                <CardTitle className="text-center">{timer.name}</CardTitle>
+                <CardDescription className="text-center">{timer.duration} minutes</CardDescription>
+              </CardHeader>
+              <CardFooter>
+                <Button 
+                  className="w-full"
+                  onClick={() => startTimer(timer.duration, timer.name)}
+                  disabled={isRunning && activeTimer !== timer.name}
+                >
+                  {activeTimer === timer.name && isRunning ? 'In Progress...' : 'Start Timer'}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+      
+      {/* Focus Technique Cards */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Focus Techniques</h2>
+        <div className="space-y-4">
+          {focusTechniques.map((technique, i) => (
+            <Card key={i} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <span className="mr-2">{technique.icon}</span>
+                  {technique.name}
+                </CardTitle>
+                <CardDescription>{technique.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {technique.tips.map((tip, j) => (
+                    <li key={j} className="flex items-start">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-2 mr-2"></span>
+                      <span className="text-sm">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

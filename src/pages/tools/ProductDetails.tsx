@@ -7,9 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { addProductReview } from '@/services/productService';
 import { toast } from 'sonner';
-// Import the actual components instead of defining them locally
-import ProductInfo from '@/components/tools/ProductInfo';
-import ReviewList from '@/components/tools/ReviewList';
+// Import with aliases to avoid naming conflicts
+import ProductInfoComponent from '@/components/tools/ProductInfo';
+import ReviewListComponent from '@/components/tools/ReviewList';
 
 interface Review {
   id: string;
@@ -177,10 +177,10 @@ const ProductDetails = () => {
       </Button>
 
       {/* Product Details Component */}
-      <ProductInfo product={product} />
+      <ProductInfoComponent product={product} />
 
       {/* Reviews Section Component */}
-      <ReviewList 
+      <ReviewListComponent 
         reviews={reviews}
         productId={id!}
         isSubmitting={isSubmitting}

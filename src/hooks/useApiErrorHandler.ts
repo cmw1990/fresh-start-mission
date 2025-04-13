@@ -51,7 +51,7 @@ export function useApiErrorHandler(options: ApiErrorHandlerOptions = {}) {
         setIsLoading(false);
         const saved = saveOfflineData(offlineAction, offlineData);
         
-        if (saved === true) { // Check for true explicitly
+        if (saved) { // Check if saved is truthy
           if (haptic) impact(HapticImpact.LIGHT);
           if (toastErrors) toast.info('You are offline. Your data will be saved and synced when you reconnect.');
         } else {
@@ -70,6 +70,7 @@ export function useApiErrorHandler(options: ApiErrorHandlerOptions = {}) {
           if (haptic) impact(HapticImpact.LIGHT);
         }
         
+        setIsLoading(false); // Move here to ensure it's set before returning
         return { data: result, error: null, isLoading: false };
       } catch (error) {
         console.error('API Error:', error);
@@ -82,13 +83,12 @@ export function useApiErrorHandler(options: ApiErrorHandlerOptions = {}) {
           impact(HapticImpact.HEAVY);
         }
         
+        setIsLoading(false); // Move here to ensure it's set before returning
         return { 
           data: null, 
           error: error instanceof Error ? error : new Error(errorMessage), 
           isLoading: false 
         };
-      } finally {
-        setIsLoading(false);
       }
     },
     [defaultErrorMessage, haptic, impact, isOnline, offlineFallback, saveOfflineData, toastErrors]

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-interface OfflineData {
+export interface OfflineData {
   key: string;
   value: any;
   timestamp: number;
@@ -47,16 +47,21 @@ export const useOfflineSupport = () => {
   
   // Save data for offline use
   const saveOfflineData = (key: string, value: any) => {
-    setOfflineData(prev => [
-      ...prev.filter(item => item.key !== key),
-      {
-        key,
-        value,
-        timestamp: Date.now()
-      }
-    ]);
-    
-    return true; // Return success status
+    try {
+      setOfflineData(prev => [
+        ...prev.filter(item => item.key !== key),
+        {
+          key,
+          value,
+          timestamp: Date.now()
+        }
+      ]);
+      
+      return true; // Return success status
+    } catch (error) {
+      console.error('Error saving offline data:', error);
+      return false;
+    }
   };
   
   // Get offline data by key
@@ -108,12 +113,12 @@ export const useOfflineSupport = () => {
   return {
     isOnline,
     offlineData,
+    pendingItemsCount,
     saveOfflineData,
     getOfflineData,
     clearOfflineData,
     clearAllOfflineData,
     getPendingOfflineData,
-    syncOfflineData,
-    pendingItemsCount
+    syncOfflineData
   };
 };

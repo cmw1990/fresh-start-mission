@@ -1,157 +1,189 @@
 
-import React, { useState } from 'react';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  ClipboardList,
-  Target,
-  BarChart,
-  Wrench,
-  Wind,
-  Zap,
-  Smile,
-  Settings,
-  Footprints,
-  Users,
-  Activity
+import { NavLink, useLocation } from 'react-router-dom';
+import { 
+  HomeIcon, 
+  BarChart3Icon, 
+  UserIcon, 
+  Settings2Icon, 
+  Target, 
+  CalendarCheck, 
+  ListTodo, 
+  Wind, 
+  Battery, 
+  Brain,
+  Heart,
+  Footprints
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '../ui/button';
 
-interface MenuItem {
-  path?: string;
-  label: string;
-  icon: React.ReactNode;
-  children?: MenuItem[];
-}
+type SidebarProps = {
+  isMobile?: boolean;
+  onItemClick?: () => void;
+};
 
-const Sidebar = () => {
+const Sidebar = ({ isMobile = false, onItemClick }: SidebarProps) => {
+  const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { signOut } = useAuth(); // Changed from 'logout' to 'signOut' to match AuthContext
-  const [open, setOpen] = useState(false);
-
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(); // Changed from 'logout' to 'signOut' here too
-      navigate('/login');
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  const menuItems = [
-    { path: '/app/dashboard', icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard' },
-    { path: '/app/log', icon: <ClipboardList className="h-5 w-5" />, label: 'Log Entry' },
-    { path: '/app/goals', icon: <Target className="h-5 w-5" />, label: 'Goals' },
-    { path: '/app/progress', icon: <BarChart className="h-5 w-5" />, label: 'Progress' },
-    { 
-      label: 'Support Tools',
-      icon: <Wrench className="h-5 w-5" />,
-      children: [
-        { path: '/app/tools/cravings', icon: <Wind className="h-5 w-5" />, label: 'Craving Tools' },
-        { path: '/app/tools/energy', icon: <Zap className="h-5 w-5" />, label: 'Energy Tools' },
-        { path: '/app/tools/mood', icon: <Smile className="h-5 w-5" />, label: 'Mood Tools' },
-        { path: '/app/tools/focus', icon: <Target className="h-5 w-5" />, label: 'Focus Tools' },
+  
+  const navItems = [
+    {
+      title: 'Dashboard',
+      href: '/app/dashboard',
+      icon: <HomeIcon className="h-5 w-5" />,
+    },
+    {
+      title: 'Log Entry',
+      href: '/app/log',
+      icon: <CalendarCheck className="h-5 w-5" />,
+    },
+    {
+      title: 'Goals',
+      href: '/app/goals',
+      icon: <Target className="h-5 w-5" />,
+    },
+    {
+      title: 'Progress',
+      href: '/app/progress',
+      icon: <BarChart3Icon className="h-5 w-5" />,
+      submenu: [
+        {
+          title: 'Health Timeline',
+          href: '/app/progress/timeline',
+          icon: <CalendarCheck className="h-4 w-4" />,
+        },
       ]
     },
-    { path: '/app/step-rewards', icon: <Footprints className="h-5 w-5" />, label: 'Step Rewards' },
-    { path: '/app/community', icon: <Users className="h-5 w-5" />, label: 'Community' },
-    { path: '/app/health-integrations', icon: <Activity className="h-5 w-5" />, label: 'Health' },
-    { path: '/app/settings', icon: <Settings className="h-5 w-5" />, label: 'Settings' },
+    {
+      title: 'Support Tools',
+      href: '#',
+      icon: <ListTodo className="h-5 w-5" />,
+      submenu: [
+        {
+          title: 'Craving Tools',
+          href: '/app/tools/cravings',
+          icon: <Wind className="h-4 w-4" />,
+        },
+        {
+          title: 'Energy Tools',
+          href: '/app/tools/energy',
+          icon: <Battery className="h-4 w-4" />,
+        },
+        {
+          title: 'Focus Tools',
+          href: '/app/tools/focus',
+          icon: <Brain className="h-4 w-4" />,
+        },
+        {
+          title: 'Mood Tools',
+          href: '/app/tools/mood',
+          icon: <Heart className="h-4 w-4" />,
+        },
+      ]
+    },
+    {
+      title: 'Step Rewards',
+      href: '/app/rewards',
+      icon: <Footprints className="h-5 w-5" />,
+    },
+    {
+      title: 'Profile',
+      href: '/app/profile',
+      icon: <UserIcon className="h-5 w-5" />,
+    },
+    {
+      title: 'Settings',
+      href: '/app/settings',
+      icon: <Settings2Icon className="h-5 w-5" />,
+    },
   ];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" className="absolute left-4 top-4 rounded-full lg:hidden">
-          Menu
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="w-full sm:w-64">
-        <SheetHeader className="text-left">
-          <SheetTitle>Mission Fresh</SheetTitle>
-          <SheetDescription>
-            Navigate your journey
-          </SheetDescription>
-        </SheetHeader>
-        <Separator className="my-4" />
-        <div className="flex flex-col space-y-2.5">
-          {menuItems.map((item, index) => (
-            item.path ? (
-              <Button
-                key={index}
-                variant="ghost"
-                className={cn(
-                  "justify-start px-4",
-                  isActive(item.path) ? "font-semibold" : "font-normal"
-                )}
-                onClick={() => {
-                  navigate(item.path);
-                  setOpen(false); // Close sidebar on navigation
-                }}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Button>
-            ) : (
-              <Accordion type="single" collapsible key={index}>
-                <AccordionItem value={`item-${index}`}>
-                  <AccordionTrigger className="px-4">{item.label}</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="flex flex-col space-y-2">
-                      {item.children?.map((child, childIndex) => (
-                        <Button
-                          key={childIndex}
-                          variant="ghost"
-                          className={cn(
-                            "justify-start pl-8",
-                            isActive(child.path || '') ? "font-semibold" : "font-normal"
-                          )}
-                          onClick={() => {
-                            if (child.path) {
-                              navigate(child.path);
-                              setOpen(false); // Close sidebar on navigation
-                            }
-                          }}
-                        >
-                          {child.icon}
-                          <span>{child.label}</span>
-                        </Button>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            )
-          ))}
+    <div className={cn(
+      "flex flex-col h-full bg-background border-r",
+      isMobile ? "py-2" : "py-6 w-64"
+    )}>
+      {!isMobile && (
+        <div className="px-6 mb-6">
+          <h1 className="text-xl font-bold">Mission Fresh</h1>
         </div>
-        <Separator className="my-4" />
-        <Button variant="destructive" onClick={handleLogout} className="w-full">
-          Log Out
-        </Button>
-      </SheetContent>
-    </Sheet>
+      )}
+      <nav className="space-y-1 px-2 flex-1 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = item.href !== '#' ? location.pathname === item.href : 
+                          item.submenu?.some(subitem => location.pathname === subitem.href);
+          
+          if (item.submenu) {
+            const isExpanded = item.submenu.some(subitem => location.pathname === subitem.href);
+            
+            return (
+              <div key={item.title} className="space-y-1">
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    isActive ? "bg-muted font-medium" : ""
+                  )}
+                >
+                  {item.icon}
+                  {!isMobile && <span className="ml-3">{item.title}</span>}
+                </Button>
+                
+                <div className={cn("space-y-1 ml-6", isExpanded ? "block" : "block")}>
+                  {item.submenu.map(subitem => (
+                    <NavLink
+                      key={subitem.href}
+                      to={subitem.href}
+                      onClick={onItemClick}
+                      className={({ isActive }) => cn(
+                        "flex items-center px-3 py-2 text-sm rounded-md",
+                        isActive 
+                          ? "bg-primary/10 text-primary font-medium" 
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      {subitem.icon}
+                      {!isMobile && <span className="ml-3">{subitem.title}</span>}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          
+          return (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              onClick={onItemClick}
+              className={({ isActive }) => cn(
+                "flex items-center px-3 py-2 rounded-md",
+                isActive 
+                  ? "bg-primary/10 text-primary font-medium" 
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )}
+            >
+              {item.icon}
+              {!isMobile && <span className="ml-3">{item.title}</span>}
+            </NavLink>
+          );
+        })}
+      </nav>
+      
+      {!isMobile && user && (
+        <div className="p-4 border-t mt-auto">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-primary/10 text-primary flex items-center justify-center rounded-full">
+              {user.email?.[0].toUpperCase() || 'U'}
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium truncate">{user.email}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
