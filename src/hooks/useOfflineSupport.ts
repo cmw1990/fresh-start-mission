@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useHaptics, HapticImpact } from './useHaptics';
@@ -18,6 +17,12 @@ export function useOfflineSupport(): OfflineSupportReturn {
   const [offlineData, setOfflineData] = useState<Record<string, any[]>>({});
   const [lastSyncAttempt, setLastSyncAttempt] = useState<Date | null>(null);
   const { impact } = useHaptics();
+  
+  // Calculate the total count of pending items - moved up before it's used
+  const pendingItemsCount = Object.values(offlineData).reduce(
+    (count, items) => count + items.length, 
+    0
+  );
   
   // Load any existing offline data from localStorage
   useEffect(() => {
@@ -169,12 +174,6 @@ export function useOfflineSupport(): OfflineSupportReturn {
       return () => clearInterval(periodicSync);
     }
   }, [isOnline, offlineData, syncOfflineData]);
-  
-  // Calculate the total count of pending items
-  const pendingItemsCount = Object.values(offlineData).reduce(
-    (count, items) => count + items.length, 
-    0
-  );
   
   return {
     isOnline,

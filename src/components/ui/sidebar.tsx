@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useIsMobile } from "@/hooks/use-mobile"  // Updated import
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const sidebarVariants = cva("relative h-full flex-col", {
   variants: {
@@ -72,19 +72,14 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     },
     ref
   ) => {
-    // Extract the boolean value from the useIsMobile hook
     const { isMobile } = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false)
 
-    // This is the internal state of the sidebar.
-    // Only use this state if the sidebar is uncontrolled (no `state` and `onStateChange` props are provided).
     const [internalOpen, setInternalOpen] = React.useState(true)
 
-    // Determine whether we're in a controlled or uncontrolled state.
     const isControlled = state !== undefined && !!onStateChange
     const open = isControlled ? state : internalOpen
 
-    // This function handles the toggling of the sidebar.
     const handleToggle = React.useCallback(() => {
       if (isControlled) {
         onStateChange?.(!state)
@@ -93,7 +88,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       }
     }, [isControlled, onStateChange, state])
 
-    // Toggle the sidebar when clicking the trigger.
     const handleTriggerClick = React.useCallback(() => {
       handleToggle()
     }, [handleToggle])

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,20 +7,22 @@ import EnhancedMobileStepTracker from '@/components/mobile/EnhancedMobileStepTra
 import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 import OfflineIndicator from '@/components/common/OfflineIndicator';
 import { useQuery } from '@tanstack/react-query';
-import { getDashboardStats } from '@/services/dashboardService';
+import { getDashboardStats, DashboardStats } from '@/services/dashboardService';
 import { toast } from 'sonner';
 
 const MobileDashboard = () => {
   const { impact } = useHaptics();
   
-  // Fetch real data from the dashboard service
+  // Updated useQuery with proper error handling approach for v5+
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['mobile-dashboard-stats'],
     queryFn: getDashboardStats,
-    onError: (error) => {
-      toast.error("Couldn't load dashboard data", {
-        description: "Please check your connection and try again."
-      });
+    meta: {
+      onError: (error: Error) => {
+        toast.error("Couldn't load dashboard data", {
+          description: "Please check your connection and try again."
+        });
+      }
     }
   });
   
