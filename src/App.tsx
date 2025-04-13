@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
@@ -28,6 +29,8 @@ import FocusTools from './pages/app/tools/FocusTools';
 import AppLayout from './components/layout/AppLayout';
 import StepRewards from './pages/app/StepRewards';
 import Profile from './pages/app/Profile';
+import Community from './pages/app/Community';
+import HealthIntegrations from './pages/app/HealthIntegrations';
 import { ToastProvider } from './components/ui/toast-provider';
 import SplashScreen from './components/app/SplashScreen';
 

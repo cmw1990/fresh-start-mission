@@ -1,13 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PageBreadcrumb } from '@/components/ui/page-breadcrumb';
+import PageBreadcrumb from '@/components/common/PageBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, ClipboardList, Footprints, LayoutDashboard, Settings, Smile, Target, Wind, Wrench, Zap } from 'lucide-react';
-import { HolisticMetricsChart } from '@/components/app/dashboard/HolisticMetricsChart';
-import { CravingIntensityChart } from '@/components/app/dashboard/CravingIntensityChart';
-import { StepTracker } from '@/components/app/dashboard/StepTracker';
-import { WidgetCustomizer } from '@/components/app/dashboard/WidgetCustomizer';
 import AiInsights from '@/components/app/dashboard/AiInsights';
 
 const Dashboard = () => {
@@ -69,9 +66,7 @@ const Dashboard = () => {
   
   return (
     <div className="p-6">
-      <PageBreadcrumb 
-        items={[{ label: 'Dashboard', active: true }]} 
-      />
+      <PageBreadcrumb />
       
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Welcome back, {username || 'User'}</h1>
@@ -128,7 +123,9 @@ const Dashboard = () => {
                 <CardDescription>Average daily craving levels</CardDescription>
               </CardHeader>
               <CardContent>
-                <CravingIntensityChart />
+                <div className="h-64 flex items-center justify-center">
+                  <p className="text-muted-foreground">Craving data visualization</p>
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -137,7 +134,9 @@ const Dashboard = () => {
                 <CardDescription>Mood, energy, and focus trends</CardDescription>
               </CardHeader>
               <CardContent>
-                <HolisticMetricsChart />
+                <div className="h-64 flex items-center justify-center">
+                  <p className="text-muted-foreground">Holistic metrics visualization</p>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -145,7 +144,21 @@ const Dashboard = () => {
         
         {/* Sidebar content */}
         <div className="space-y-6">
-          <StepTracker />
+          <Card>
+            <CardHeader>
+              <CardTitle>Step Tracker</CardTitle>
+              <CardDescription>Daily progress</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold">6,428</div>
+              <p className="text-muted-foreground">Steps today</p>
+              <div className="mt-4 h-2 bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: '64%' }} />
+              </div>
+              <p className="text-sm mt-2">Goal: 10,000 steps</p>
+            </CardContent>
+          </Card>
+          
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
@@ -159,8 +172,6 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
-      
-      <WidgetCustomizer />
     </div>
   );
 };
