@@ -1,3 +1,4 @@
+
 // First, let's define the DashboardStats type to match what the component is using
 export interface DashboardStats {
   name: string;

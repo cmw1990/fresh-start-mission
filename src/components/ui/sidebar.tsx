@@ -96,6 +96,8 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       setOpenMobile((prev) => !prev)
     }, [])
 
+    const navRef = useRef<HTMLElement>(null);
+
     return (
       <>
         <nav

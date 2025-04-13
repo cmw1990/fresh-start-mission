@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useHaptics, HapticImpact } from './useHaptics';
@@ -18,7 +19,7 @@ export function useOfflineSupport(): OfflineSupportReturn {
   const [lastSyncAttempt, setLastSyncAttempt] = useState<Date | null>(null);
   const { impact } = useHaptics();
   
-  // Calculate the total count of pending items - moved up before it's used
+  // Calculate the total count of pending items
   const pendingItemsCount = Object.values(offlineData).reduce(
     (count, items) => count + items.length, 
     0
