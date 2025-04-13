@@ -1,29 +1,43 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Calendar, Heart, Brain, Zap, Plus, ArrowRight } from 'lucide-react';
+import { Calendar, Heart, Brain, Zap, Plus, ArrowRight, Footprints } from 'lucide-react';
 import EnhancedMobileStepTracker from '@/components/mobile/EnhancedMobileStepTracker';
 import { useHaptics, HapticImpact } from "@/hooks/useHaptics";
 import OfflineIndicator from '@/components/common/OfflineIndicator';
+import { useQuery } from '@tanstack/react-query';
+import { getDashboardStats } from '@/services/dashboardService';
+import { toast } from 'sonner';
 
 const MobileDashboard = () => {
   const { impact } = useHaptics();
   
-  // Placeholder data for the dashboard
-  const userData = {
-    name: 'Alex',
-    daysAfresh: 7,
-    moneySaved: 42.50,
+  // Fetch real data from the dashboard service
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ['mobile-dashboard-stats'],
+    queryFn: getDashboardStats,
+    onError: (error) => {
+      toast.error("Couldn't load dashboard data", {
+        description: "Please check your connection and try again."
+      });
+    }
+  });
+  
+  // Default data while loading or if fetch fails
+  const userData = dashboardData || {
+    name: 'Fresh User',
+    daysAfresh: 0,
+    moneySaved: 0,
     lastCraving: {
-      time: '2 hours ago',
-      intensity: 6
+      time: 'None recorded',
+      intensity: 0
     },
     metrics: {
-      mood: 4,
+      mood: 3,
       energy: 3,
-      focus: 4
+      focus: 3
     }
   };
   
@@ -31,12 +45,21 @@ const MobileDashboard = () => {
     impact(HapticImpact.LIGHT);
   };
   
+  // Provide haptic feedback when the dashboard loads
+  useEffect(() => {
+    if (!isLoading && dashboardData) {
+      impact(HapticImpact.LIGHT);
+    }
+  }, [isLoading, dashboardData, impact]);
+  
   return (
     <div className="space-y-6 pb-20">
       <OfflineIndicator />
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Hi, {userData.name}!</h1>
+        <h1 className="text-2xl font-bold">
+          {isLoading ? 'Welcome!' : `Hi, ${userData.name || 'Fresh User'}!`}
+        </h1>
         <Button 
           onClick={() => {
             impact(HapticImpact.MEDIUM);
@@ -56,19 +79,25 @@ const MobileDashboard = () => {
         <CardHeader className="pb-2">
           <CardTitle>Your Fresh Journey</CardTitle>
           <CardDescription>
-            Day {userData.daysAfresh} of Staying Afresh
+            {isLoading ? 'Loading your progress...' : 
+              userData.daysAfresh > 0 
+                ? `Day ${userData.daysAfresh} of Staying Afresh` 
+                : 'Begin your Fresh journey today!'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between">
             <div>
               <p className="text-sm font-medium">Money saved</p>
-              <p className="text-2xl font-bold">${userData.moneySaved.toFixed(2)}</p>
+              <p className="text-2xl font-bold">${isLoading ? '0.00' : userData.moneySaved.toFixed(2)}</p>
             </div>
             <div>
               <p className="text-sm font-medium">Last craving</p>
-              <p className="text-lg">{userData.lastCraving.time}</p>
-              <p className="text-sm text-muted-foreground">Intensity: {userData.lastCraving.intensity}/10</p>
+              <p className="text-lg">{isLoading ? 'Loading...' : userData.lastCraving.time}</p>
+              {userData.lastCraving.intensity > 0 && (
+                <p className="text-sm text-muted-foreground">Intensity: {userData.lastCraving.intensity}/10</p>
+              )}
             </div>
           </div>
           

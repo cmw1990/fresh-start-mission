@@ -7,10 +7,16 @@ import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
 const MobileAppNav = () => {
   const location = useLocation();
-  const { impact } = useHaptics();
+  const { impact, notification } = useHaptics();
   
-  const handleNavClick = () => {
-    impact(HapticImpact.LIGHT);
+  const handleNavClick = (isActive: boolean) => {
+    if (!isActive) {
+      // Use a light impact for regular navigation
+      impact(HapticImpact.LIGHT);
+    } else {
+      // Use notification haptic for trying to navigate to the current page
+      notification();
+    }
   };
 
   const navItems = [
@@ -55,7 +61,7 @@ const MobileAppNav = () => {
                 "flex flex-col items-center justify-center w-full h-full",
                 isActive ? "text-fresh-500" : "text-gray-500"
               )}
-              onClick={handleNavClick}
+              onClick={() => handleNavClick(isActive)}
             >
               <div className={cn(
                 "transition-all",

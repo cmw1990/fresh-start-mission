@@ -13,15 +13,22 @@ export function useIsMobile(breakpoint = 768) {
     
     // Check if we're running as a native app
     const checkIfNative = () => {
+      // Check for Capacitor
+      const hasCapacitor = typeof (window as any).Capacitor !== 'undefined';
+      
+      // Check for Capacitor plugins (which are only initialized in native apps)
+      const hasCapacitorPlugins = !!(window as any).Capacitor?.Plugins?.Haptics ||
+        !!(window as any).Capacitor?.Plugins?.App;
+      
+      // Check user agent for mobile platform indicators
       const userAgent = navigator.userAgent.toLowerCase();
-      // Check for capacitor or cordova
-      const isNative = 
-        typeof (window as any).Capacitor !== 'undefined' || 
+      const hasMobilePlatformIndicators = 
         userAgent.includes('capacitor') ||
         userAgent.includes('android') || 
         userAgent.includes('ios');
       
-      setIsNativeApp(isNative);
+      // We're in a native app if we have Capacitor and either plugins or mobile platform indicators
+      setIsNativeApp(hasCapacitor && (hasCapacitorPlugins || hasMobilePlatformIndicators));
     };
     
     // Initial checks
@@ -35,7 +42,9 @@ export function useIsMobile(breakpoint = 768) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, [breakpoint]);
 
-  return { isMobile, isNativeApp, isMobileOrNative: isMobile || isNativeApp };
+  return { 
+    isMobile, 
+    isNativeApp, 
+    isMobileOrNative: isMobile || isNativeApp 
+  };
 }
-
-// Remove the duplicate export to fix the error
