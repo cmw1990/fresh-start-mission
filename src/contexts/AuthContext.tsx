@@ -1,154 +1,206 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signOut: () => Promise<void>;
+import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+
+// Define the User type
+type User = {
+  id: string;
+  email: string;
+  created_at: string;
+} | null;
+
+// Define the AuthState type
+type AuthState = {
+  user: User;
   loading: boolean;
   error: string | null;
-  initializeAuth: () => void;
-}
+};
 
-const AuthContext = createContext<AuthContextType>({
+// Define action types
+type AuthAction =
+  | { type: 'AUTH_INIT' }
+  | { type: 'AUTH_SUCCESS'; payload: User }
+  | { type: 'AUTH_FAILURE'; payload: string }
+  | { type: 'AUTH_RESET' };
+
+// Initial state
+const initialState: AuthState = {
   user: null,
-  session: null,
-  signIn: async () => {},
-  signUp: async () => {},
-  signOut: async () => {},
-  loading: true,
+  loading: false,
   error: null,
-  initializeAuth: () => {}
+};
+
+// Create context
+const AuthContext = createContext<{
+  user: User;
+  loading: boolean;
+  error: string | null;
+  signUp: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  initializeAuth: () => Promise<void>;
+}>({
+  ...initialState,
+  signUp: async () => {},
+  signIn: async () => {},
+  signOut: async () => {},
+  resetPassword: async () => {},
+  initializeAuth: async () => {},
 });
 
-export const useAuth = () => useContext(AuthContext);
+// Reducer function
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  switch (action.type) {
+    case 'AUTH_INIT':
+      return { ...state, loading: true, error: null };
+    case 'AUTH_SUCCESS':
+      return { user: action.payload, loading: false, error: null };
+    case 'AUTH_FAILURE':
+      return { ...state, loading: false, error: action.payload };
+    case 'AUTH_RESET':
+      return initialState;
+    default:
+      return state;
+  }
+};
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [initialized, setInitialized] = useState(false);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+  const navigate = useNavigate();
 
-  const initializeAuth = useCallback(() => {
-    if (initialized) return;
-    
-    setLoading(true);
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      setInitialized(true);
-    }).catch(error => {
-      console.error('Error initializing auth:', error);
-      setLoading(false);
-      setInitialized(true);
-    });
-  }, [initialized]);
+  // Initialize authentication state
+  const initializeAuth = useCallback(async () => {
+    try {
+      dispatch({ type: 'AUTH_INIT' });
+      
+      // Check if user is already logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        dispatch({ type: 'AUTH_SUCCESS', payload: session.user });
+      } else {
+        dispatch({ type: 'AUTH_SUCCESS', payload: null });
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      dispatch({ type: 'AUTH_FAILURE', payload: 'Authentication failed to initialize' });
+    }
+  }, []);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      setLoading(false);
-    });
+  // Sign up function
+  const signUp = useCallback(async (email: string, password: string) => {
+    try {
+      dispatch({ type: 'AUTH_INIT' });
+      
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      
+      if (error) throw error;
+      
+      if (data.session) {
+        dispatch({ type: 'AUTH_SUCCESS', payload: data.user });
+        toast.success("Account created successfully! Please check your email for verification.");
+        navigate('/app/dashboard');
+      } else {
+        // Email confirmation required
+        toast.info("Please check your email to confirm your account.");
+        dispatch({ type: 'AUTH_SUCCESS', payload: null });
+      }
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      toast.error(error.message || 'Failed to create account');
+      dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Failed to create account' });
+    }
+  }, [navigate]);
 
-    initializeAuth();
+  // Sign in function
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      dispatch({ type: 'AUTH_INIT' });
+      
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) throw error;
+      
+      dispatch({ type: 'AUTH_SUCCESS', payload: data.user });
+      toast.success("Signed in successfully!");
+      navigate('/app/dashboard');
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      toast.error(error.message || 'Failed to sign in');
+      dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Failed to sign in' });
+    }
+  }, [navigate]);
+
+  // Sign out function
+  const signOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+      dispatch({ type: 'AUTH_RESET' });
+      toast.info("Signed out successfully");
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      toast.error(error.message || 'Failed to sign out');
+    }
+  }, [navigate]);
+
+  // Reset password function
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      dispatch({ type: 'AUTH_INIT' });
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Password reset email sent!");
+      dispatch({ type: 'AUTH_SUCCESS', payload: null });
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      toast.error(error.message || 'Failed to send password reset email');
+      dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Failed to send password reset email' });
+    }
+  }, []);
+
+  // Setup auth listener for changes
+  React.useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          dispatch({ type: 'AUTH_SUCCESS', payload: session.user });
+        } else if (event === 'SIGNED_OUT') {
+          dispatch({ type: 'AUTH_RESET' });
+        }
+      }
+    );
 
     return () => {
-      subscription.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
-  }, [initializeAuth]);
+  }, []);
 
-  const signIn = async (email: string, password: string): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (error) {
-        setError(error.message);
-        throw error;
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string, name: string): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name
-          }
-        }
-      });
-      
-      if (error) {
-        setError(error.message);
-        throw error;
-      }
-      
-      toast.success('Sign up successful! Please check your email for verification.');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign up');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOut = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        setError(error.message);
-        throw error;
-      }
-      
-      setUser(null);
-      setSession(null);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign out');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const value = {
-    user,
-    session,
-    signIn,
-    signUp,
-    signOut,
-    loading,
-    error,
-    initializeAuth
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  // Create memoized context value
+  const value = useMemo(
+    () => ({
+      user: state.user,
+      loading: state.loading,
+      error: state.error,
+      signUp,
+      signIn,
+      signOut,
+      resetPassword,
+      initializeAuth,
+    }),
+    [state, signUp, signIn, signOut, resetPassword, initializeAuth]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+// Custom hook to use the auth context
+export const useAuth = () => useContext(AuthContext);

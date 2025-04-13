@@ -1,369 +1,224 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, differenceInDays, differenceInHours, addDays, isAfter, isBefore } from 'date-fns';
-import { getUserGoal } from '@/services/goalService';
-import { UserGoal } from '@/lib/supabase';
-import { CircleCheckBig, CircleCheck, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from "@/components/ui/button";
+import { getUserGoal } from '@/services/goalService';
+import { differenceInDays, format, addDays } from 'date-fns';
 
-interface TimelineMilestone {
+interface Milestone {
   id: string;
   title: string;
   description: string;
-  days: number;
-  hours?: number;
-  icon?: React.ReactNode;
-  category: 'physical' | 'mental' | 'long-term';
+  daysAfterQuit: number;
+  achieved: boolean;
 }
 
-const HealthTimeline = () => {
-  const [goal, setGoal] = useState<UserGoal | null>(null);
-  const [loading, setLoading] = useState(true);
+const milestoneData: Omit<Milestone, 'achieved'>[] = [
+  {
+    id: '20min',
+    title: '20 Minutes',
+    description: 'Your heart rate and blood pressure drop.',
+    daysAfterQuit: 0,
+  },
+  {
+    id: '12hrs',
+    title: '12 Hours',
+    description: 'Carbon monoxide levels in your blood drop to normal.',
+    daysAfterQuit: 0.5,
+  },
+  {
+    id: '24hrs',
+    title: '24 Hours',
+    description: 'Your risk of heart attack begins to decrease.',
+    daysAfterQuit: 1,
+  },
+  {
+    id: '48hrs',
+    title: '48 Hours',
+    description: 'Your nerve endings start to regrow, and your sense of smell and taste improve.',
+    daysAfterQuit: 2,
+  },
+  {
+    id: '72hrs',
+    title: '72 Hours',
+    description: 'Nicotine is completely out of your body. Breathing becomes easier.',
+    daysAfterQuit: 3,
+  },
+  {
+    id: '1wk',
+    title: '1 Week',
+    description: 'Your risk of heart attack has dropped. Your sense of taste and smell have improved.',
+    daysAfterQuit: 7,
+  },
+  {
+    id: '2wks',
+    title: '2 Weeks',
+    description: 'Circulation improves and lung function increases up to 30%.',
+    daysAfterQuit: 14,
+  },
+  {
+    id: '1month',
+    title: '1 Month',
+    description: 'Cilia regrow in your lungs, increasing ability to handle mucus and reduce infection.',
+    daysAfterQuit: 30,
+  },
+  {
+    id: '3months',
+    title: '3 Months',
+    description: 'Your circulation and lung function continue to improve.',
+    daysAfterQuit: 90,
+  },
+  {
+    id: '6months',
+    title: '6 Months',
+    description: 'You may notice less coughing and shortness of breath. You have more energy.',
+    daysAfterQuit: 180,
+  },
+  {
+    id: '1year',
+    title: '1 Year',
+    description: 'Your risk of heart disease has dropped to half that of a smoker.',
+    daysAfterQuit: 365,
+  },
+  {
+    id: '5years',
+    title: '5 Years',
+    description: 'Your risk of stroke has reduced to that of a non-smoker.',
+    daysAfterQuit: 1825,
+  },
+  {
+    id: '10years',
+    title: '10 Years',
+    description: 'Your risk of dying from lung cancer is about half that of a smoker.',
+    daysAfterQuit: 3650,
+  },
+  {
+    id: '15years',
+    title: '15 Years',
+    description: 'Your risk of heart disease is the same as someone who never smoked.',
+    daysAfterQuit: 5475,
+  },
+];
+
+const HealthTimeline: React.FC = () => {
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [quitDate, setQuitDate] = useState<Date | null>(null);
-  const [activeCategory, setActiveCategory] = useState<'all' | 'physical' | 'mental' | 'long-term'>('all');
+  const [daysSinceQuit, setDaysSinceQuit] = useState(0);
+  const [goalType, setGoalType] = useState<'afresh' | 'fresher' | null>(null);
   
   useEffect(() => {
-    const fetchGoal = async () => {
+    const fetchGoalData = async () => {
       try {
-        const userGoal = await getUserGoal();
-        setGoal(userGoal);
+        const goal = await getUserGoal();
         
-        if (userGoal?.quit_date) {
-          setQuitDate(new Date(userGoal.quit_date));
+        if (goal) {
+          setGoalType(goal.goal_type as 'afresh' | 'fresher');
+          
+          if (goal.quit_date) {
+            const parsedQuitDate = new Date(goal.quit_date);
+            setQuitDate(parsedQuitDate);
+            
+            const today = new Date();
+            const days = differenceInDays(today, parsedQuitDate);
+            setDaysSinceQuit(Math.max(0, days));
+            
+            // Update milestones based on quit date
+            const updatedMilestones = milestoneData.map(milestone => ({
+              ...milestone,
+              achieved: days >= milestone.daysAfterQuit
+            }));
+            
+            setMilestones(updatedMilestones);
+          }
         }
       } catch (error) {
-        console.error("Error fetching goal:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching goal data:", error);
       }
     };
     
-    fetchGoal();
+    fetchGoalData();
   }, []);
-  
-  const milestones: TimelineMilestone[] = [
-    {
-      id: '20min',
-      title: '20 Minutes',
-      description: 'Your heart rate begins to drop towards a normal level.',
-      days: 0,
-      hours: 0.33, // 20 minutes in hours
-      icon: <Clock className="h-10 w-10 text-red-500" />,
-      category: 'physical'
-    },
-    {
-      id: '2hrs',
-      title: '2 Hours',
-      description: 'Your heart rate and blood pressure normalize. Peripheral circulation improves.',
-      days: 0,
-      hours: 2,
-      category: 'physical'
-    },
-    {
-      id: '12hrs',
-      title: '12 Hours',
-      description: 'Carbon monoxide level in blood drops to normal. Oxygen levels increase to normal.',
-      days: 0,
-      hours: 12,
-      category: 'physical'
-    },
-    {
-      id: '24hrs',
-      title: '24 Hours',
-      description: 'Anxiety and irritability peak as physical withdrawal kicks in. Risk of heart attack begins to decrease.',
-      days: 1,
-      category: 'physical'
-    },
-    {
-      id: '48hrs',
-      title: '48 Hours',
-      description: 'Nerve endings start to regrow. Your sense of smell and taste begin to improve.',
-      days: 2,
-      category: 'physical'
-    },
-    {
-      id: '72hrs',
-      title: '72 Hours',
-      description: 'Bronchial tubes relax, making breathing easier. Energy levels increase.',
-      days: 3,
-      category: 'physical'
-    },
-    {
-      id: '1week',
-      title: '1 Week',
-      description: 'Your odds of quitting successfully increase significantly if you make it one week.',
-      days: 7,
-      category: 'mental'
-    },
-    {
-      id: '2weeks',
-      title: '2 Weeks',
-      description: 'Circulation continues to improve. Walking becomes easier. Lung function increases.',
-      days: 14,
-      category: 'physical'
-    },
-    {
-      id: '1month',
-      title: '1 Month',
-      description: 'Clear and deeper breathing. Energy levels continue to increase. Cilia begin functioning properly.',
-      days: 30,
-      category: 'physical'
-    },
-    {
-      id: '3months',
-      title: '3 Months',
-      description: 'Circulation has substantially improved. Lung function has increased by up to 30%.',
-      days: 90,
-      category: 'physical'
-    },
-    {
-      id: '6months',
-      title: '6 Months',
-      description: 'Withdrawal symptoms largely subside. Lung capacity improves. Coughing, sinus congestion, and shortness of breath improve.',
-      days: 180,
-      category: 'physical'
-    },
-    {
-      id: '9months',
-      title: '9 Months',
-      description: 'Lung cilia have recovered. Energy levels are much higher. Breathing problems decrease significantly.',
-      days: 270,
-      category: 'physical'
-    },
-    {
-      id: '1year',
-      title: '1 Year',
-      description: 'Risk of heart disease has decreased to half that of a smoker.',
-      days: 365,
-      category: 'long-term'
-    },
-    {
-      id: '5years',
-      title: '5 Years',
-      description: 'Risk of stroke is reduced to that of someone who has never smoked.',
-      days: 365 * 5,
-      category: 'long-term'
-    },
-    {
-      id: '10years',
-      title: '10 Years',
-      description: 'Risk of lung cancer falls to about half that of a smoker. Risk of other cancers decreases significantly.',
-      days: 365 * 10,
-      category: 'long-term'
-    },
-    {
-      id: '15years',
-      title: '15 Years',
-      description: 'Risk of heart disease is now similar to that of someone who has never smoked.',
-      days: 365 * 15,
-      category: 'long-term'
-    }
-  ];
-  
-  const getMilestoneDate = (milestone: TimelineMilestone): Date | null => {
-    if (!quitDate) return null;
-    
-    if (milestone.hours !== undefined) {
-      // For hour-based milestones
-      return new Date(quitDate.getTime() + milestone.hours * 60 * 60 * 1000);
-    } else {
-      // For day-based milestones
-      return addDays(quitDate, milestone.days);
-    }
-  };
-  
-  const getMilestoneStatus = (milestone: TimelineMilestone): 'completed' | 'upcoming' | 'current' => {
-    if (!quitDate) return 'upcoming';
-    
-    const today = new Date();
-    const milestoneDate = getMilestoneDate(milestone);
-    
-    if (!milestoneDate) return 'upcoming';
-    
-    if (isBefore(milestoneDate, today)) {
-      return 'completed';
-    } else if (differenceInDays(milestoneDate, today) < 1) {
-      return 'current';
-    } else {
-      return 'upcoming';
-    }
-  };
-  
-  const getTimeUntil = (milestone: TimelineMilestone): string => {
-    if (!quitDate) return '';
-    
-    const today = new Date();
-    const milestoneDate = getMilestoneDate(milestone);
-    
-    if (!milestoneDate) return '';
-    
-    if (isBefore(milestoneDate, today)) {
-      return 'Completed!';
-    }
-    
-    const daysUntil = differenceInDays(milestoneDate, today);
-    
-    if (daysUntil === 0) {
-      const hoursUntil = differenceInHours(milestoneDate, today);
-      return `${hoursUntil} hours to go`;
-    } else if (daysUntil === 1) {
-      return '1 day to go';
-    } else {
-      return `${daysUntil} days to go`;
-    }
-  };
-  
-  const getFilteredMilestones = () => {
-    if (activeCategory === 'all') {
-      return milestones;
-    } else {
-      return milestones.filter(m => m.category === activeCategory);
-    }
-  };
-  
-  if (loading) {
-    return (
-      <div className="container py-8 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-      </div>
-    );
-  }
-  
-  if (!goal || !quitDate) {
+
+  if (!quitDate && goalType !== 'afresh') {
     return (
       <div className="container py-8">
-        <Card>
+        <Card className="border-2 border-fresh-100">
           <CardHeader>
-            <CardTitle>No Quit Date Set</CardTitle>
+            <CardTitle>Health Timeline</CardTitle>
             <CardDescription>
-              Set a quit date in your goals to see your personalized health timeline.
+              To view your personal health recovery timeline, you need to set a quit date 
+              in your goals with the "Staying Afresh" goal type.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => window.location.href = '/app/goals'}>
-              Set Quit Date
+            <Button 
+              className="bg-fresh-300 hover:bg-fresh-400"
+              onClick={() => window.location.href = '/app/goals'}
+            >
+              Set Your Quit Date
             </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
-  
+
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Health Improvement Timeline</h1>
-        <p className="text-muted-foreground mt-1">
-          Your personalized timeline based on your quit date: {format(quitDate, 'MMMM d, yyyy')}
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">Your Health Recovery Timeline</h1>
+        {quitDate && (
+          <p className="text-muted-foreground">
+            {daysSinceQuit === 0 ? (
+              <span>Starting your journey today! Here's what to expect.</span>
+            ) : (
+              <span>
+                {daysSinceQuit} {daysSinceQuit === 1 ? 'day' : 'days'} since your quit date ({format(quitDate, 'MMMM d, yyyy')})
+              </span>
+            )}
+          </p>
+        )}
       </div>
       
-      {/* Category filters */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Button 
-          variant={activeCategory === 'all' ? 'default' : 'outline'} 
-          onClick={() => setActiveCategory('all')}
-          size="sm"
-        >
-          All
-        </Button>
-        <Button 
-          variant={activeCategory === 'physical' ? 'default' : 'outline'} 
-          onClick={() => setActiveCategory('physical')}
-          size="sm"
-        >
-          Physical
-        </Button>
-        <Button 
-          variant={activeCategory === 'mental' ? 'default' : 'outline'}
-          onClick={() => setActiveCategory('mental')}
-          size="sm"
-        >
-          Mental
-        </Button>
-        <Button 
-          variant={activeCategory === 'long-term' ? 'default' : 'outline'}
-          onClick={() => setActiveCategory('long-term')}
-          size="sm"
-        >
-          Long-term
-        </Button>
-      </div>
-      
-      {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted"></div>
-        
-        {/* Timeline items */}
-        <div className="space-y-8 ml-10">
-          {getFilteredMilestones().map((milestone) => {
-            const status = getMilestoneStatus(milestone);
-            const milestoneDate = getMilestoneDate(milestone);
-            
-            return (
-              <div key={milestone.id} className="relative">
-                {/* Timeline marker */}
-                <div className="absolute -left-10 flex items-center justify-center">
-                  <div 
-                    className={cn(
-                      "h-8 w-8 rounded-full flex items-center justify-center",
-                      status === 'completed' ? "bg-green-100" : 
-                      status === 'current' ? "bg-blue-100" : 
-                      "bg-gray-100"
+      <div className="space-y-6">
+        {milestones.map((milestone) => {
+          const milestoneDate = quitDate ? addDays(quitDate, milestone.daysAfterQuit) : null;
+          
+          return (
+            <Card 
+              key={milestone.id} 
+              className={`border-l-4 ${milestone.achieved ? 'border-l-green-500' : 'border-l-gray-300'}`}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg">
+                    {milestone.title}
+                    {milestone.achieved && (
+                      <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                        Achieved
+                      </span>
                     )}
-                  >
-                    {status === 'completed' ? (
-                      <CircleCheck className="h-6 w-6 text-green-500" />
-                    ) : (
-                      <Clock className={cn(
-                        "h-6 w-6",
-                        status === 'current' ? "text-blue-500" : "text-gray-400"
-                      )} />
-                    )}
-                  </div>
+                  </CardTitle>
+                  {milestoneDate && (
+                    <span className="text-sm text-muted-foreground">
+                      {format(milestoneDate, 'MMM d, yyyy')}
+                    </span>
+                  )}
                 </div>
-                
-                {/* Timeline content */}
-                <Card className={cn(
-                  "transition-all",
-                  status === 'completed' ? "border-green-200 bg-green-50/50" : 
-                  status === 'current' ? "border-blue-200 bg-blue-50/50" : 
-                  ""
-                )}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle>{milestone.title}</CardTitle>
-                        {milestoneDate && (
-                          <CardDescription>
-                            {format(milestoneDate, 'MMMM d, yyyy')}
-                          </CardDescription>
-                        )}
-                      </div>
-                      <div>
-                        <span className={cn(
-                          "text-sm font-medium px-2 py-1 rounded",
-                          status === 'completed' ? "bg-green-100 text-green-700" : 
-                          status === 'current' ? "bg-blue-100 text-blue-700" : 
-                          "bg-gray-100 text-gray-700"
-                        )}>
-                          {status === 'completed' ? 'Achieved' : 
-                           status === 'current' ? 'In Progress' : 
-                           getTimeUntil(milestone)}
-                        </span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p>{milestone.description}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            );
-          })}
+                <CardDescription>{milestone.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          );
+        })}
+        
+        <div className="mt-8 bg-muted p-4 rounded-md">
+          <h3 className="font-medium text-lg mb-2">Note about this timeline:</h3>
+          <p className="text-sm text-muted-foreground">
+            This timeline represents general health improvements that most people experience after quitting nicotine. 
+            Individual experiences may vary based on factors like how long and how much you used nicotine, 
+            your overall health, and lifestyle factors. This information is based on research primarily from 
+            cigarette smoking cessation but applies generally to other forms of nicotine use.
+          </p>
         </div>
       </div>
     </div>

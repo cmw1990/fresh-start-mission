@@ -1,17 +1,23 @@
 
-import { TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle } from "lucide-react";
+import React from 'react';
+import { TabsContent } from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
+import { FormMessage } from '@/components/ui/form';
+import { Slider } from '@/components/ui/slider';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 
 interface CravingsTabProps {
   cravingIntensity: number;
   setCravingIntensity: (value: number) => void;
   cravingTrigger: string;
   setCravingTrigger: (value: string) => void;
-  errors?: Record<string, string>;
+  errors: Record<string, string>;
 }
 
 const CravingsTab: React.FC<CravingsTabProps> = ({
@@ -19,84 +25,74 @@ const CravingsTab: React.FC<CravingsTabProps> = ({
   setCravingIntensity,
   cravingTrigger,
   setCravingTrigger,
-  errors = {}
+  errors
 }) => {
-  const getIntensityLabel = (value: number) => {
-    if (value <= 2) return "Barely Noticeable";
-    if (value <= 4) return "Mild";
-    if (value <= 6) return "Moderate";
-    if (value <= 8) return "Strong";
-    return "Extreme";
-  };
-
   return (
-    <TabsContent value="cravings" className="space-y-4 py-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Craving Details</CardTitle>
-          <CardDescription>
-            Track your cravings and what triggers them
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label>Craving Intensity (0-10)</Label>
-                <span className="text-sm font-medium">
-                  {cravingIntensity}: {getIntensityLabel(cravingIntensity)}
-                </span>
-              </div>
-              <Slider
-                defaultValue={[cravingIntensity]}
-                min={0}
-                max={10}
-                step={1}
-                onValueChange={(values) => setCravingIntensity(values[0])}
-              />
-              {errors.cravingIntensity && (
-                <div className="flex items-center text-destructive mt-2 text-sm">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  <span>{errors.cravingIntensity}</span>
-                </div>
-              )}
+    <TabsContent value="cravings" className="py-4">
+      <div className="space-y-8">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="craving-intensity">Craving Intensity (0-10)</Label>
+              <span className="text-xl font-semibold">{cravingIntensity}</span>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="craving-trigger">What triggered your craving?</Label>
-              <Select 
-                value={cravingTrigger} 
-                onValueChange={setCravingTrigger}
-              >
-                <SelectTrigger id="craving-trigger" className="w-full">
-                  <SelectValue placeholder="Select trigger" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="stress">Stress</SelectItem>
-                  <SelectItem value="boredom">Boredom</SelectItem>
-                  <SelectItem value="social">Social Situation</SelectItem>
-                  <SelectItem value="food">After Eating</SelectItem>
-                  <SelectItem value="coffee">Coffee/Alcohol</SelectItem>
-                  <SelectItem value="driving">Driving</SelectItem>
-                  <SelectItem value="morning">Morning Routine</SelectItem>
-                  <SelectItem value="phone">Phone Call</SelectItem>
-                  <SelectItem value="argument">Argument</SelectItem>
-                  <SelectItem value="television">Watching TV</SelectItem>
-                  <SelectItem value="work">Work Situation</SelectItem>
-                  <SelectItem value="emotional">Emotional Response</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.cravingTrigger && (
-                <div className="flex items-center text-destructive mt-2 text-sm">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  <span>{errors.cravingTrigger}</span>
-                </div>
-              )}
+            <Slider 
+              id="craving-intensity" 
+              min={0} 
+              max={10} 
+              step={1} 
+              value={[cravingIntensity]} 
+              onValueChange={(vals) => setCravingIntensity(vals[0])}
+              className="py-4"
+            />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>None</span>
+              <span>Mild</span>
+              <span>Moderate</span>
+              <span>Strong</span>
+              <span>Extreme</span>
             </div>
+            {errors.cravingIntensity && <FormMessage>{errors.cravingIntensity}</FormMessage>}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="craving-trigger">What triggered your craving?</Label>
+          <Select
+            value={cravingTrigger}
+            onValueChange={setCravingTrigger}
+          >
+            <SelectTrigger id="craving-trigger" className="w-full">
+              <SelectValue placeholder="Select a trigger" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="stress">Stress</SelectItem>
+              <SelectItem value="boredom">Boredom</SelectItem>
+              <SelectItem value="social">Social situation</SelectItem>
+              <SelectItem value="after-meal">After a meal</SelectItem>
+              <SelectItem value="alcohol">Drinking alcohol</SelectItem>
+              <SelectItem value="coffee">Coffee/caffeine</SelectItem>
+              <SelectItem value="habitual">Habitual/routine</SelectItem>
+              <SelectItem value="mood">Negative mood</SelectItem>
+              <SelectItem value="withdrawal">Withdrawal symptoms</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.cravingTrigger && <FormMessage>{errors.cravingTrigger}</FormMessage>}
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Craving Coping Tips:</h3>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>Try drinking water or brushing your teeth</li>
+            <li>Do a quick 2-minute breathing exercise</li>
+            <li>Distract yourself with a short walk</li>
+            <li>Call or text a supportive friend</li>
+            <li>Remember why you're quitting/reducing</li>
+            <li>Use our craving tools in the Tools section</li>
+          </ul>
+        </div>
+      </div>
     </TabsContent>
   );
 };

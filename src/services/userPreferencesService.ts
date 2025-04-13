@@ -1,38 +1,24 @@
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
-export type DashboardWidget = 'keyStats' | 'wellness' | 'milestone' | 'quote' | 'supportTools';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-type UserPreferences = {
-  theme?: 'light' | 'dark' | 'system';
-  notifications?: Record<string, boolean>;
-  dashboard_widgets?: DashboardWidget[];
-  cost_per_product?: Record<string, number>;
-  show_welcome?: boolean;
+export type UserPreferences = {
+  id?: string;
+  user_id?: string;
+  theme?: string;
+  notification_logs?: boolean;
+  notification_milestones?: boolean;
+  notification_cravings?: boolean;
+  dashboard_widgets?: string[];
+  created_at?: string;
+  updated_at?: string;
 };
 
-// This type represents what actually comes from the database
-type UserPreferencesDB = {
-  id: string;
-  user_id: string;
-  theme: string;
-  dashboard_widgets: string[];
-  created_at: string;
-  updated_at: string;
-  notification_cravings: boolean;
-  notification_logs: boolean;
-  notification_milestones: boolean;
-  cost_per_product: Record<string, number>;
-  show_welcome: boolean;
-};
-
-export async function getUserPreferences(): Promise<UserPreferences | null> {
+export const getUserPreferences = async (): Promise<UserPreferences> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    if (!user) throw new Error("User not authenticated");
     
     const { data, error } = await supabase
       .from('user_preferences')
@@ -42,119 +28,101 @@ export async function getUserPreferences(): Promise<UserPreferences | null> {
     
     if (error) throw error;
     
-    // Return the preferences or null if none exist
-    if (!data) return null;
+    if (!data) {
+      // Create default preferences if none exist
+      return createDefaultPreferences();
+    }
     
-    // Convert database format to our service format
-    const dbData = data as UserPreferencesDB;
-    
-    const preferences: UserPreferences = {
-      theme: dbData.theme as 'light' | 'dark' | 'system',
-      notifications: {
-        daily_reminders: dbData.notification_logs,
-        milestone_alerts: dbData.notification_milestones,
-        craving_support: dbData.notification_cravings
-      },
-      dashboard_widgets: dbData.dashboard_widgets as DashboardWidget[],
-      cost_per_product: dbData.cost_per_product,
-      show_welcome: dbData.show_welcome
-    };
-    
-    return preferences;
+    return data;
   } catch (error) {
     console.error('Error fetching user preferences:', error);
-    return null;
+    return {
+      theme: 'light',
+      notification_logs: true,
+      notification_milestones: true,
+      notification_cravings: true,
+      dashboard_widgets: ['keyStats', 'wellness', 'milestone', 'quote', 'supportTools']
+    };
   }
-}
+};
 
-export async function saveUserPreferences(preferences: Partial<UserPreferences>): Promise<void> {
+export const createDefaultPreferences = async (): Promise<UserPreferences> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    if (!user) throw new Error("User not authenticated");
     
-    // Convert our service format to database format
-    const dbPreferences: Partial<UserPreferencesDB> = {};
+    const defaultPrefs: UserPreferences = {
+      user_id: user.id,
+      theme: 'light',
+      notification_logs: true,
+      notification_milestones: true,
+      notification_cravings: true,
+      dashboard_widgets: ['keyStats', 'wellness', 'milestone', 'quote', 'supportTools']
+    };
     
-    if (preferences.theme) {
-      dbPreferences.theme = preferences.theme;
-    }
-    
-    if (preferences.notifications) {
-      dbPreferences.notification_logs = preferences.notifications.daily_reminders || false;
-      dbPreferences.notification_milestones = preferences.notifications.milestone_alerts || false;
-      dbPreferences.notification_cravings = preferences.notifications.craving_support || false;
-    }
-    
-    if (preferences.dashboard_widgets) {
-      dbPreferences.dashboard_widgets = preferences.dashboard_widgets;
-    }
-    
-    if (preferences.cost_per_product) {
-      dbPreferences.cost_per_product = preferences.cost_per_product;
-    }
-    
-    if (preferences.show_welcome !== undefined) {
-      dbPreferences.show_welcome = preferences.show_welcome;
-    }
-    
-    // First check if the user has existing preferences
-    const { data: existingData, error: fetchError } = await supabase
+    const { data, error } = await supabase
       .from('user_preferences')
-      .select('*')
+      .insert(defaultPrefs)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return data;
+  } catch (error) {
+    console.error('Error creating default preferences:', error);
+    throw error;
+  }
+};
+
+export const updateUserPreferences = async (preferences: Partial<UserPreferences>): Promise<UserPreferences> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error("User not authenticated");
+    
+    // First check if preferences exist
+    const { data: existingPrefs } = await supabase
+      .from('user_preferences')
+      .select('id')
       .eq('user_id', user.id)
       .maybeSingle();
     
-    if (fetchError) throw fetchError;
-    
-    if (existingData) {
-      // Update existing preferences
-      const { error: updateError } = await supabase
-        .from('user_preferences')
-        .update(dbPreferences)
-        .eq('user_id', user.id);
+    if (!existingPrefs) {
+      // Create with these preferences
+      const newPrefs = {
+        user_id: user.id,
+        ...preferences
+      };
       
-      if (updateError) throw updateError;
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .insert(newPrefs)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      toast.success("Preferences saved!");
+      return data;
     } else {
-      // Insert new preferences
-      const { error: insertError } = await supabase
+      // Update existing preferences
+      const { data, error } = await supabase
         .from('user_preferences')
-        .insert({ 
-          user_id: user.id,
-          ...dbPreferences
-        });
+        .update(preferences)
+        .eq('id', existingPrefs.id)
+        .select()
+        .single();
       
-      if (insertError) throw insertError;
+      if (error) throw error;
+      
+      toast.success("Preferences updated!");
+      return data;
     }
-  } catch (error: any) {
-    console.error('Error saving user preferences:', error);
-    toast.error(`Failed to save preferences: ${error.message}`);
+  } catch (error) {
+    console.error('Error updating user preferences:', error);
+    toast.error("Failed to save preferences");
     throw error;
   }
-}
-
-export async function updateDashboardWidgets(widgetIds: DashboardWidget[]): Promise<void> {
-  return saveUserPreferences({
-    dashboard_widgets: widgetIds
-  });
-}
-
-export async function updateThemePreference(theme: 'light' | 'dark' | 'system'): Promise<void> {
-  return saveUserPreferences({
-    theme
-  });
-}
-
-export async function updateProductCosts(costs: Record<string, number>): Promise<void> {
-  return saveUserPreferences({
-    cost_per_product: costs
-  });
-}
-
-export async function dismissWelcomeMessage(): Promise<void> {
-  return saveUserPreferences({
-    show_welcome: false
-  });
-}
+};

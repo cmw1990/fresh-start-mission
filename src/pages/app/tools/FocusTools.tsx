@@ -1,247 +1,437 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Timer, Brain, ListChecks, Focus as FocusIcon, Headphones } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
-import { Timer, Brain, Target, RotateCw, Pause, Play } from 'lucide-react';
-import { toast } from 'sonner';
-import { Badge } from "@/components/ui/badge";
 
 const FocusTools = () => {
   const { impact } = useHaptics();
-  const [activeTimer, setActiveTimer] = useState<string | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
-  const [totalTime, setTotalTime] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [timerCompleted, setTimerCompleted] = useState<boolean>(false);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerMinutes, setTimerMinutes] = useState(25);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  
+  const handleToolComplete = () => {
+    impact(HapticImpact.MEDIUM);
+  };
 
-  // Effect for running the timer
-  useEffect(() => {
-    let timerId: number | null = null;
+  const startTimer = () => {
+    setTimerRunning(true);
+    impact(HapticImpact.MEDIUM);
     
-    if (isRunning && timeRemaining > 0) {
-      timerId = window.setInterval(() => {
-        setTimeRemaining(prev => prev - 1);
-      }, 1000);
-    } else if (isRunning && timeRemaining === 0 && !timerCompleted) {
-      setIsRunning(false);
-      setTimerCompleted(true);
-      impact(HapticImpact.MEDIUM);
-      toast.success("Focus session completed!", {
-        description: "Great job staying focused. Take a short break before starting another session."
-      });
-    }
-    
-    return () => {
-      if (timerId) clearInterval(timerId);
-    };
-  }, [isRunning, timeRemaining, impact, timerCompleted]);
-
-  const startTimer = (minutes: number, timerName: string) => {
-    // Convert minutes to seconds
-    const seconds = minutes * 60;
-    setTimeRemaining(seconds);
-    setTotalTime(seconds);
-    setActiveTimer(timerName);
-    setIsRunning(true);
-    setTimerCompleted(false);
-    setIsPaused(false);
-    impact(HapticImpact.LIGHT);
-    
-    toast.info(`${timerName} started`, {
-      description: `${minutes} minute focus session has begun. Stay focused!`
-    });
+    // In a real app, we'd implement the actual timer functionality here
+    setTimeout(() => {
+      setTimerRunning(false);
+      impact(HapticImpact.HEAVY);
+    }, 5000); // Just for demo, real timer would use the actual time
   };
-  
-  const togglePause = () => {
-    setIsPaused(!isPaused);
-    setIsRunning(!isRunning);
-    impact(HapticImpact.LIGHT);
-    
-    if (isRunning) {
-      toast.info("Timer paused", { description: "Resume when you're ready." });
-    } else {
-      toast.info("Timer resumed", { description: "Keep going!" });
-    }
-  };
-  
-  const resetTimer = () => {
-    setIsRunning(false);
-    setActiveTimer(null);
-    setTimeRemaining(0);
-    setTotalTime(0);
-    setTimerCompleted(false);
-    setIsPaused(false);
-    impact(HapticImpact.LIGHT);
-  };
-  
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-  
-  const calculateProgress = (): number => {
-    if (totalTime === 0) return 0;
-    return ((totalTime - timeRemaining) / totalTime) * 100;
-  };
-  
-  const pomodoroTimers = [
-    { name: "Short Focus", duration: 25, icon: <Timer className="h-8 w-8 text-red-500" /> },
-    { name: "Standard Focus", duration: 45, icon: <Timer className="h-8 w-8 text-orange-500" /> },
-    { name: "Deep Focus", duration: 90, icon: <Timer className="h-8 w-8 text-amber-500" /> }
-  ];
-  
-  const focusTechniques = [
-    {
-      name: "Eliminate Distractions",
-      description: "Practical steps to create a distraction-free environment for maximum focus.",
-      icon: <Brain className="h-6 w-6 text-indigo-500" />,
-      tips: [
-        "Put your phone in another room or on Do Not Disturb mode",
-        "Close browser tabs and applications not needed for your task",
-        "Use noise-cancelling headphones or play ambient background sounds",
-        "Clear your physical workspace of clutter",
-        "Let others know you need uninterrupted time"
-      ]
-    },
-    {
-      name: "Task Breakdown",
-      description: "Techniques for breaking overwhelming tasks into manageable chunks.",
-      icon: <Target className="h-6 w-6 text-violet-500" />,
-      tips: [
-        "Divide large tasks into smaller, specific subtasks",
-        "Start with the easiest part to build momentum",
-        "Set a clear, achievable goal for each focus session",
-        "Focus on one subtask at a time, ignoring the others temporarily",
-        "Celebrate completing each chunk to maintain motivation"
-      ]
-    },
-    {
-      name: "The 2-Minute Rule",
-      description: "If a task takes less than 2 minutes, do it immediately without delay.",
-      icon: <RotateCw className="h-6 w-6 text-purple-500" />,
-      tips: [
-        "Identify quick tasks that can be completed immediately",
-        "Don't procrastinate on small tasks - they accumulate mental load",
-        "For longer tasks, just commit to 2 minutes to overcome initial resistance",
-        "Build momentum by clearing small tasks before tackling bigger ones",
-        "Apply this rule consistently to reduce cognitive overwhelm"
-      ]
-    }
-  ];
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Focus Enhancement Tools</h1>
-        <p className="text-muted-foreground mt-1">
-          Improve concentration during nicotine withdrawal with these evidence-based techniques.
+        <h1 className="text-3xl font-bold tracking-tight">Focus Enhancement Tools</h1>
+        <p className="text-muted-foreground">
+          Tools and techniques to improve concentration and mental clarity
         </p>
       </div>
       
-      {/* Active Timer Section */}
-      {activeTimer && (
-        <Card className="mb-8 border-2 border-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center justify-between">
-              <span>{activeTimer}</span>
-              <Badge variant="outline" className={timerCompleted ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
-                {timerCompleted ? "Completed" : "In Progress"}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center">
-              <span className="text-4xl font-mono font-semibold">{formatTime(timeRemaining)}</span>
-            </div>
-            <Progress value={calculateProgress()} className="h-2" />
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button 
-              variant="outline" 
-              onClick={resetTimer}
-              className="w-1/3"
-            >
-              Reset
-            </Button>
-            <Button 
-              onClick={togglePause} 
-              className="w-2/3 ml-2"
-              disabled={timerCompleted}
-            >
-              {isPaused ? (
-                <>
-                  <Play className="mr-2 h-4 w-4" />
-                  Resume
-                </>
-              ) : (
-                <>
-                  <Pause className="mr-2 h-4 w-4" />
-                  Pause
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-      
-      {/* Pomodoro Timers Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Focus Timers</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {pomodoroTimers.map((timer, i) => (
-            <Card key={i} className={`hover:shadow-md transition-shadow ${activeTimer === timer.name ? 'border-primary/50 bg-primary/5' : ''}`}>
-              <CardHeader className="pb-2">
-                <div className="flex justify-center">
-                  {timer.icon}
+      <Tabs defaultValue="pomodoro" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
+          <TabsTrigger value="mindfulness">Mindfulness</TabsTrigger>
+          <TabsTrigger value="techniques">Techniques</TabsTrigger>
+          <TabsTrigger value="environment">Environment</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="pomodoro" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Timer className="h-8 w-8 text-red-500" />
+                Pomodoro Timer
+              </CardTitle>
+              <CardDescription>Focus intensely for 25 minutes, then take a 5-minute break</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center space-y-8">
+                <div className="text-6xl font-bold tabular-nums">
+                  {String(timerMinutes).padStart(2, '0')}:{String(timerSeconds).padStart(2, '0')}
                 </div>
-                <CardTitle className="text-center">{timer.name}</CardTitle>
-                <CardDescription className="text-center">{timer.duration} minutes</CardDescription>
-              </CardHeader>
-              <CardFooter>
+                
+                <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                  <Button 
+                    onClick={startTimer}
+                    disabled={timerRunning}
+                    variant="default"
+                    className="bg-fresh-400 hover:bg-fresh-500"
+                  >
+                    {timerRunning ? 'In Progress...' : 'Start Focus Session'}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => {
+                      setTimerRunning(false);
+                      setTimerMinutes(25);
+                      setTimerSeconds(0);
+                      impact(HapticImpact.LIGHT);
+                    }}
+                    variant="outline"
+                    disabled={!timerRunning}
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="mt-8 space-y-4">
+                <h3 className="text-lg font-medium">Pomodoro Technique:</h3>
+                <ol className="list-decimal pl-5 space-y-2">
+                  <li>Work with complete focus for 25 minutes</li>
+                  <li>Take a 5-minute break</li>
+                  <li>After 4 cycles, take a longer 15-30 minute break</li>
+                  <li>During focus time, avoid all distractions</li>
+                </ol>
+                
+                <div className="bg-muted p-4 rounded-md mt-4">
+                  <h4 className="font-medium">Why it works:</h4>
+                  <p className="text-sm mt-1">This technique is especially helpful during nicotine withdrawal when concentration is impaired. The structured format makes focus more manageable, and the frequent breaks give your brain recovery time.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="mindfulness" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-8 w-8 text-purple-500" />
+                Focused Attention Meditation
+              </CardTitle>
+              <CardDescription>Train your attention with this brief meditation</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Sit comfortably with your back straight</li>
+                <li>Focus your attention on your breath</li>
+                <li>When your mind wanders (it will), gently return focus to breath</li>
+                <li>Continue for 5 minutes, gradually increasing duration</li>
+                <li>This practice strengthens your "attention muscle"</li>
+              </ol>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 5 minutes</span>
                 <Button 
-                  className="w-full"
-                  onClick={() => startTimer(timer.duration, timer.name)}
-                  disabled={isRunning && activeTimer !== timer.name}
+                  onClick={handleToolComplete}
+                  variant="outline"
                 >
-                  {activeTimer === timer.name && isRunning ? 'In Progress...' : 'Start Timer'}
+                  Start Practice
                 </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </div>
-      
-      {/* Focus Technique Cards */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Focus Techniques</h2>
-        <div className="space-y-4">
-          {focusTechniques.map((technique, i) => (
-            <Card key={i} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center">
-                  <span className="mr-2">{technique.icon}</span>
-                  {technique.name}
-                </CardTitle>
-                <CardDescription>{technique.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {technique.tips.map((tip, j) => (
-                    <li key={j} className="flex items-start">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-2 mr-2"></span>
-                      <span className="text-sm">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Single-Tasking Practice</CardTitle>
+              <CardDescription>Train yourself to focus on one task at a time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">This exercise helps reset your focus capacity:</p>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Choose one simple task (reading, writing, etc.)</li>
+                <li>Set a timer for 10 minutes</li>
+                <li>Focus ONLY on that task - no checking phone, no other windows open</li>
+                <li>If distracted, gently bring focus back to the task</li>
+                <li>Gradually increase the time as your focus improves</li>
+              </ol>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 10 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Exercise
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Body Scan for Focus</CardTitle>
+              <CardDescription>Ground your attention through body awareness</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">This practice helps bring your scattered attention back to the present:</p>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Sit or lie down comfortably</li>
+                <li>Direct your attention to your feet</li>
+                <li>Slowly move attention up through each body part</li>
+                <li>Notice sensations without judgment</li>
+                <li>End by bringing awareness to your whole body</li>
+              </ol>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 5 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Practice
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Box Breathing for Mental Clarity</CardTitle>
+              <CardDescription>Clear your mind with this breathing technique</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Inhale slowly for 4 counts</li>
+                <li>Hold your breath for 4 counts</li>
+                <li>Exhale slowly for 4 counts</li>
+                <li>Hold your breath out for 4 counts</li>
+                <li>Repeat for 2-5 minutes</li>
+              </ol>
+              <p className="text-sm text-muted-foreground mb-4">
+                This technique balances your nervous system and promotes mental clarity. It's especially helpful when nicotine withdrawal causes brain fog or anxiety.
+              </p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 2 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Breathing
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="techniques" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ListChecks className="h-8 w-8 text-sky-500" />
+                Task Chunking
+              </CardTitle>
+              <CardDescription>Break tasks into manageable chunks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">During nicotine withdrawal, your focus capacity may be reduced. Break tasks into smaller steps:</p>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Identify one task you need to complete</li>
+                <li>Break it down into 3-5 smaller subtasks</li>
+                <li>Make each chunk small enough to feel doable</li>
+                <li>Focus on completing one chunk at a time</li>
+                <li>Take a brief break between chunks</li>
+              </ol>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Try This Method
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Two-Minute Rule</CardTitle>
+              <CardDescription>Start with tiny commitments to overcome resistance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">When focus is challenging, use this technique:</p>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Commit to just 2 minutes of focused work</li>
+                <li>After 2 minutes, decide if you want to continue</li>
+                <li>If yes, continue for another short period</li>
+                <li>If no, take a break and try again later</li>
+              </ol>
+              <p className="text-sm text-muted-foreground mb-4">
+                Starting is often the hardest part. This technique lowers the barrier to beginning, after which momentum often carries you forward.
+              </p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 2+ minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Timer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Focus After Distraction Recovery</CardTitle>
+              <CardDescription>Quick reset when you've lost focus</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">When you notice you've been distracted:</p>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Take 3 deep, slow breaths</li>
+                <li>State your intention: "I'm going to focus on [task] now"</li>
+                <li>Close or minimize distracting tabs/apps</li>
+                <li>Set a timer for 10 minutes of focused work</li>
+                <li>Start with the smallest next action</li>
+              </ol>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Practice Reset
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FocusIcon className="h-8 w-8 text-emerald-500" />
+                Attention Training Exercise
+              </CardTitle>
+              <CardDescription>Strengthen focus like a muscle</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Choose a mundane object (pen, paperclip, etc.)</li>
+                <li>Set a timer for 3 minutes</li>
+                <li>Focus exclusively on the object, examining details</li>
+                <li>When mind wanders, gently bring it back</li>
+                <li>Gradually increase time as your focus improves</li>
+              </ol>
+              <p className="text-sm text-muted-foreground mb-4">
+                This practice develops concentration when nicotine isn't providing artificial focus enhancement.
+              </p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 3 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Exercise
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="environment" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Distraction-Free Zone</CardTitle>
+              <CardDescription>Create an environment for optimal focus</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Set up your workspace to minimize distractions:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Clear Visual Space:</strong> Remove clutter from your desk and visual field</li>
+                <li><strong>Phone Distance:</strong> Place phone out of sight, on silent</li>
+                <li><strong>Browser Hygiene:</strong> Close unrelated tabs, use focus mode</li>
+                <li><strong>Notification Pause:</strong> Turn off all non-essential alerts</li>
+                <li><strong>Signal to Others:</strong> Use headphones or a "do not disturb" sign</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Create Checklist
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Headphones className="h-8 w-8 text-indigo-500" />
+                Focus-Enhancing Sounds
+              </CardTitle>
+              <CardDescription>Audio environments that promote concentration</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">These sounds can help sustain attention:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>White Noise:</strong> Masks distracting environmental sounds</li>
+                <li><strong>Nature Sounds:</strong> Rain, ocean waves, forest soundscapes</li>
+                <li><strong>Instrumental Music:</strong> Ambient, classical, lo-fi (no lyrics)</li>
+                <li><strong>Binaural Beats:</strong> Can promote specific brain states</li>
+              </ul>
+              <p className="text-sm text-muted-foreground mb-4">
+                Some people are more focused with background sound, others with silence. Experiment to find what works for you.
+              </p>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Try Sample Sounds
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Focus Triggers</CardTitle>
+              <CardDescription>Create cues that signal "focus time" to your brain</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Establish rituals that prepare your mind for focus:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Physical Cue:</strong> Wear specific glasses, special workspace lighting</li>
+                <li><strong>Scent Anchor:</strong> Use a specific essential oil or scent</li>
+                <li><strong>Focus Playlist:</strong> Play the same music to signal focus time</li>
+                <li><strong>Start-Up Ritual:</strong> 2-minute breathing exercise before work</li>
+                <li><strong>Positioning:</strong> A specific posture or seating arrangement</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Create Your Ritual
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Digital Focus Tools</CardTitle>
+              <CardDescription>Apps and extensions to support concentration</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Technology can help manage digital distractions:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Website Blockers:</strong> Temporarily block distracting sites</li>
+                <li><strong>Focus Mode:</strong> Enable on your device/browser</li>
+                <li><strong>Time Tracking:</strong> Visualize how you spend time</li>
+                <li><strong>Digital Wellbeing:</strong> Set app usage limits</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  View Recommendations
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

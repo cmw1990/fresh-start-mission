@@ -1,26 +1,11 @@
+import { useState, useEffect, useCallback } from 'react';
 
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+export function useOfflineSupport() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [offlineData, setOfflineData] = useState<Record<string, any[]>>({});
 
-export interface OfflineData {
-  key: string;
-  value: any;
-  timestamp: number;
-}
-
-export const useOfflineSupport = () => {
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [offlineData, setOfflineData] = useState<OfflineData[]>([]);
-  
-  // Monitor online/offline status
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    // Load offline data from localStorage on mount
+    // Load any saved offline data from localStorage
     try {
       const savedData = localStorage.getItem('offlineData');
       if (savedData) {
@@ -29,96 +14,68 @@ export const useOfflineSupport = () => {
     } catch (error) {
       console.error('Error loading offline data:', error);
     }
-    
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-  
-  // Update localStorage when offlineData changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('offlineData', JSON.stringify(offlineData));
-    } catch (error) {
-      console.error('Error saving offline data:', error);
-    }
-  }, [offlineData]);
-  
+
   // Save data for offline use
-  const saveOfflineData = (key: string, value: any) => {
+  const saveOfflineData = useCallback((actionType: string, data: any) => {
     try {
-      setOfflineData(prev => [
-        ...prev.filter(item => item.key !== key),
-        {
-          key,
-          value,
-          timestamp: Date.now()
-        }
-      ]);
+      const newOfflineData = { ...offlineData };
       
-      return true; // Return success status
-    } catch (error) {
-      console.error('Error saving offline data:', error);
-      return false;
-    }
-  };
-  
-  // Get offline data by key
-  const getOfflineData = (key: string) => {
-    return offlineData.find(item => item.key === key)?.value;
-  };
-  
-  // Clear processed offline data
-  const clearOfflineData = (key: string) => {
-    setOfflineData(prev => prev.filter(item => item.key !== key));
-  };
-  
-  // Clear all offline data
-  const clearAllOfflineData = () => {
-    setOfflineData([]);
-  };
-  
-  // Get all pending offline data
-  const getPendingOfflineData = () => {
-    return offlineData;
-  };
-  
-  // Sync offline data with backend when online
-  const syncOfflineData = async () => {
-    if (!isOnline || offlineData.length === 0) {
-      return false;
-    }
-    
-    try {
-      // In a real implementation, we would send data to the backend
-      // For demo purposes, we'll just simulate success and clear the data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!newOfflineData[actionType]) {
+        newOfflineData[actionType] = [];
+      }
       
-      // Clear all synced data
-      clearAllOfflineData();
+      // Add timestamp to track when this was saved
+      const dataWithTimestamp = {
+        ...data,
+        _offlineSavedAt: new Date().toISOString()
+      };
       
-      toast.success(`Successfully synced ${offlineData.length} items`);
+      newOfflineData[actionType].push(dataWithTimestamp);
+      
+      // Save to state and localStorage
+      setOfflineData(newOfflineData);
+      localStorage.setItem('offlineData', JSON.stringify(newOfflineData));
+      
       return true;
     } catch (error) {
-      console.error('Error syncing offline data:', error);
-      toast.error('Failed to sync offline data');
+      console.error('Error saving offline data:', error);
       return false;
     }
-  };
-  
-  // Calculate the number of pending items
-  const pendingItemsCount = offlineData.length;
-  
+  }, [offlineData]);
+
+  // Function to sync offline data when back online
+  const syncOfflineData = useCallback(async () => {
+    if (!isOnline || Object.keys(offlineData).length === 0) {
+      return;
+    }
+    
+    // Here we would implement logic to sync each type of offline data
+    // This is a placeholder for the actual implementation
+    console.log('Syncing offline data:', offlineData);
+    
+    // After successful sync, clear the offline data
+    // setOfflineData({});
+    // localStorage.removeItem('offlineData');
+    
+    return true;
+  }, [isOnline, offlineData]);
+
   return {
     isOnline,
     offlineData,
-    pendingItemsCount,
     saveOfflineData,
-    getOfflineData,
-    clearOfflineData,
-    clearAllOfflineData,
-    getPendingOfflineData,
     syncOfflineData
   };
-};
+}

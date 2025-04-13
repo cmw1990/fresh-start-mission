@@ -1,260 +1,332 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Zap, Coffee, Droplets, Utensils, SunMoon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
-import { Droplet, Utensils, Dumbbell, Battery } from 'lucide-react';
-import { ExerciseModal } from '@/components/tools/ExerciseModal';
-import { toast } from 'sonner';
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const EnergyTools = () => {
   const { impact } = useHaptics();
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  const openTool = (toolName: string) => {
-    setSelectedTool(toolName);
-    setIsModalOpen(true);
-    impact(HapticImpact.LIGHT);
-  };
   
   const handleToolComplete = () => {
     impact(HapticImpact.MEDIUM);
-    setIsModalOpen(false);
-    toast.success("Energy boost complete!", {
-      description: "Remember to use these techniques whenever you feel an energy slump."
-    });
-  };
-  
-  const hydrationTools = [
-    { 
-      name: "Water Intake Calculator",
-      description: "Determine your optimal daily water intake based on weight and activity level.",
-      icon: <Droplet className="h-12 w-12 text-blue-500" />,
-      duration: "1 minute"
-    },
-    { 
-      name: "Hydration Reminder Setup",
-      description: "Set up customized reminders to stay hydrated throughout the day.",
-      icon: <Droplet className="h-12 w-12 text-cyan-500" />,
-      duration: "2 minutes"
-    },
-    { 
-      name: "Hydration Benefits",
-      description: "Learn how proper hydration specifically helps with nicotine withdrawal symptoms.",
-      icon: <Droplet className="h-12 w-12 text-teal-500" />,
-      duration: "3 minutes"
-    }
-  ];
-  
-  const nutritionTools = [
-    {
-      name: "Energy-Boosting Foods",
-      description: "Quick guide to foods that can help sustain energy during nicotine withdrawal.",
-      icon: <Utensils className="h-12 w-12 text-green-500" />,
-      duration: "3 minutes"
-    },
-    {
-      name: "Blood Sugar Balancing Tips",
-      description: "Techniques to maintain stable blood sugar levels to prevent energy crashes.",
-      icon: <Utensils className="h-12 w-12 text-emerald-500" />,
-      duration: "4 minutes"
-    },
-    {
-      name: "Simple Energy-Boosting Recipes",
-      description: "Quick, easy recipes specifically designed to combat withdrawal fatigue.",
-      icon: <Utensils className="h-12 w-12 text-lime-500" />,
-      duration: "5 minutes"
-    }
-  ];
-  
-  const exerciseTools = [
-    {
-      name: "2-Minute Energy Burst",
-      description: "Ultra-quick movement routine to immediately increase energy levels.",
-      icon: <Dumbbell className="h-12 w-12 text-orange-500" />,
-      duration: "2 minutes"
-    },
-    {
-      name: "5-Minute Office Energizer",
-      description: "Simple exercises you can do at your desk to combat afternoon slumps.",
-      icon: <Dumbbell className="h-12 w-12 text-amber-500" />,
-      duration: "5 minutes"
-    },
-    {
-      name: "10-Minute Full Energy Reset",
-      description: "Comprehensive routine combining movement, breathing and stretching.",
-      icon: <Dumbbell className="h-12 w-12 text-yellow-500" />,
-      duration: "10 minutes"
-    }
-  ];
-
-  const renderToolCards = (tools: any[]) => {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {tools.map((tool, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow hover-scale">
-            <CardHeader className="text-center pb-2">
-              <div className="mx-auto mb-2">{tool.icon}</div>
-              <CardTitle>{tool.name}</CardTitle>
-              <CardDescription>{tool.duration}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-center">{tool.description}</p>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full"
-                variant="default" 
-                onClick={() => openTool(tool.name)}
-              >
-                Open Tool
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    );
   };
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Energy Boosting Tools</h1>
-        <p className="text-muted-foreground mt-1">
-          Combat fatigue and energy slumps during your nicotine-free journey.
+        <h1 className="text-3xl font-bold tracking-tight">Energy Boosting Tools</h1>
+        <p className="text-muted-foreground">
+          Tools and techniques to help manage energy slumps during your nicotine-free journey
         </p>
       </div>
       
-      <Alert className="mb-6 bg-amber-50 border-amber-200">
-        <Battery className="h-4 w-4 text-amber-500" />
-        <AlertDescription className="text-amber-800">
-          Energy levels commonly decrease during the first 2-3 weeks of nicotine withdrawal as your body adjusts. The tools below can help you manage this temporary phase.
-        </AlertDescription>
-      </Alert>
-      
-      <div className="grid gap-8">      
-        <Tabs defaultValue="exercise">
-          <TabsList className="grid grid-cols-3 mb-6">
-            <TabsTrigger value="exercise">Quick Exercises</TabsTrigger>
-            <TabsTrigger value="hydration">Hydration</TabsTrigger>
-            <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="exercise" className="space-y-4">
-            {renderToolCards(exerciseTools)}
-          </TabsContent>
-          
-          <TabsContent value="hydration" className="space-y-4">
-            {renderToolCards(hydrationTools)}
-          </TabsContent>
-          
-          <TabsContent value="nutrition" className="space-y-4">
-            {renderToolCards(nutritionTools)}
-          </TabsContent>
-        </Tabs>
-      </div>
-      
-      {/* Modal for tools */}
-      <ExerciseModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onComplete={handleToolComplete}
-        title={selectedTool || "Energy Tool"}
-      >
-        {selectedTool === "2-Minute Energy Burst" && (
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-4">2-Minute Energy Burst</h3>
-            <p className="mb-4">Follow along with these quick movements:</p>
-            <ol className="space-y-3 mb-6">
-              <li className="p-2 bg-slate-50 rounded-md">30 seconds: March in place with high knees</li>
-              <li className="p-2 bg-slate-50 rounded-md">30 seconds: Arm circles (15s forward, 15s backward)</li>
-              <li className="p-2 bg-slate-50 rounded-md">30 seconds: Gentle squat pulses</li>
-              <li className="p-2 bg-slate-50 rounded-md">30 seconds: Torso twists with arms extended</li>
-            </ol>
-            <p className="mb-4 text-sm">Perform at your own pace and modify as needed for your fitness level.</p>
-            <Button onClick={handleToolComplete} className="w-full">
-              Complete Energy Burst
-            </Button>
-          </div>
-        )}
+      <Tabs defaultValue="quick" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="quick">Quick Boosts</TabsTrigger>
+          <TabsTrigger value="physical">Physical Activities</TabsTrigger>
+          <TabsTrigger value="nutrition">Nutrition & Hydration</TabsTrigger>
+        </TabsList>
         
-        {selectedTool === "Water Intake Calculator" && (
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Water Intake Calculator</h3>
-            <div className="mb-6 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Your weight (lbs):</label>
-                <input type="number" className="w-full p-2 border rounded" placeholder="Enter your weight" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Activity level:</label>
-                <select className="w-full p-2 border rounded">
-                  <option>Low (mostly sedentary)</option>
-                  <option>Moderate (some exercise)</option>
-                  <option>High (very active)</option>
-                </select>
-              </div>
-              <div className="p-4 bg-blue-50 rounded-md">
-                <p className="font-semibold text-blue-800">Recommended daily intake:</p>
-                <p className="text-2xl text-blue-700">64 oz (8 cups)</p>
-                <p className="text-xs text-blue-600 mt-1">This is a baseline recommendation. Adjust based on climate, exercise intensity, and individual needs.</p>
-              </div>
-            </div>
-            <Button onClick={handleToolComplete} className="w-full">
-              Save Recommendation
-            </Button>
+        <TabsContent value="quick" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-8 w-8 text-yellow-500" />
+                  Power Breathing
+                </CardTitle>
+                <CardDescription>Energizing breath technique for quick boosts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ol className="list-decimal pl-5 space-y-2 mb-4">
+                  <li>Sit up straight with shoulders relaxed</li>
+                  <li>Take a quick, forceful inhale through your nose</li>
+                  <li>Exhale forcefully through your mouth</li>
+                  <li>Repeat 10 times in quick succession</li>
+                  <li>Take a normal breath afterward</li>
+                </ol>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Duration: 1 minute</span>
+                  <Button 
+                    onClick={handleToolComplete}
+                    variant="outline"
+                  >
+                    Start Exercise
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Coffee className="h-8 w-8 text-amber-800" />
+                  Caffeine Management
+                </CardTitle>
+                <CardDescription>Strategic caffeine use during withdrawal</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">Use caffeine strategically to manage energy dips:</p>
+                <ul className="list-disc pl-5 space-y-2 mb-4">
+                  <li>Small amounts (50-100mg) when you feel an energy crash</li>
+                  <li>Consider green tea for a gentler boost with L-theanine</li>
+                  <li>Avoid after 2pm to prevent sleep disruption</li>
+                  <li>Stay hydrated alongside caffeine intake</li>
+                </ul>
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleToolComplete}
+                    variant="outline"
+                  >
+                    Set Reminder
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <SunMoon className="h-8 w-8 text-blue-400" />
+                Circadian Reset
+              </CardTitle>
+              <CardDescription>Quick exposure to natural light to reset your energy rhythm</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Natural light exposure helps regulate your body's internal clock and boost energy levels naturally:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li>Step outside for 5-10 minutes in natural daylight</li>
+                <li>Face the sun (safely, not staring directly) with eyes open</li>
+                <li>Best times: within 1 hour of waking and mid-afternoon</li>
+                <li>If indoor, sit near a window in bright natural light</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Timer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
         
-        {selectedTool === "Energy-Boosting Foods" && (
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Energy-Boosting Foods</h3>
-            <div className="space-y-4 mb-6">
-              <div className="p-3 bg-green-50 rounded-md">
-                <h4 className="font-medium text-green-800">Complex Carbohydrates</h4>
-                <p className="text-sm text-green-700 mt-1">Oatmeal, whole grain bread, brown rice, sweet potatoes</p>
-                <p className="text-xs text-green-600 mt-1">Provide sustained energy release without crashes</p>
+        <TabsContent value="physical" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Desk Stretches</CardTitle>
+              <CardDescription>Quick stretches to do at your desk</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Neck Rolls:</strong> Gently circle your head in both directions</li>
+                <li><strong>Shoulder Shrugs:</strong> Lift shoulders to ears, hold, release</li>
+                <li><strong>Seated Twist:</strong> Place hand on opposite knee and gently twist</li>
+                <li><strong>Wrist Stretches:</strong> Extend arms and flex wrists up and down</li>
+                <li><strong>Chest Opener:</strong> Clasp hands behind back and gently lift</li>
+              </ul>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 2-3 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Routine
+                </Button>
               </div>
-              
-              <div className="p-3 bg-blue-50 rounded-md">
-                <h4 className="font-medium text-blue-800">Protein-Rich Foods</h4>
-                <p className="text-sm text-blue-700 mt-1">Eggs, Greek yogurt, lean meats, legumes</p>
-                <p className="text-xs text-blue-600 mt-1">Help stabilize blood sugar and promote satiety</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Walk Break</CardTitle>
+              <CardDescription>Walking to boost energy and reduce cravings</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Even a short walk can significantly boost energy levels and reduce nicotine cravings:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li>Start with 5-10 minutes at a brisk pace</li>
+                <li>Focus on your breathing and posture</li>
+                <li>Swing arms naturally to increase circulation</li>
+                <li>Ideally outdoors for fresh air and natural light</li>
+              </ul>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 5-10 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Timer
+                </Button>
               </div>
-              
-              <div className="p-3 bg-amber-50 rounded-md">
-                <h4 className="font-medium text-amber-800">Healthy Fats</h4>
-                <p className="text-sm text-amber-700 mt-1">Avocados, nuts, seeds, olive oil</p>
-                <p className="text-xs text-amber-600 mt-1">Provide long-lasting energy and support brain function</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Energy Boosting Yoga</CardTitle>
+              <CardDescription>Simple yoga poses for energy</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Try these energizing yoga poses:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Mountain Pose with Arms Raised:</strong> Stand tall, inhale and raise arms overhead</li>
+                <li><strong>Forward Fold:</strong> Exhale and fold forward from hips</li>
+                <li><strong>Downward Dog:</strong> Form an inverted V-shape with your body</li>
+                <li><strong>Cobra or Upward Dog:</strong> Chest-opening backbend</li>
+                <li><strong>Chair Pose:</strong> Powerful squat position with arms raised</li>
+              </ul>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 5 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Practice
+                </Button>
               </div>
-              
-              <div className="p-3 bg-red-50 rounded-md">
-                <h4 className="font-medium text-red-800">Foods to Minimize</h4>
-                <p className="text-sm text-red-700 mt-1">Sugary snacks, processed foods, excessive caffeine</p>
-                <p className="text-xs text-red-600 mt-1">Can cause energy crashes and worsen withdrawal symptoms</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Progressive Tension-Release</CardTitle>
+              <CardDescription>Energize by contracting and releasing muscles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal pl-5 space-y-2 mb-4">
+                <li>Tense feet and calves for 5 seconds, then release</li>
+                <li>Move to thighs, tense for 5 seconds, release</li>
+                <li>Continue with abdomen, chest, hands, arms, shoulders</li>
+                <li>Finally tense face muscles, hold, and release</li>
+                <li>Finish with a full body stretch</li>
+              </ol>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Duration: 3-4 minutes</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Exercise
+                </Button>
               </div>
-            </div>
-            <Button onClick={handleToolComplete} className="w-full">
-              Got It
-            </Button>
-          </div>
-        )}
+            </CardContent>
+          </Card>
+        </TabsContent>
         
-        {/* Fallback content for other tools */}
-        {!["2-Minute Energy Burst", "Water Intake Calculator", "Energy-Boosting Foods"].includes(selectedTool || "") && (
-          <div className="p-6 text-center">
-            <p className="mb-6">
-              This tool is coming soon with more detailed content.
-            </p>
-            <Button onClick={handleToolComplete}>
-              Close
-            </Button>
-          </div>
-        )}
-      </ExerciseModal>
+        <TabsContent value="nutrition" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Droplets className="h-8 w-8 text-blue-500" />
+                Hydration Check
+              </CardTitle>
+              <CardDescription>Combat fatigue through proper hydration</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Many energy dips during nicotine withdrawal are actually dehydration symptoms:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li>Aim for at least 8 glasses (2 liters) of water daily</li>
+                <li>Increase intake during withdrawal (helps flush toxins)</li>
+                <li>Try adding lemon, cucumber, or berries for flavor</li>
+                <li>Set regular reminders to drink throughout the day</li>
+              </ul>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Try: Drink a full glass now</span>
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Set Reminders
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Utensils className="h-8 w-8 text-green-500" />
+                Energy-Stabilizing Snacks
+              </CardTitle>
+              <CardDescription>Foods that help maintain steady energy levels</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">These snacks help maintain blood sugar and combat energy crashes:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Protein + Complex Carb:</strong> Apple with almond butter, Greek yogurt with berries</li>
+                <li><strong>Healthy Fats:</strong> Small handful of walnuts or seeds</li>
+                <li><strong>Quick Energy:</strong> Banana, dates, or dark chocolate (70%+)</li>
+                <li><strong>Stabilizers:</strong> Oatmeal with cinnamon, hummus with vegetables</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Create Shopping List
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Energy-Supporting Supplements</CardTitle>
+              <CardDescription>Natural supplements that may help during withdrawal</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-1">Consider these supplements (consult healthcare provider first):</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>B-Complex Vitamins:</strong> Support energy metabolism</li>
+                <li><strong>Magnesium:</strong> Aids in energy production and sleep</li>
+                <li><strong>Rhodiola:</strong> Adaptogenic herb that may combat fatigue</li>
+                <li><strong>CoQ10:</strong> Supports cellular energy production</li>
+                <li><strong>Iron:</strong> Important if you have low levels (test first)</li>
+              </ul>
+              <p className="text-sm text-muted-foreground mb-4">
+                Note: Always consult a healthcare provider before starting supplements.
+              </p>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Learn More
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Meal Timing Strategy</CardTitle>
+              <CardDescription>Optimize meal timing for stable energy</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">How you time your meals affects your energy levels:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Breakfast:</strong> Within 1 hour of waking (protein-rich)</li>
+                <li><strong>Small, Frequent Meals:</strong> Every 3-4 hours to stabilize blood sugar</li>
+                <li><strong>Pre-Craving Snack:</strong> Eat before typical craving times</li>
+                <li><strong>Dinner:</strong> At least 2-3 hours before bed for better sleep</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Set Meal Reminders
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

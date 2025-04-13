@@ -1,234 +1,290 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Timer, Wind, Clock, Dumbbell } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
-import { Wind, Brain, Clock, Award } from 'lucide-react'; // Remove Lungs import
-import { BreathingExercise } from '@/components/tools/breathing/BreathingExercise';
-import { ExerciseModal } from '@/components/tools/ExerciseModal';
-import { toast } from 'sonner';
 
 const CravingTools = () => {
   const { impact } = useHaptics();
-  const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
-  const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
   
-  const openExercise = (exerciseName: string) => {
-    setSelectedExercise(exerciseName);
-    setIsExerciseModalOpen(true);
-    impact(HapticImpact.LIGHT);
-  };
-  
-  const handleExerciseComplete = () => {
+  const handleToolComplete = () => {
     impact(HapticImpact.MEDIUM);
-    setIsExerciseModalOpen(false);
-    toast.success("Great job completing the exercise!", {
-      description: "You're one step closer to managing your cravings effectively."
-    });
-  };
-  
-  const breathingExercises = [
-    { 
-      name: "4-7-8 Breathing",
-      description: "Inhale for 4 seconds, hold for 7, exhale for 8. Calms the nervous system quickly.",
-      icon: <Wind className="h-12 w-12 text-blue-500" />,
-      duration: "2 minutes"
-    },
-    { 
-      name: "Box Breathing",
-      description: "Equal duration inhale, hold, exhale, and hold. Used by Navy SEALs for stress management.",
-      icon: <Wind className="h-12 w-12 text-indigo-500" />,
-      duration: "3 minutes"
-    },
-    { 
-      name: "Deep Diaphragmatic Breathing",
-      description: "Slow, deep belly breathing that activates the parasympathetic nervous system.",
-      icon: <Wind className="h-12 w-12 text-cyan-500" />,
-      duration: "5 minutes"
-    }
-  ];
-  
-  const mindfulnessExercises = [
-    {
-      name: "Craving Surfing",
-      description: "Observe your craving like a wave that rises, crests, and eventually subsides.",
-      icon: <Brain className="h-12 w-12 text-purple-500" />,
-      duration: "5 minutes"
-    },
-    {
-      name: "Body Scan",
-      description: "Systematically notice sensations throughout your body without judgment.",
-      icon: <Brain className="h-12 w-12 text-violet-500" />,
-      duration: "7 minutes"
-    },
-    {
-      name: "Mindful Walking",
-      description: "Focus completely on the experience of walking and your surroundings.",
-      icon: <Brain className="h-12 w-12 text-fuchsia-500" />,
-      duration: "10 minutes"
-    }
-  ];
-  
-  const delayTechniques = [
-    {
-      name: "5-Minute Rule",
-      description: "Commit to waiting just 5 minutes before giving in to a craving.",
-      icon: <Clock className="h-12 w-12 text-amber-500" />,
-      duration: "5 minutes"
-    },
-    {
-      name: "H.A.L.T. Check-in",
-      description: "Check if you're Hungry, Angry, Lonely or Tired - common craving triggers.",
-      icon: <Clock className="h-12 w-12 text-yellow-500" />,
-      duration: "2 minutes"
-    },
-    {
-      name: "Urge Logging",
-      description: "Record the time, intensity, and context of your craving to identify patterns.",
-      icon: <Clock className="h-12 w-12 text-orange-500" />,
-      duration: "3 minutes"
-    }
-  ];
-  
-  const cbtTechniques = [
-    {
-      name: "Thought Challenging",
-      description: "Identify and question thoughts that make cravings seem irresistible.",
-      icon: <Award className="h-12 w-12 text-green-500" />,
-      duration: "5 minutes"
-    },
-    {
-      name: "Craving Pros & Cons",
-      description: "Quickly list the real costs and benefits of giving in to the craving.",
-      icon: <Award className="h-12 w-12 text-emerald-500" />,
-      duration: "3 minutes"
-    },
-    {
-      name: "Future Self Visualization",
-      description: "Connect with your future self who has successfully overcome this craving.",
-      icon: <Award className="h-12 w-12 text-teal-500" />,
-      duration: "7 minutes"
-    }
-  ];
-
-  const renderExerciseCards = (exercises: any[]) => {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {exercises.map((exercise, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow hover-scale">
-            <CardHeader className="text-center pb-2">
-              <div className="mx-auto mb-2">{exercise.icon}</div>
-              <CardTitle>{exercise.name}</CardTitle>
-              <CardDescription>{exercise.duration}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-center">{exercise.description}</p>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full"
-                variant="default" 
-                onClick={() => openExercise(exercise.name)}
-              >
-                Start Exercise
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    );
   };
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Craving Coping Toolkit</h1>
-        <p className="text-muted-foreground mt-1">
-          Evidence-based techniques to help you manage cravings effectively.
+        <h1 className="text-3xl font-bold tracking-tight">Craving Management Tools</h1>
+        <p className="text-muted-foreground">
+          Tools and techniques to help you manage your cravings effectively
         </p>
       </div>
       
-      <div className="grid gap-8">
-        <Card className="bg-blue-50/50 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg text-blue-700">Need Immediate Help?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-blue-700">
-              If you're experiencing an intense craving right now, try our quick 1-minute breathing exercise:
-            </p>
-            <div className="mt-4">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700"
-                onClick={() => openExercise("Emergency Breathing")}
-              >
-                Start 1-Minute Emergency Breathing
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      
-        <Tabs defaultValue="breathing">
-          <TabsList className="grid grid-cols-4 mb-6">
-            <TabsTrigger value="breathing">Breathing</TabsTrigger>
-            <TabsTrigger value="mindfulness">Mindfulness</TabsTrigger>
-            <TabsTrigger value="delay">Delay Techniques</TabsTrigger>
-            <TabsTrigger value="cbt">CBT</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="breathing" className="space-y-4">
-            {renderExerciseCards(breathingExercises)}
-          </TabsContent>
-          
-          <TabsContent value="mindfulness" className="space-y-4">
-            {renderExerciseCards(mindfulnessExercises)}
-          </TabsContent>
-          
-          <TabsContent value="delay" className="space-y-4">
-            {renderExerciseCards(delayTechniques)}
-          </TabsContent>
-          
-          <TabsContent value="cbt" className="space-y-4">
-            {renderExerciseCards(cbtTechniques)}
-          </TabsContent>
-        </Tabs>
-      </div>
-      
-      {/* Modal for exercises */}
-      <ExerciseModal
-        isOpen={isExerciseModalOpen}
-        onClose={() => setIsExerciseModalOpen(false)}
-        onComplete={handleExerciseComplete}
-        title={selectedExercise || "Exercise"}
-      >
-        {selectedExercise?.includes("Breathing") && (
-          <BreathingExercise 
-            onComplete={handleExerciseComplete} 
-            type={selectedExercise === "Box Breathing" ? "box" : 
-                 selectedExercise === "4-7-8 Breathing" ? "478" : "deep"}
-            duration={selectedExercise === "Emergency Breathing" ? 60 : 180}
-          />
-        )}
-        {!selectedExercise?.includes("Breathing") && (
-          <div className="p-6 text-center">
-            <p className="mb-4">
-              Follow these steps for {selectedExercise}:
-            </p>
-            <ol className="text-left space-y-2 mb-6">
-              <li>1. Find a quiet, comfortable place</li>
-              <li>2. Close your eyes or maintain a soft focus</li>
-              <li>3. Follow the instructions specific to this technique</li>
-              <li>4. Acknowledge when your mind wanders and gently return focus</li>
-              <li>5. Upon completion, notice how your body and mind feel</li>
-            </ol>
-            <Button onClick={handleExerciseComplete}>
-              Mark as Complete
-            </Button>
+      <Tabs defaultValue="quick" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="quick">Quick Relief</TabsTrigger>
+          <TabsTrigger value="exercises">Breathing Exercises</TabsTrigger>
+          <TabsTrigger value="distraction">Distraction Techniques</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="quick" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <BreathingExercise 
+              title="4-7-8 Breathing"
+              description="Breathe in for 4 seconds, hold for 7, exhale for 8"
+              duration="1 minute"
+              icon={<Wind className="h-8 w-8 text-blue-500" />}
+              onComplete={handleToolComplete}
+            />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-8 w-8 text-amber-500" />
+                  Delay Tactic
+                </CardTitle>
+                <CardDescription>Delay your craving for just 5 minutes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">Set a 5-minute timer and promise yourself to wait until it ends before giving in to the craving. Often the urge will pass.</p>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Duration: 5 minutes</span>
+                  <Button 
+                    onClick={handleToolComplete}
+                    variant="outline"
+                  >
+                    Start Timer
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </ExerciseModal>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Dumbbell className="h-8 w-8 text-green-500" />
+                  Physical Distraction
+                </CardTitle>
+                <CardDescription>Quick physical activities to redirect focus</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc pl-5 space-y-2 mb-4">
+                  <li>10 jumping jacks</li>
+                  <li>Walk around for 2 minutes</li>
+                  <li>5 push-ups or wall push-ups</li>
+                  <li>Stretch your arms and legs</li>
+                </ul>
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleToolComplete}
+                    variant="outline"
+                  >
+                    Mark Complete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Timer className="h-8 w-8 text-purple-500" />
+                  Urge Surfing
+                </CardTitle>
+                <CardDescription>Ride the wave of your craving without acting on it</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">Notice the craving sensation in your body without judging. Observe how it rises, peaks, and eventually fades, just like a wave.</p>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Duration: 3 minutes</span>
+                  <Button 
+                    onClick={handleToolComplete}
+                    variant="outline"
+                  >
+                    Start Practice
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="exercises" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BreathingExercise 
+            title="Box Breathing"
+            description="Equal counts of inhale, hold, exhale, and hold"
+            duration="2 minutes"
+            icon={<Wind className="h-8 w-8 text-blue-500" />}
+            onComplete={handleToolComplete}
+          />
+          
+          <BreathingExercise 
+            title="Pursed Lip Breathing"
+            description="Slow breathing through pursed lips to reduce anxiety"
+            duration="3 minutes"
+            icon={<Wind className="h-8 w-8 text-teal-500" />}
+            onComplete={handleToolComplete}
+          />
+          
+          <BreathingExercise 
+            title="Alternate Nostril Breathing"
+            description="Ancient breathing technique to balance energy"
+            duration="5 minutes"
+            icon={<Wind className="h-8 w-8 text-indigo-500" />}
+            onComplete={handleToolComplete}
+          />
+          
+          <BreathingExercise 
+            title="Belly Breathing"
+            description="Deep diaphragmatic breathing to activate relaxation"
+            duration="4 minutes"
+            icon={<Wind className="h-8 w-8 text-green-500" />}
+            onComplete={handleToolComplete}
+          />
+        </TabsContent>
+        
+        <TabsContent value="distraction" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sensory Grounding (5-4-3-2-1)</CardTitle>
+              <CardDescription>Use your senses to ground yourself in the present</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>5 things you can see</strong> around you</li>
+                <li><strong>4 things you can touch/feel</strong> right now</li>
+                <li><strong>3 things you can hear</strong> in your environment</li>
+                <li><strong>2 things you can smell</strong> or like the smell of</li>
+                <li><strong>1 thing you can taste</strong> or would like to taste</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Exercise
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Mental Challenges</CardTitle>
+              <CardDescription>Distract your mind with these mental tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li>Count backwards from 100 by 7s</li>
+                <li>Name a city for each letter of the alphabet</li>
+                <li>Recite a poem or song lyrics from memory</li>
+                <li>Solve a quick puzzle or brain teaser</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Try These
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Hand Exercises</CardTitle>
+              <CardDescription>Keep your hands busy to manage cravings</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li>Squeeze a stress ball</li>
+                <li>Roll a coin across your knuckles</li>
+                <li>Play with a fidget spinner or cube</li>
+                <li>Interlock your fingers and stretch</li>
+                <li>Tap each finger to your thumb in sequence</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Mark Complete
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Journaling</CardTitle>
+              <CardDescription>Write down your thoughts to process them</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Take 2 minutes to write down:</p>
+              <ul className="list-disc pl-5 space-y-2 mb-4">
+                <li>What triggered this craving?</li>
+                <li>How does your body feel right now?</li>
+                <li>What would happen if you don't give in to the craving?</li>
+                <li>One reason you're proud of your progress</li>
+              </ul>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleToolComplete}
+                  variant="outline"
+                >
+                  Start Writing
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+};
+
+interface BreathingExerciseProps {
+  title: string;
+  description: string;
+  duration: string;
+  icon: React.ReactNode;
+  onComplete: () => void;
+}
+
+const BreathingExercise: React.FC<BreathingExerciseProps> = ({ 
+  title, 
+  description, 
+  duration, 
+  icon,
+  onComplete
+}) => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {icon}
+          {title}
+        </CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="mb-4">Follow the animation and breathe along with the pattern. Focus only on your breath.</p>
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground">Duration: {duration}</span>
+          <Button 
+            onClick={onComplete}
+            variant="outline"
+          >
+            Start Exercise
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

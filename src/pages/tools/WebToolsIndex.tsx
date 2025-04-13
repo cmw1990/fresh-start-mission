@@ -1,143 +1,119 @@
 
-import { Link } from "react-router-dom";
+import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, Calculator, Book, Droplets, BatteryCharging, Brain as BrainIcon, Sparkles, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const webTools = [
-  {
-    icon: <ClipboardList className="h-8 w-8 text-mint-500" />,
-    title: "NRT Guide",
-    description: "Comprehensive information about nicotine replacement therapy options including patches, gums, lozenges, inhalers, and sprays.",
-    link: "/tools/nrt-guide",
-  },
-  {
-    icon: <Droplets className="h-8 w-8 text-mint-500" />,
-    title: "Smokeless Directory",
-    description: "Detailed directory of smokeless nicotine products with filtering, reviews, and expert notes on each option.",
-    link: "/tools/smokeless-directory",
-  },
-  {
-    icon: <Book className="h-8 w-8 text-mint-500" />,
-    title: "Quitting Methods",
-    description: "Detailed guides on different approaches to quitting, from cold turkey to gradual reduction and harm reduction.",
-    link: "/tools/quit-methods",
-  },
-  {
-    icon: <Calculator className="h-8 w-8 text-mint-500" />,
-    title: "Interactive Calculators",
-    description: "Calculate potential savings from quitting and view a health improvement timeline based on your quit date.",
-    link: "/tools/calculators",
-  },
-];
-
-const holisticTools = [
-  {
-    icon: <BatteryCharging className="h-8 w-8 text-mint-500" />,
-    title: "Energy Management",
-    description: "Practical tips and techniques for managing energy slumps and combating fatigue during withdrawal.",
-    link: "/tools/holistic-health#energy",
-  },
-  {
-    icon: <Sparkles className="h-8 w-8 text-mint-500" />,
-    title: "Mood Regulation",
-    description: "Strategies for stabilizing and improving mood swings often experienced during the quitting process.",
-    link: "/tools/holistic-health#mood",
-  },
-  {
-    icon: <BrainIcon className="h-8 w-8 text-mint-500" />,
-    title: "Focus Enhancement",
-    description: "Techniques to improve concentration and mental clarity during nicotine reduction or abstinence.",
-    link: "/tools/holistic-health#focus",
-  },
-  {
-    icon: <Flame className="h-8 w-8 text-mint-500" />,
-    title: "Craving Management",
-    description: "Effective strategies to handle cravings and urges without using nicotine products.",
-    link: "/tools/holistic-health#cravings",
-  },
-];
+import { Link } from 'react-router-dom';
+import { Box, Compass, Calculator, SunMoon, Tablet } from 'lucide-react';
 
 const WebToolsIndex = () => {
   return (
-    <div className="container py-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-12 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">Free Web Tools</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Mission Fresh provides these valuable resources to everyone, no account needed. 
-            Our goal is to support your journey whether you're quitting, reducing, or just exploring options.
+    <div className="container py-12 px-4 mx-auto max-w-7xl">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold tracking-tight mb-3">Free Resources for Your Fresh Journey</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Explore our collection of valuable tools to help you understand your options
+          and make informed decisions on your path to a fresh start.
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ToolCard 
+          title="NRT Guide" 
+          description="Comprehensive information about nicotine replacement therapy options."
+          icon={<Tablet className="h-8 w-8" />}
+          link="/tools/nrt-guide"
+        />
+        
+        <ToolCard 
+          title="Smokeless Directory" 
+          description="Browse and compare smokeless nicotine alternatives with expert analysis."
+          icon={<Box className="h-8 w-8" />}
+          link="/tools/smokeless-directory"
+        />
+        
+        <ToolCard 
+          title="Quit Methods" 
+          description="Learn about different approaches to quitting or reducing nicotine use."
+          icon={<Compass className="h-8 w-8" />}
+          link="/tools/quit-methods"
+        />
+        
+        <ToolCard 
+          title="Calculators" 
+          description="Estimate your savings and health improvements when you reduce or quit."
+          icon={<Calculator className="h-8 w-8" />}
+          link="/tools/calculators"
+        />
+        
+        <ToolCard 
+          title="Holistic Health" 
+          description="Resources for managing energy, mood, focus and overall wellbeing."
+          icon={<SunMoon className="h-8 w-8" />}
+          link="/tools/holistic-health"
+        />
+      </div>
+      
+      <div className="mt-16 bg-fresh-50 p-8 rounded-xl">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-4">Want More Personalized Support?</h2>
+          <p className="text-lg mb-6">
+            The Mission Fresh app offers personalized tracking, holistic support tools,
+            step rewards, and a community of people on the same journey.
           </p>
-        </div>
-
-        <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-6">Product & Method Resources</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {webTools.map((tool, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow hover-scale">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-center mb-3">
-                    <div className="rounded-full bg-mint-100 p-3">
-                      {tool.icon}
-                    </div>
-                  </div>
-                  <CardTitle className="text-center">{tool.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sm text-center">{tool.description}</CardDescription>
-                </CardContent>
-                <CardFooter>
-                  <Link to={tool.link} className="w-full">
-                    <Button variant="outline" className="w-full hover:bg-mint-50 hover:text-mint-700">
-                      Access Tool
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Holistic Health Guides</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {holisticTools.map((tool, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow hover-scale">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-center mb-3">
-                    <div className="rounded-full bg-mint-100 p-3">
-                      {tool.icon}
-                    </div>
-                  </div>
-                  <CardTitle className="text-center">{tool.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sm text-center">{tool.description}</CardDescription>
-                </CardContent>
-                <CardFooter>
-                  <Link to={tool.link} className="w-full">
-                    <Button variant="outline" className="w-full hover:bg-mint-50 hover:text-mint-700">
-                      Access Guide
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-12 text-center">
-          <p className="text-lg mb-6">Ready to start optimizing your energy and focus?</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/sign-up">
-              <Button className="btn-mint">
-                Create Free Account
-              </Button>
-            </Link>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button asChild className="bg-fresh-500 hover:bg-fresh-600 text-white">
+              <Link to="/sign-up">Create Free Account</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/">Learn More</Link>
+            </Button>
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+interface ToolCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  link: string;
+}
+
+const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link }) => {
+  return (
+    <Card className="overflow-hidden transition-all hover:shadow-md">
+      <CardHeader>
+        <div className="w-12 h-12 rounded-full bg-fresh-100 flex items-center justify-center text-fresh-600 mb-4">
+          {icon}
+        </div>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <Button asChild variant="ghost" className="text-fresh-600 hover:text-fresh-700 hover:bg-fresh-50 p-0">
+          <Link to={link} className="flex items-center">
+            Explore Tool
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="ml-2"
+            >
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

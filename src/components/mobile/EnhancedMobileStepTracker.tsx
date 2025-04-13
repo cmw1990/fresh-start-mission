@@ -1,250 +1,148 @@
-import React, { useState, useEffect } from 'react';
-import { useStepTracking } from '@/hooks/useStepTracking';
+
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from "@/components/ui/skeleton";
-import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Footprints, AlertTriangle, ArrowRight, Gift, Star } from 'lucide-react';
+import { Footprints } from 'lucide-react';
+import { logSteps } from '@/services/rewardService';
+import { getUserPointsBalance } from '@/services/rewardService';
 import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
-export interface EnhancedMobileStepTrackerProps {
-  className?: string;
-}
-
-interface MilestoneInfo {
-  threshold: number;
-  name: string;
-  icon: React.ReactNode;
-  description: string;
-}
-
-const MILESTONES: MilestoneInfo[] = [
-  {
-    threshold: 1000,
-    name: "First Steps",
-    icon: <Footprints className="h-6 w-6 text-blue-500" />,
-    description: "You've started moving! Keep it up!"
-  },
-  {
-    threshold: 5000,
-    name: "Daily Goal",
-    icon: <Star className="h-6 w-6 text-amber-400" />,
-    description: "You've reached the recommended daily step count!"
-  },
-  {
-    threshold: 10000,
-    name: "Step Master",
-    icon: <Trophy className="h-6 w-6 text-yellow-500" />,
-    description: "Amazing achievement! You've hit 10,000 steps!"
-  }
-];
-
-const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ className }) => {
-  const { stepData, isLoading, hasPermission, fetchSteps, logManualSteps } = useStepTracking();
-  const { impact, notification } = useHaptics();
-  const [showAnimation, setShowAnimation] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const [reachedMilestones, setReachedMilestones] = useState<number[]>([]);
-  const isMobile = useIsMobile();
-
+// Mock health tracking integration for demo purposes
+// In a real implementation, this would connect to Apple HealthKit or Google Fit
+const useHealthTracking = () => {
+  const [steps, setSteps] = useState(0);
+  const [isTracking, setIsTracking] = useState(false);
+  
+  // Simulate fetching steps from a health platform
   useEffect(() => {
-    let highestMilestoneIndex = -1;
-    const steps = stepData.steps;
-    
-    if (steps > 0) {
-      for (let i = MILESTONES.length - 1; i >= 0; i--) {
-        if (steps >= MILESTONES[i].threshold && !reachedMilestones.includes(i)) {
-          highestMilestoneIndex = i;
-          break;
+    const randomSteps = Math.floor(Math.random() * 8000) + 2000; // Random between 2000-10000
+    setSteps(randomSteps);
+  }, []);
+  
+  const refreshSteps = () => {
+    // Simulate refreshing steps data
+    setIsTracking(true);
+    setTimeout(() => {
+      const newSteps = steps + Math.floor(Math.random() * 500) + 100; // Add 100-600 steps
+      setSteps(newSteps);
+      setIsTracking(false);
+    }, 1500);
+  };
+  
+  return { steps, refreshSteps, isTracking };
+};
+
+const EnhancedMobileStepTracker: React.FC = () => {
+  const [points, setPoints] = useState(0);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const { impact } = useHaptics();
+  const { steps, refreshSteps, isTracking } = useHealthTracking();
+  
+  // Fetch points balance on load
+  useEffect(() => {
+    const fetchPoints = async () => {
+      try {
+        const pointBalance = await getUserPointsBalance();
+        setPoints(pointBalance);
+        
+        // Check if we have a last synced time in local storage
+        const stored = localStorage.getItem('lastStepSync');
+        if (stored) {
+          setLastSynced(stored);
         }
+      } catch (error) {
+        console.error('Error fetching points balance:', error);
       }
-    }
+    };
     
-    if (highestMilestoneIndex >= 0) {
-      setActiveIndex(highestMilestoneIndex);
-      setShowAnimation(true);
-      notification();
-      setReachedMilestones(prev => [...prev, highestMilestoneIndex]);
-      
-      toast.success(`🎉 ${MILESTONES[highestMilestoneIndex].name} Achievement!`, {
-        description: MILESTONES[highestMilestoneIndex].description
-      });
-    }
-  }, [stepData.steps, reachedMilestones, notification]);
-
-  const handleRefresh = async () => {
+    fetchPoints();
+  }, []);
+  
+  const syncSteps = async () => {
     try {
-      await fetchSteps();
-      impact(HapticImpact.LIGHT);
-    } catch (e) {
-      console.error("Error refreshing steps:", e);
-    }
-  };
-
-  const getClosestMilestone = () => {
-    const steps = stepData.steps;
-    
-    if (steps <= 0) return MILESTONES[0];
-    
-    for (let i = 0; i < MILESTONES.length; i++) {
-      if (steps < MILESTONES[i].threshold) {
-        return MILESTONES[i];
+      const success = await logSteps(steps);
+      
+      if (success) {
+        // Update points (in a real app we'd refetch the actual balance)
+        const newPoints = Math.floor(steps / 100);
+        setPoints(prevPoints => prevPoints + newPoints);
+        
+        // Update last synced time
+        const now = new Date().toLocaleTimeString();
+        setLastSynced(now);
+        localStorage.setItem('lastStepSync', now);
+        
+        // Feedback
+        toast.success(`Successfully synced ${steps} steps!`);
+        impact(HapticImpact.MEDIUM);
+      } else {
+        toast.error("Failed to sync steps. Please try again.");
       }
+    } catch (error) {
+      console.error('Error syncing steps:', error);
+      toast.error("Error syncing steps");
     }
-    
-    return MILESTONES[MILESTONES.length - 1];
   };
-
-  const closestMilestone = getClosestMilestone();
-  const nextMilestoneProgress = Math.min(
-    100, 
-    stepData.steps > 0 ? (stepData.steps / closestMilestone.threshold) * 100 : 0
-  );
-  const pointsEarned = Math.floor(stepData.steps / 100);
-
+  
   return (
-    <Card className={cn("relative overflow-hidden", 
-      isMobile ? "border-2 shadow-md" : "",
-      className
-    )}>
-      <AnimatePresence>
-        {showAnimation && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            className="absolute inset-0 z-10 flex items-center justify-center"
-            onAnimationComplete={() => setTimeout(() => setShowAnimation(false), 2000)}
-          >
-            <motion.div 
-              className="bg-gradient-to-br from-yellow-400 via-amber-300 to-orange-400 rounded-full p-12 flex items-center justify-center flex-col"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", damping: 8 }}
-            >
-              {activeIndex >= 0 && (
-                <>
-                  <motion.div 
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-2"
-                  >
-                    {MILESTONES[activeIndex].icon}
-                  </motion.div>
-                  <motion.div 
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-center"
-                  >
-                    <h3 className="font-bold text-white">{MILESTONES[activeIndex].name}</h3>
-                    <p className="text-xs text-white/90">Achievement Unlocked!</p>
-                  </motion.div>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className={showAnimation ? "opacity-20" : ""}>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Footprints className="h-5 w-5" /> Step Tracker
-              </CardTitle>
-              <CardDescription>
-                Earn points with every step
-              </CardDescription>
+    <Card className="border-2 border-fresh-100">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center">
+          <Footprints className="h-5 w-5 mr-2 text-fresh-400" />
+          Step Tracker
+        </CardTitle>
+        <CardDescription>
+          {lastSynced ? `Last synced: ${lastSynced}` : 'Sync to earn points'}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col items-center">
+            <div className="text-4xl font-bold text-fresh-500">{steps.toLocaleString()}</div>
+            <p className="text-sm text-muted-foreground">Steps today</p>
+          </div>
+          
+          <div className="h-2 bg-gray-100 rounded-full">
+            <div 
+              className="h-full bg-fresh-300 rounded-full transition-all duration-500" 
+              style={{ width: `${Math.min(100, (steps / 10000) * 100)}%` }} 
+            />
+          </div>
+          <p className="text-xs text-center text-muted-foreground">Goal: 10,000 steps</p>
+          
+          <div className="flex justify-between items-center px-2">
+            <div className="text-sm">
+              <span className="font-medium">{points}</span> points earned
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleRefresh} 
-              disabled={isLoading}
-              className="h-8 w-8 p-0 rounded-full"
+            <div className="text-xs text-muted-foreground">
+              +{Math.floor(steps / 100)} pending
+            </div>
+          </div>
+          
+          <div className="flex justify-between gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={refreshSteps}
+              disabled={isTracking}
             >
-              <motion.div 
-                animate={isLoading ? { rotate: 360 } : {}}
-                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-              >
-                <ArrowRight className={`h-4 w-4 ${isLoading ? 'opacity-70' : ''}`} />
-              </motion.div>
+              {isTracking ? 'Refreshing...' : 'Refresh Steps'}
+            </Button>
+            
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1 bg-fresh-400 hover:bg-fresh-500"
+              onClick={syncSteps}
+              disabled={isTracking}
+            >
+              Sync & Earn Points
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          {!hasPermission ? (
-            <div className="py-4 text-center">
-              <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Unable to connect to health data</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleRefresh}
-                className="mt-2"
-              >
-                Try Again
-              </Button>
-            </div>
-          ) : isLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="text-center">
-                <motion.div
-                  initial={{ scale: 1 }}
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <span className="text-3xl font-bold">{stepData.steps.toLocaleString()}</span>
-                </motion.div>
-                <p className="text-muted-foreground text-sm">steps today</p>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span>Progress to {closestMilestone.name}</span>
-                  <span className="font-medium">{nextMilestoneProgress.toFixed(0)}%</span>
-                </div>
-                <motion.div
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  animate={{ opacity: 1, scaleX: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Progress value={nextMilestoneProgress} className="h-2" />
-                </motion.div>
-                <p className="text-xs text-muted-foreground">
-                  {stepData.steps < closestMilestone.threshold ? (
-                    `${closestMilestone.threshold - stepData.steps} more steps to go`
-                  ) : (
-                    'Milestone reached!'
-                  )}
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="pt-2 flex justify-between items-center">
-          <div className="flex items-center gap-1">
-            <Gift className="h-4 w-4 text-fresh-500" />
-            <span className="text-sm font-medium">{pointsEarned} points earned</span>
-          </div>
-          <Button variant="link" size="sm" className="text-xs p-0 h-auto">
-            View Rewards
-          </Button>
-        </CardFooter>
-      </div>
+        </div>
+      </CardContent>
     </Card>
   );
 };

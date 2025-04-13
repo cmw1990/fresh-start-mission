@@ -1,84 +1,69 @@
 
-import { z } from "zod";
+import * as z from 'zod';
 
-// Common validation schemas
+// Schema for log entries
 export const logEntrySchema = z.object({
-  // Nicotine Use
-  nicotineUse: z.enum(["yes", "no"]),
-  productType: z.string().optional(),
-  quantity: z.union([z.string(), z.number()]).optional(),
-  
-  // Wellness
+  nicotineUse: z.enum(['yes', 'no']),
+  productType: z.string().optional().nullable(),
+  quantity: z.string().optional().nullable(),
   mood: z.number().min(1).max(5),
   energy: z.number().min(1).max(5),
   focus: z.number().min(1).max(5),
-  sleepHours: z.union([z.string(), z.number()]),
+  sleepHours: z.string().refine(val => {
+    const num = parseFloat(val);
+    return !isNaN(num) && num >= 0 && num <= 24;
+  }, { message: "Sleep hours must be between 0 and 24" }),
   sleepQuality: z.number().min(1).max(5),
-  
-  // Cravings
   cravingIntensity: z.number().min(0).max(10),
-  cravingTrigger: z.string().optional(),
-  
-  // Journal
-  journal: z.string().optional()
+  cravingTrigger: z.string(),
+  journal: z.string().optional().nullable(),
 });
 
+// Schema for goal settings
 export const goalSchema = z.object({
-  goalType: z.enum(["afresh", "fresher"]),
-  method: z.enum(["cold-turkey", "gradual-reduction", "tapering", "nrt", "harm-reduction"]),
-  product: z.string(),
-  quitDate: z.date().optional(),
-  reduction: z.union([z.string(), z.number()]).optional(),
-  timeline: z.union([z.string(), z.number()]).optional(),
-  motivation: z.string().optional()
+  goalType: z.enum(['afresh', 'fresher']),
+  method: z.enum(['cold-turkey', 'gradual-reduction', 'tapering', 'nrt', 'harm-reduction']),
+  product: z.string().min(1, "Please select a product"),
+  quitDate: z.date().optional().nullable(),
+  reduction: z.string().refine(val => {
+    const num = parseInt(val);
+    return !isNaN(num) && num > 0 && num <= 100;
+  }, { message: "Reduction must be between 1 and 100%" }).optional().nullable(),
+  timeline: z.string().refine(val => {
+    const num = parseInt(val);
+    return !isNaN(num) && num > 0;
+  }, { message: "Timeline must be a positive number" }).optional().nullable(),
+  motivation: z.string().optional().nullable(),
 });
 
-export const userProfileSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-});
-
-export const productCostsSchema = z.object({
-  cigaretteCost: z.union([z.string(), z.number()]).optional(),
-  vapeCost: z.union([z.string(), z.number()]).optional(),
-  dipCost: z.union([z.string(), z.number()]).optional(),
-});
-
-export const stepRewardSchema = z.object({
-  steps: z.number().min(0, "Steps cannot be negative")
-});
-
-// Helper function to validate data against a schema
-export function validateData<T>(
-  schema: z.ZodSchema<T>,
-  data: unknown
-): { success: true; data: T } | { success: false; errors: z.ZodError<T> } {
+// Function to validate data against schema
+export function validateData(schema: any, data: any) {
   try {
-    const validData = schema.parse(data);
-    return { success: true, data: validData };
+    return schema.safeParse(data);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, errors: error };
-    }
-    throw error;
+    console.error("Validation error:", error);
+    return { success: false, error };
   }
 }
 
-// Helper function to format validation errors for UI
-export function formatValidationErrors(errors: z.ZodError): Record<string, string> {
-  const formattedErrors: Record<string, string> = {};
-  errors.errors.forEach((error) => {
-    if (error.path) {
-      formattedErrors[error.path.join('.')] = error.message;
-    }
-  });
-  return formattedErrors;
+// Helper to format validation errors for display
+export function formatValidationErrors(errors: any): string[] {
+  if (!errors || !errors.issues) return [];
+  return errors.issues.map((issue: any) => `${issue.path.join('.')}: ${issue.message}`);
 }
 
-// Modified function to safely handle validation results for Goals and LogEntry pages
-export function getValidationErrors(result: ReturnType<typeof validateData>): Record<string, string> {
-  if (!result.success && 'errors' in result) {
-    return formatValidationErrors(result.errors);
+// Helper to get validation errors as an object
+export function getValidationErrors(result: any): Record<string, string> {
+  if (result.success) return {};
+  
+  const errors: Record<string, string> = {};
+  
+  if (result.error && result.error.issues) {
+    result.error.issues.forEach((issue: any) => {
+      const path = issue.path.join('.');
+      errors[path] = issue.message;
+    });
   }
-  return {};
+  
+  return errors;
 }
