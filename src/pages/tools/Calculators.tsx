@@ -1,303 +1,273 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import React, { useState, useEffect } from 'react';
+import { Calendar } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { CalendarIcon, DollarSign, Clock, Activity } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format, differenceInDays, addDays } from 'date-fns';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-// Define a type for milestones
-type Milestone = {
-  time: string;
+const SavingsCalculator = () => {
+  const [costPerPack, setCostPerPack] = useState('10');
+  const [packsPerDay, setPacksPerDay] = useState('1');
+  const [quitDate, setQuitDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [savings, setSavings] = useState({ daily: 0, weekly: 0, monthly: 0, yearly: 0, total: 0 });
+  const [daysQuit, setDaysQuit] = useState(0);
+
+  useEffect(() => {
+    const cost = parseFloat(costPerPack) || 0;
+    const packs = parseFloat(packsPerDay) || 0;
+    const dailyAmount = cost * packs;
+    
+    // Calculate days quit
+    const quitDateObj = new Date(quitDate);
+    const today = new Date();
+    const daysSince = Math.max(0, differenceInDays(today, quitDateObj));
+    setDaysQuit(daysSince);
+    
+    setSavings({
+      daily: dailyAmount,
+      weekly: dailyAmount * 7,
+      monthly: dailyAmount * 30,
+      yearly: dailyAmount * 365,
+      total: dailyAmount * daysSince
+    });
+  }, [costPerPack, packsPerDay, quitDate]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Money Saved Calculator</CardTitle>
+        <CardDescription>See how much you'll save by staying nicotine-free</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="cost-per-pack">Cost Per Pack/Vape/Tin ($)</Label>
+              <Input
+                id="cost-per-pack"
+                type="number"
+                step="0.01"
+                min="0"
+                value={costPerPack}
+                onChange={(e) => setCostPerPack(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="packs-per-day">Packs/Vapes/Tins Per Day</Label>
+              <Input
+                id="packs-per-day"
+                type="number"
+                step="0.1"
+                min="0"
+                value={packsPerDay}
+                onChange={(e) => setPacksPerDay(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="quit-date">Quit Date</Label>
+            <div className="relative">
+              <Input
+                id="quit-date"
+                type="date"
+                value={quitDate}
+                onChange={(e) => setQuitDate(e.target.value)}
+                max={format(new Date(), 'yyyy-MM-dd')}
+              />
+              <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            </div>
+          </div>
+          
+          {daysQuit > 0 && (
+            <div className="bg-fresh-50 p-4 rounded-lg text-center">
+              <p className="font-medium">You've been nicotine-free for {daysQuit} days!</p>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-1">Daily Savings</p>
+              <p className="text-lg font-bold text-green-600">${savings.daily.toFixed(2)}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-1">Weekly Savings</p>
+              <p className="text-lg font-bold text-green-600">${savings.weekly.toFixed(2)}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-1">Monthly Savings</p>
+              <p className="text-lg font-bold text-green-600">${savings.monthly.toFixed(2)}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-1">Yearly Savings</p>
+              <p className="text-lg font-bold text-green-600">${savings.yearly.toFixed(2)}</p>
+            </div>
+          </div>
+          
+          {daysQuit > 0 && (
+            <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center mt-2">
+              <p className="text-lg font-bold text-green-600">
+                Total saved so far: ${savings.total.toFixed(2)}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                That's enough for {Math.floor(savings.total / 50)} nice meals or {Math.floor(savings.total / 15)} movie tickets!
+              </p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+interface HealthMilestone {
+  day: number;
+  title: string;
   description: string;
-  achieved?: boolean;
+}
+
+const HealthCalculator = () => {
+  const [quitDate, setQuitDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [daysQuit, setDaysQuit] = useState(0);
+  
+  const milestones: HealthMilestone[] = [
+    { day: 0, title: "You quit!", description: "You've taken the first step toward a healthier life." },
+    { day: 1, title: "20 minutes", description: "Your heart rate and blood pressure drop." },
+    { day: 1, title: "12 hours", description: "Carbon monoxide level in your blood drops to normal." },
+    { day: 2, title: "24-48 hours", description: "Your sense of smell and taste begin to improve." },
+    { day: 3, title: "72 hours", description: "Nicotine is eliminated from your body. Breathing becomes easier." },
+    { day: 7, title: "1 week", description: "Circulation improves. Lung function starts to increase." },
+    { day: 14, title: "2 weeks", description: "Walking becomes easier. Lung function continues to improve." },
+    { day: 30, title: "1 month", description: "Many nicotine withdrawal symptoms have subsided." },
+    { day: 90, title: "3 months", description: "Circulation and lung function improve significantly." },
+    { day: 180, title: "6 months", description: "Coughing and shortness of breath decrease. Lungs begin to clean themselves." },
+    { day: 270, title: "9 months", description: "Cilia regrow in lungs, increasing ability to handle mucus, clean the lungs, and reduce infection." },
+    { day: 365, title: "1 year", description: "Risk of coronary heart disease is half that of someone who still uses nicotine." },
+    { day: 1825, title: "5 years", description: "Risk of stroke is reduced to that of a nonsmoker." },
+    { day: 3650, title: "10 years", description: "Risk of lung cancer falls to about half that of a smoker. Risk of cancers of the mouth, throat, and esophagus decreases." },
+    { day: 5475, title: "15 years", description: "Risk of coronary heart disease is similar to that of a nonsmoker." }
+  ];
+  
+  useEffect(() => {
+    const quitDateObj = new Date(quitDate);
+    const today = new Date();
+    const daysSince = Math.max(0, differenceInDays(today, quitDateObj));
+    setDaysQuit(daysSince);
+  }, [quitDate]);
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Health Improvement Timeline</CardTitle>
+        <CardDescription>Track the positive health changes after quitting nicotine</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="health-quit-date">When did you quit?</Label>
+            <div className="relative">
+              <Input
+                id="health-quit-date"
+                type="date"
+                value={quitDate}
+                onChange={(e) => setQuitDate(e.target.value)}
+                max={format(new Date(), 'yyyy-MM-dd')}
+              />
+              <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            </div>
+          </div>
+          
+          {daysQuit > 0 && (
+            <div className="bg-fresh-50 p-4 rounded-lg text-center">
+              <p className="font-medium">You've been nicotine-free for {daysQuit} days!</p>
+            </div>
+          )}
+          
+          <div className="relative border-l-2 border-fresh-200 pl-8 space-y-6 mt-8">
+            {milestones.map((milestone, index) => {
+              const milestoneDate = addDays(new Date(quitDate), milestone.day);
+              const isPast = new Date() >= milestoneDate;
+              const isCurrent = milestone.day <= daysQuit && (index === milestones.length - 1 || milestones[index + 1].day > daysQuit);
+              
+              return (
+                <div key={index} className="relative">
+                  <div 
+                    className={`absolute -left-10 w-5 h-5 rounded-full mt-1 ${
+                      isPast 
+                        ? 'bg-fresh-500 border-2 border-white shadow' 
+                        : 'bg-gray-200'
+                    } ${
+                      isCurrent ? 'ring-4 ring-fresh-100' : ''
+                    }`}
+                  />
+                  <div className={`${isPast ? 'opacity-100' : 'opacity-50'}`}>
+                    <p className="text-sm text-muted-foreground">
+                      {milestone.day === 0 
+                        ? format(new Date(quitDate), 'MMM d, yyyy')
+                        : `${format(milestoneDate, 'MMM d, yyyy')} (Day ${milestone.day})`
+                      }
+                    </p>
+                    <h4 className="font-semibold mt-1">{milestone.title}</h4>
+                    <p className="mt-1">{milestone.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="text-center text-sm text-muted-foreground mt-8">
+            <p>This timeline is based on general research and may vary by individual.</p>
+            <p>For personalized health advice, please consult a healthcare professional.</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 const Calculators = () => {
-  // Savings calculator state
-  const [productType, setProductType] = useState("cigarettes");
-  const [costPerUnit, setCostPerUnit] = useState<number>(10);
-  const [unitsPerDay, setUnitsPerDay] = useState<number>(1);
-  const [savings, setSavings] = useState<{daily: number, weekly: number, monthly: number, yearly: number} | null>(null);
-  
-  // Timeline calculator state
-  const [quitDate, setQuitDate] = useState<Date | undefined>(undefined);
-  const [milestones, setMilestones] = useState<Array<Milestone>>([]);
-  
-  const calculateSavings = () => {
-    const daily = costPerUnit * unitsPerDay;
-    const weekly = daily * 7;
-    const monthly = daily * 30;
-    const yearly = daily * 365;
-    
-    setSavings({
-      daily: Math.round(daily * 100) / 100,
-      weekly: Math.round(weekly * 100) / 100,
-      monthly: Math.round(monthly * 100) / 100,
-      yearly: Math.round(yearly * 100) / 100
-    });
-  };
-  
-  const calculateTimeline = () => {
-    if (!quitDate) return;
-    
-    const now = new Date();
-    const diffTime = now.getTime() - quitDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    const newMilestones: Milestone[] = [
-      { time: '20 minutes', description: 'Heart rate and blood pressure drop' },
-      { time: '12 hours', description: 'Carbon monoxide level in blood drops to normal' },
-      { time: '2-3 days', description: 'Sense of smell and taste improve' },
-      { time: '1-3 weeks', description: 'Circulation improves, lung function increases' },
-      { time: '1-9 months', description: 'Coughing and shortness of breath decrease' },
-      { time: '1 year', description: 'Risk of coronary heart disease is half that of a smoker' },
-      { time: '5-15 years', description: 'Stroke risk reduced to that of a nonsmoker' },
-      { time: '10 years', description: 'Lung cancer death rate similar to that of nonsmokers' },
-      { time: '15 years', description: 'Risk of coronary heart disease same as non-smoker' }
-    ];
-    
-    // Mark which milestones have been achieved
-    const markedMilestones = newMilestones.map(milestone => {
-      let achieved = false;
-      let timeInDays = 0;
-      
-      if (milestone.time.includes('minutes')) {
-        timeInDays = parseInt(milestone.time) / (24 * 60);
-      } else if (milestone.time.includes('hours')) {
-        timeInDays = parseInt(milestone.time) / 24;
-      } else if (milestone.time.includes('days')) {
-        if (milestone.time.includes('-')) {
-          timeInDays = parseInt(milestone.time.split('-')[1]);
-        } else {
-          timeInDays = parseInt(milestone.time);
-        }
-      } else if (milestone.time.includes('weeks')) {
-        if (milestone.time.includes('-')) {
-          timeInDays = parseInt(milestone.time.split('-')[1]) * 7;
-        } else {
-          timeInDays = parseInt(milestone.time) * 7;
-        }
-      } else if (milestone.time.includes('months')) {
-        if (milestone.time.includes('-')) {
-          timeInDays = parseInt(milestone.time.split('-')[1]) * 30;
-        } else {
-          timeInDays = parseInt(milestone.time) * 30;
-        }
-      } else if (milestone.time.includes('year')) {
-        if (milestone.time.includes('-')) {
-          timeInDays = parseInt(milestone.time.split('-')[1]) * 365;
-        } else {
-          timeInDays = parseInt(milestone.time) * 365;
-        }
-      }
-      
-      achieved = diffDays >= timeInDays;
-      
-      return {
-        ...milestone,
-        achieved
-      };
-    });
-    
-    setMilestones(markedMilestones);
-  };
-
   return (
-    <div className="container max-w-5xl py-8">
-      <h1 className="text-3xl font-bold tracking-tight mb-6">Interactive Calculators</h1>
-      <p className="text-muted-foreground mb-10">Use these tools to visualize the financial and health benefits of your fresh journey.</p>
+    <div className="container py-12 px-4 mx-auto max-w-5xl">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold tracking-tight mb-3">Interactive Calculators</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          See the financial and health benefits of your fresh journey
+        </p>
+      </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Savings Calculator */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-fresh-300" />
-              Savings Calculator
-            </CardTitle>
-            <CardDescription>
-              Calculate how much money you'll save by staying afresh or fresher
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="product-type">Product Type</Label>
-                <RadioGroup 
-                  id="product-type" 
-                  value={productType} 
-                  onValueChange={setProductType}
-                  className="flex flex-wrap gap-4 mt-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="cigarettes" id="cigarettes" />
-                    <Label htmlFor="cigarettes">Cigarettes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="vape" id="vape" />
-                    <Label htmlFor="vape">Vape Products</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="pouches" id="pouches" />
-                    <Label htmlFor="pouches">Nicotine Pouches</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="other" id="other" />
-                    <Label htmlFor="other">Other</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="cost-per-unit">
-                    Cost per {productType === "cigarettes" ? "pack" : 
-                             productType === "vape" ? "disposable/cartridge" : 
-                             "container"}
-                  </Label>
-                  <div className="flex items-center mt-2">
-                    <span className="bg-muted px-3 py-2 rounded-l-md border border-r-0">$</span>
-                    <Input 
-                      id="cost-per-unit"
-                      type="number" 
-                      min="0" 
-                      step="0.01"
-                      value={costPerUnit}
-                      onChange={(e) => setCostPerUnit(parseFloat(e.target.value) || 0)}
-                      className="rounded-l-none"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="units-per-day">
-                    {productType === "cigarettes" ? "Packs" : 
-                       productType === "vape" ? "Disposables/Cartridges" : 
-                       "Containers"} per day
-                  </Label>
-                  <Input 
-                    id="units-per-day"
-                    type="number" 
-                    min="0" 
-                    step="0.1"
-                    value={unitsPerDay}
-                    onChange={(e) => setUnitsPerDay(parseFloat(e.target.value) || 0)}
-                    className="mt-2"
-                  />
-                </div>
-              </div>
-              
-              <Button 
-                onClick={calculateSavings}
-                className="w-full bg-fresh-300 hover:bg-fresh-400 text-white"
-              >
-                Calculate Savings
-              </Button>
-            </div>
-            
-            {savings && (
-              <div className="border rounded-lg p-4 bg-fresh-50 space-y-3 mt-4">
-                <h3 className="font-medium text-lg">Your Estimated Savings</h3>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  <div className="text-muted-foreground">Daily:</div>
-                  <div className="font-medium">${savings.daily}</div>
-                  <div className="text-muted-foreground">Weekly:</div>
-                  <div className="font-medium">${savings.weekly}</div>
-                  <div className="text-muted-foreground">Monthly:</div>
-                  <div className="font-medium">${savings.monthly}</div>
-                  <div className="text-muted-foreground">Yearly:</div>
-                  <div className="font-medium text-fresh-500">${savings.yearly}</div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="savings" className="w-full">
+        <TabsList className="w-full max-w-md mx-auto grid grid-cols-2">
+          <TabsTrigger value="savings">Savings Calculator</TabsTrigger>
+          <TabsTrigger value="health">Health Timeline</TabsTrigger>
+        </TabsList>
         
-        {/* Health Timeline Calculator */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-teal-500" />
-              Health Timeline
-            </CardTitle>
-            <CardDescription>
-              See how your health improves after you stop using nicotine
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="quit-date">When did you quit?</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full mt-2 justify-start text-left font-normal",
-                        !quitDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {quitDate ? format(quitDate, "PPP") : "Select a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={quitDate}
-                      onSelect={setQuitDate}
-                      initialFocus
-                      disabled={(date) => date > new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              
-              <Button 
-                onClick={calculateTimeline}
-                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                disabled={!quitDate}
-              >
-                Show My Timeline
-              </Button>
-            </div>
-            
-            {milestones.length > 0 && (
-              <div className="border rounded-lg p-4 bg-teal-50 space-y-4 mt-4">
-                <h3 className="font-medium text-lg">Your Health Recovery Timeline</h3>
-                <div className="space-y-3">
-                  {milestones.map((milestone, index) => (
-                    <div 
-                      key={index} 
-                      className={cn(
-                        "flex gap-3 p-3 rounded-md",
-                        milestone.achieved ? "bg-teal-100" : "bg-white"
-                      )}
-                    >
-                      <div className={cn(
-                        "rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0",
-                        milestone.achieved ? "bg-teal-500 text-white" : "border border-gray-300"
-                      )}>
-                        {milestone.achieved && <Clock className="h-3 w-3" />}
-                      </div>
-                      <div>
-                        <p className="font-medium">{milestone.time}</p>
-                        <p className="text-sm text-muted-foreground">{milestone.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground pt-2">Based on general health recovery timeline. Individual results may vary.</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <TabsContent value="savings" className="mt-6">
+          <SavingsCalculator />
+        </TabsContent>
+        
+        <TabsContent value="health" className="mt-6">
+          <HealthCalculator />
+        </TabsContent>
+      </Tabs>
+      
+      <div className="mt-16 p-6 bg-gradient-to-r from-fresh-50 to-blue-50 border border-fresh-100 rounded-lg text-center">
+        <h2 className="text-xl font-semibold mb-3">Want More Personalized Tracking?</h2>
+        <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+          The Mission Fresh app offers detailed progress tracking and personalized insights on your journey.
+        </p>
+        <Button asChild className="bg-fresh-500 hover:bg-fresh-600">
+          <a href="/sign-up">Create Free Account</a>
+        </Button>
       </div>
     </div>
   );

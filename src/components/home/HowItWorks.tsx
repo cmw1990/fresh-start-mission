@@ -1,61 +1,61 @@
 
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Leaf, Battery, Target, Award } from "lucide-react";
+import { CircleCheckBig, Activity, Brain, Footprints } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const features = [
+const stepData = [
   {
-    icon: <Target className="h-10 w-10 text-fresh-300" />,
+    icon: <CircleCheckBig className="h-10 w-10 text-fresh-300" />,
     title: "Set Your Goal",
-    description: "Whether you want to stay afresh (quit) or stay fresher (reduce), we support your unique journey.",
+    description: "Choose your path - Stay Afresh (quit) or Fresher (reduce). We support any goal with any product."
   },
   {
-    icon: <Leaf className="h-10 w-10 text-teal-500" />,
+    icon: <Activity className="h-10 w-10 text-fresh-300" />,
     title: "Track Your Progress",
-    description: "Monitor your nicotine use, cravings, and holistic metrics like mood, energy, and focus.",
+    description: "Log your journey holistically including mood, energy, focus, and sleep alongside nicotine use."
   },
   {
-    icon: <Battery className="h-10 w-10 text-fresh-300" />,
+    icon: <Brain className="h-10 w-10 text-fresh-300" />,
     title: "Get Support",
-    description: "Access specialized tools for managing cravings, boosting energy, improving focus, and lifting mood.",
+    description: "Access tools specifically designed to boost energy, improve mood, enhance focus, and manage cravings."
   },
   {
-    icon: <Award className="h-10 w-10 text-teal-500" />,
+    icon: <Footprints className="h-10 w-10 text-fresh-300" />,
     title: "Earn Rewards",
-    description: "Stay motivated with our step-based rewards system that provides incentives along your journey.",
+    description: "Stay active and earn points through step tracking that can be redeemed for special rewards."
   },
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="py-20 bg-white" id="how-it-works">
+    <section className="py-24 bg-gradient-to-b from-white to-gray-50" id="how-it-works">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">How Mission Fresh Works</h2>
           <p className="text-lg text-muted-foreground">
-            Mission Fresh provides a simple but powerful approach to help you achieve your goals
+            Your journey to a fresh start is supported every step of the way
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
+          {stepData.map((step, index) => (
             <div 
               key={index} 
-              className="bg-background p-6 rounded-xl border border-border hover:shadow-md transition-shadow"
+              className={cn(
+                "relative p-6 bg-white rounded-lg shadow-sm border border-gray-100",
+                "flex flex-col items-center text-center",
+                "transition-all hover:shadow-md hover:-translate-y-1"
+              )}
             >
-              <div className="mb-5 inline-flex items-center justify-center rounded-lg bg-fresh-50 p-2">
-                {feature.icon}
+              <div className="mb-4 p-3 bg-fresh-50 rounded-full">
+                {step.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
+              <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-fresh-200 flex items-center justify-center text-white font-bold">
+                {index + 1}
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+              <p className="text-muted-foreground">{step.description}</p>
             </div>
           ))}
-        </div>
-
-        <div className="mt-16 text-center">
-          <Link to="/sign-up">
-            <Button className="bg-fresh-300 hover:bg-fresh-400 text-white">Get Started</Button>
-          </Link>
         </div>
       </div>
     </section>

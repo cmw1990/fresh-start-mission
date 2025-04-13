@@ -1,94 +1,71 @@
 
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-fresh-50 via-background to-background py-20 md:py-32">
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-5"></div>
-      
-      {/* Main content container */}
-      <div className="container relative z-10 max-w-6xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Left column - Text content */}
-          <div className="space-y-6 text-center md:text-left animate-fade-in-up">
-            <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-sm">
-              A Fresh World is Mission Possible!
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tighter text-gray-900">
-              Reclaim Your <span className="text-primary">Energy</span>. Find Your <span className="text-primary">Fresh</span> Start.
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground">
-              Mission Fresh supports your journey to a nicotine-free life with holistic tools for energy, mood, focus, and cravings.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
-              <Link to="/auth?mode=register"> 
-                <Button size="lg" variant="default" className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  Start Your Fresh Journey
-                </Button>
+    <section className="relative pt-28 pb-32 overflow-hidden">
+      {/* Background Pattern */}
+      <div 
+        className="absolute inset-0 z-0 opacity-[0.03]" 
+        style={{ 
+          backgroundImage: `url('/grid-pattern.svg')`,
+          backgroundSize: '30px 30px'
+        }}
+      ></div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-fresh-50/80 to-blue-50/50"></div>
+
+      {/* Decorative Elements */}
+      <div className="absolute top-20 right-[10%] w-64 h-64 bg-gradient-to-br from-fresh-300/20 to-fresh-200/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-10 left-[5%] w-72 h-72 bg-gradient-to-tr from-blue-300/10 to-fresh-200/10 rounded-full blur-3xl"></div>
+
+      <div className="container relative z-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center px-3 py-1 mb-6 text-sm font-medium bg-fresh-100 text-fresh-800 rounded-full">
+            <span className="flex h-2 w-2 rounded-full bg-fresh-500 mr-2"></span>
+            A Fresh World is Mission Possible
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+            Reclaim Your Energy. <br />Find Your Fresh Start.
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Comprehensive support for your journey to reduce or quit nicotine, focusing on your energy, mood, focus, and overall wellbeing.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button asChild size="lg" className="bg-gradient-to-r from-fresh-400 to-fresh-600 hover:from-fresh-500 hover:to-fresh-700 border-none text-white">
+              <Link to="/sign-up">
+                Start Your Fresh Journey
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <a href="#how-it-works">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Learn How It Works
-                </Button>
-              </a>
-            </div>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/tools">Explore Free Tools</Link>
+            </Button>
           </div>
           
-          {/* Right column - Visual element */}
-          <div className="hidden md:block animate-fade-in">
-            <div className="relative">
-              {/* Decorative gradient blobs */}
-              <div className="absolute -top-16 -left-16 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl opacity-40 animate-blob"></div>
-              <div className="absolute -bottom-16 -right-10 w-72 h-72 bg-blue-200/10 rounded-full filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
-              
-              {/* App showcase mockup */}
-              <div className="relative bg-white p-4 rounded-2xl shadow-xl border hover:scale-[1.02] transition-transform duration-300">
-                <div className="aspect-video w-full overflow-hidden rounded-xl relative">
-                  {/* App mockup content */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-fresh-300 to-fresh-600 flex flex-col items-center justify-center text-white p-6">
-                    <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                        <path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1H8.3z"></path>
-                        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                        <circle cx="17.5" cy="17.5" r="3.5"></circle>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold mb-2 text-center">Mission Fresh App</h3>
-                    <p className="text-center text-white/80 text-sm">Track your energy, mood, focus, and cravings in one place</p>
-                    
-                    {/* Data visualization mockup elements */}
-                    <div className="mt-6 w-full">
-                      <div className="flex justify-between mb-2">
-                        <div className="h-2 w-16 bg-white/30 rounded-full"></div>
-                        <div className="h-2 w-8 bg-white/30 rounded-full"></div>
-                      </div>
-                      <div className="flex space-x-1">
-                        <div className="h-16 w-8 bg-white/20 rounded-md"></div>
-                        <div className="h-12 w-8 bg-white/20 rounded-md"></div>
-                        <div className="h-20 w-8 bg-white/20 rounded-md"></div>
-                        <div className="h-10 w-8 bg-white/20 rounded-md"></div>
-                        <div className="h-16 w-8 bg-white/20 rounded-md"></div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 flex space-x-2">
-                      <div className="h-1 w-8 bg-white/40 rounded-full"></div>
-                      <div className="h-1 w-4 bg-white/80 rounded-full"></div>
-                      <div className="h-1 w-2 bg-white/40 rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="mt-12 flex items-center justify-center space-x-6 text-sm">
+            <div className="flex items-center">
+              <div className="h-4 w-4 rounded-full bg-green-500 mr-2"></div>
+              <span>Free Web Tools</span>
+            </div>
+            <div className="flex items-center">
+              <div className="h-4 w-4 rounded-full bg-blue-500 mr-2"></div>
+              <span>Holistic Approach</span>
+            </div>
+            <div className="flex items-center">
+              <div className="h-4 w-4 rounded-full bg-purple-500 mr-2"></div>
+              <span>Any Nicotine Product</span>
             </div>
           </div>
         </div>
       </div>
-      
-      {/* Decorative angle at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-8 bg-background transform -translate-y-1/2"></div>
     </section>
   );
 };
