@@ -47,6 +47,24 @@ interface Product {
   user_rating_count?: number;
 }
 
+// Raw database structure for products from Supabase
+interface RawProductData {
+  id: string;
+  name: string;
+  brand?: string;
+  description?: string;
+  image_url?: string;
+  nicotine_strength_mg?: number;
+  flavor_category?: string;
+  ingredients?: string[];
+  expert_notes_chemicals?: string;
+  expert_notes_gum_health?: string;
+  user_rating_avg?: number;
+  user_rating_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -88,7 +106,7 @@ const ProductDetails = () => {
         description: productData.description || '',
         image_url: productData.image_url,
         price: productData.price || 'N/A',  // Default values for required fields
-        category: productData.category || 'N/A',
+        category: productData.category || productData.flavor_category || 'N/A',
         nicotine_content: productData.nicotine_content || String(productData.nicotine_strength_mg || 'N/A'),
         manufacturer: productData.manufacturer || productData.brand || 'N/A',
         average_rating: productData.user_rating_avg,
@@ -116,12 +134,23 @@ const ProductDetails = () => {
 
       if (reviewsError) throw reviewsError;
       
-      // Cast and filter the reviews to ensure they match our Review interface
-      const typedReviews = (reviewsData || []).filter(review => 
-        review && review.user && !review.user.error
-      ) as Review[];
+      // Filter reviews to ensure they match our Review interface structure
+      const validReviews = (reviewsData || [])
+        .filter(review => review && review.user && typeof review.user !== 'string' && !('error' in review.user))
+        .map(review => ({
+          id: review.id,
+          user_id: review.user_id,
+          rating: review.rating,
+          review_text: review.review_text,
+          created_at: review.created_at,
+          is_moderated: review.is_moderated,
+          user: {
+            email: review.user?.email || 'Unknown',
+            user_metadata: review.user?.user_metadata
+          }
+        })) as Review[];
 
-      setReviews(typedReviews);
+      setReviews(validReviews);
 
     } catch (error: any) {
       toast.error('Error loading product details: ' + error.message);

@@ -1,15 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { useStepTracking } from '@/hooks/useStepTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useHaptics } from '@/hooks/useHaptics';
+import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Footprints, AlertTriangle, ArrowRight, Gift, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile'; // Changed to use the correct import
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 export interface EnhancedMobileStepTrackerProps {
@@ -46,17 +45,15 @@ const MILESTONES: MilestoneInfo[] = [
 
 const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ className }) => {
   const { stepData, isLoading, hasPermission, fetchSteps, logManualSteps } = useStepTracking();
-  const { impact, notification } = useHaptics(); // Use the correct properties from useHaptics
+  const { impact, notification } = useHaptics();
   const [showAnimation, setShowAnimation] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [reachedMilestones, setReachedMilestones] = useState<number[]>([]);
-  const mobile = useIsMobile(); // Changed to use the correct function
+  const mobile = useIsMobile();
 
-  // Track milestone achievements
   useEffect(() => {
-    // Find the most recently crossed milestone that hasn't been celebrated yet
     let highestMilestoneIndex = -1;
-    const steps = stepData.steps; // Use stepData.steps instead of just steps
+    const steps = stepData.steps;
     
     if (steps > 0) {
       for (let i = MILESTONES.length - 1; i >= 0; i--) {
@@ -67,14 +64,12 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
       }
     }
     
-    // If we found a new milestone, celebrate it!
     if (highestMilestoneIndex >= 0) {
       setActiveIndex(highestMilestoneIndex);
       setShowAnimation(true);
-      notification('SUCCESS'); // Use notification instead of triggerHaptic
+      notification('SUCCESS');
       setReachedMilestones(prev => [...prev, highestMilestoneIndex]);
       
-      // Show toast notification
       toast.success(`🎉 ${MILESTONES[highestMilestoneIndex].name} Achievement!`, {
         description: MILESTONES[highestMilestoneIndex].description
       });
@@ -83,15 +78,15 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
 
   const handleRefresh = async () => {
     try {
-      await fetchSteps(); // Use fetchSteps instead of syncSteps
-      impact(HapticImpact.LIGHT); // Use impact instead of triggerHaptic
+      await fetchSteps();
+      impact(HapticImpact.LIGHT);
     } catch (e) {
       console.error("Error refreshing steps:", e);
     }
   };
 
   const getClosestMilestone = () => {
-    const steps = stepData.steps; // Use stepData.steps
+    const steps = stepData.steps;
     
     if (steps <= 0) return MILESTONES[0];
     
@@ -109,14 +104,13 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
     100, 
     stepData.steps > 0 ? (stepData.steps / closestMilestone.threshold) * 100 : 0
   );
-  const pointsEarned = Math.floor(stepData.steps / 100); // 1 point per 100 steps
+  const pointsEarned = Math.floor(stepData.steps / 100);
 
   return (
     <Card className={cn("relative overflow-hidden", 
       mobile ? "border-2 shadow-md" : "",
       className
     )}>
-      {/* Confetti Animation */}
       <AnimatePresence>
         {showAnimation && (
           <motion.div 
@@ -158,7 +152,6 @@ const EnhancedMobileStepTracker: React.FC<EnhancedMobileStepTrackerProps> = ({ c
         )}
       </AnimatePresence>
 
-      {/* Card Content */}
       <div className={showAnimation ? "opacity-20" : ""}>
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center">
