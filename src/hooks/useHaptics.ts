@@ -13,7 +13,8 @@ export function useHaptics() {
   const impact = useCallback(async (style: HapticImpact = HapticImpact.MEDIUM) => {
     try {
       // Convert our enum to the ImpactStyle type expected by Capacitor
-      await Haptics.impact({ style: style as ImpactStyle });
+      // Use type assertion to convert between compatible string enums
+      await Haptics.impact({ style: style as unknown as ImpactStyle });
     } catch (error) {
       console.log('Haptics not available or error:', error);
     }

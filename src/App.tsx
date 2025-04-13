@@ -47,7 +47,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" />;
   }
 
-  return children;
+  return <>{children}</>;
 }
 
 function App() {
@@ -58,116 +58,116 @@ function App() {
   }, [initializeAuth]);
   
   return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
-        <Route path="/sign-up" element={<PublicLayout><SignUp /></PublicLayout>} />
-        <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
-        <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
-        
-        {/* Web Tools Routes */}
-        <Route path="/tools" element={<PublicLayout><WebToolsIndex /></PublicLayout>} />
-        <Route path="/tools/nrt-guide" element={<PublicLayout><NRTGuide /></PublicLayout>} />
-        <Route path="/tools/smokeless-directory" element={<PublicLayout><SmokelessDirectory /></PublicLayout>} />
-        <Route path="/tools/smokeless-directory/:id" element={<PublicLayout><ProductDetails /></PublicLayout>} />
-        <Route path="/tools/quit-methods" element={<PublicLayout><QuitMethods /></PublicLayout>} />
-        <Route path="/tools/calculators" element={<PublicLayout><Calculators /></PublicLayout>} />
-        <Route path="/tools/holistic-health" element={<PublicLayout><HolisticHealth /></PublicLayout>} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
+      <Route path="/sign-up" element={<PublicLayout><SignUp /></PublicLayout>} />
+      <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
+      <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
+      
+      {/* Web Tools Routes */}
+      <Route path="/tools" element={<PublicLayout><WebToolsIndex /></PublicLayout>} />
+      <Route path="/tools/nrt-guide" element={<PublicLayout><NRTGuide /></PublicLayout>} />
+      <Route path="/tools/smokeless-directory" element={<PublicLayout><SmokelessDirectory /></PublicLayout>} />
+      <Route path="/tools/smokeless-directory/:id" element={<PublicLayout><ProductDetails /></PublicLayout>} />
+      <Route path="/tools/quit-methods" element={<PublicLayout><QuitMethods /></PublicLayout>} />
+      <Route path="/tools/calculators" element={<PublicLayout><Calculators /></PublicLayout>} />
+      <Route path="/tools/holistic-health" element={<PublicLayout><HolisticHealth /></PublicLayout>} />
 
-        {/* App Routes - Protected */}
-        <Route path="/app/dashboard" element={
-          <AuthGuard>
-            <AppLayout>
-              <Dashboard />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/log" element={
-          <AuthGuard>
-            <AppLayout>
-              <LogEntry />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/goals" element={
-          <AuthGuard>
-            <AppLayout>
-              <Goals />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/rewards" element={
-          <AuthGuard>
-            <AppLayout>
-              <Rewards />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/profile" element={
-          <AuthGuard>
-            <AppLayout>
-              <Profile />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/settings" element={
-          <AuthGuard>
-            <AppLayout>
-              <Settings />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        
-        {/* Add new routes for our tools */}
-        <Route path="/app/tools/cravings" element={
-          <AuthGuard>
-            <AppLayout>
-              <CravingTools />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/tools/energy" element={
-          <AuthGuard>
-            <AppLayout>
-              <EnergyTools />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/tools/focus" element={
-          <AuthGuard>
-            <AppLayout>
-              <FocusTools />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/tools/mood" element={
-          <AuthGuard>
-            <AppLayout>
-              <MoodTools />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        <Route path="/app/progress/timeline" element={
-          <AuthGuard>
-            <AppLayout>
-              <HealthTimeline />
-            </AppLayout>
-          </AuthGuard>
-        } />
-        
-        {/* Default Route */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+      {/* App Routes - Protected */}
+      <Route path="/app/dashboard" element={
+        <AuthGuard>
+          <AppLayout>
+            <Dashboard />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/log" element={
+        <AuthGuard>
+          <AppLayout>
+            <LogEntry />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/goals" element={
+        <AuthGuard>
+          <AppLayout>
+            <Goals />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/rewards" element={
+        <AuthGuard>
+          <AppLayout>
+            <Rewards />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/profile" element={
+        <AuthGuard>
+          <AppLayout>
+            <Profile />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/settings" element={
+        <AuthGuard>
+          <AppLayout>
+            <Settings />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      
+      {/* Add new routes for our tools */}
+      <Route path="/app/tools/cravings" element={
+        <AuthGuard>
+          <AppLayout>
+            <CravingTools />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/tools/energy" element={
+        <AuthGuard>
+          <AppLayout>
+            <EnergyTools />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/tools/focus" element={
+        <AuthGuard>
+          <AppLayout>
+            <FocusTools />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/tools/mood" element={
+        <AuthGuard>
+          <AppLayout>
+            <MoodTools />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      <Route path="/app/progress/timeline" element={
+        <AuthGuard>
+          <AppLayout>
+            <HealthTimeline />
+          </AppLayout>
+        </AuthGuard>
+      } />
+      
+      {/* Default Route */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 
 function AppWrapper() {
   return (
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </Router>
   );
 }
 
