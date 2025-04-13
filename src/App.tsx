@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { PublicLayout } from './components/layout/PublicLayout';
 import AppLayout from './components/layout/AppLayout'; 
@@ -75,85 +75,28 @@ function App() {
       <Route path="/tools/holistic-health" element={<PublicLayout><HolisticHealth /></PublicLayout>} />
 
       {/* App Routes - Protected */}
-      <Route path="/app/dashboard" element={
-        <AuthGuard>
-          <AppLayout>
-            <Dashboard />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/log" element={
-        <AuthGuard>
-          <AppLayout>
-            <LogEntry />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/goals" element={
-        <AuthGuard>
-          <AppLayout>
-            <Goals />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/rewards" element={
-        <AuthGuard>
-          <AppLayout>
-            <Rewards />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/profile" element={
-        <AuthGuard>
-          <AppLayout>
-            <Profile />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/settings" element={
-        <AuthGuard>
-          <AppLayout>
-            <Settings />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      
-      {/* Add new routes for our tools */}
-      <Route path="/app/tools/cravings" element={
-        <AuthGuard>
-          <AppLayout>
-            <CravingTools />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/tools/energy" element={
-        <AuthGuard>
-          <AppLayout>
-            <EnergyTools />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/tools/focus" element={
-        <AuthGuard>
-          <AppLayout>
-            <FocusTools />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/tools/mood" element={
-        <AuthGuard>
-          <AppLayout>
-            <MoodTools />
-          </AppLayout>
-        </AuthGuard>
-      } />
-      <Route path="/app/progress/timeline" element={
-        <AuthGuard>
-          <AppLayout>
-            <HealthTimeline />
-          </AppLayout>
-        </AuthGuard>
-      } />
+      <Route 
+        path="/app" 
+        element={
+          <AuthGuard>
+            <AppLayout />
+          </AuthGuard>
+        }
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="log" element={<LogEntry />} />
+        <Route path="goals" element={<Goals />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="settings" element={<Settings />} />
+        
+        {/* Tools routes */}
+        <Route path="tools/cravings" element={<CravingTools />} />
+        <Route path="tools/energy" element={<EnergyTools />} />
+        <Route path="tools/focus" element={<FocusTools />} />
+        <Route path="tools/mood" element={<MoodTools />} />
+        <Route path="progress/timeline" element={<HealthTimeline />} />
+      </Route>
       
       {/* Default Route */}
       <Route path="*" element={<Navigate to="/" />} />
