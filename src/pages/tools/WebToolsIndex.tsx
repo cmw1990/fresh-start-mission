@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Box, Compass, Calculator, SunMoon, Tablet } from 'lucide-react';
+import { Box, Compass, Calculator, SunMoon, Tablet, ArrowRight } from 'lucide-react';
 
 const WebToolsIndex = () => {
   return (
@@ -19,41 +19,51 @@ const WebToolsIndex = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ToolCard 
           title="NRT Guide" 
-          description="Comprehensive information about nicotine replacement therapy options."
+          description="Comprehensive information about nicotine replacement therapy options with expert recommendations."
           icon={<Tablet className="h-8 w-8" />}
           link="/tools/nrt-guide"
+          bgColor="bg-blue-50"
+          iconColor="text-blue-600"
         />
         
         <ToolCard 
           title="Smokeless Directory" 
-          description="Browse and compare smokeless nicotine alternatives with expert analysis."
+          description="Browse and compare smokeless nicotine alternatives with expert analysis and user reviews."
           icon={<Box className="h-8 w-8" />}
           link="/tools/smokeless-directory"
+          bgColor="bg-green-50"
+          iconColor="text-green-600"
         />
         
         <ToolCard 
           title="Quit Methods" 
-          description="Learn about different approaches to quitting or reducing nicotine use."
+          description="Learn about different approaches to quitting or reducing nicotine use with pros and cons of each."
           icon={<Compass className="h-8 w-8" />}
           link="/tools/quit-methods"
+          bgColor="bg-purple-50"
+          iconColor="text-purple-600"
         />
         
         <ToolCard 
           title="Calculators" 
-          description="Estimate your savings and health improvements when you reduce or quit."
+          description="Estimate your savings and health improvements when you reduce or quit using nicotine products."
           icon={<Calculator className="h-8 w-8" />}
           link="/tools/calculators"
+          bgColor="bg-amber-50"
+          iconColor="text-amber-600"
         />
         
         <ToolCard 
           title="Holistic Health" 
-          description="Resources for managing energy, mood, focus and overall wellbeing."
+          description="Resources for managing energy, mood, focus and overall wellbeing during your fresh journey."
           icon={<SunMoon className="h-8 w-8" />}
           link="/tools/holistic-health"
+          bgColor="bg-rose-50"
+          iconColor="text-rose-600"
         />
       </div>
       
-      <div className="mt-16 bg-fresh-50 p-8 rounded-xl">
+      <div className="mt-16 bg-gradient-to-br from-fresh-50 to-fresh-100 p-8 rounded-xl shadow-sm">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl font-bold mb-4">Want More Personalized Support?</h2>
           <p className="text-lg mb-6">
@@ -61,10 +71,10 @@ const WebToolsIndex = () => {
             step rewards, and a community of people on the same journey.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button asChild className="bg-fresh-500 hover:bg-fresh-600 text-white">
+            <Button asChild size="lg" className="bg-fresh-500 hover:bg-fresh-600 text-white">
               <Link to="/sign-up">Create Free Account</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="lg">
               <Link to="/">Learn More</Link>
             </Button>
           </div>
@@ -79,37 +89,25 @@ interface ToolCardProps {
   description: string;
   icon: React.ReactNode;
   link: string;
+  bgColor: string;
+  iconColor: string;
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link }) => {
+const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, link, bgColor, iconColor }) => {
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardHeader>
-        <div className="w-12 h-12 rounded-full bg-fresh-100 flex items-center justify-center text-fresh-600 mb-4">
+    <Card className="overflow-hidden transition-all hover:shadow-md border-t-4 border-t-fresh-500 hover:border-t-fresh-600">
+      <CardHeader className="pb-2">
+        <div className={`w-12 h-12 rounded-full ${bgColor} flex items-center justify-center ${iconColor} mb-4`}>
           {icon}
         </div>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-xl">{title}</CardTitle>
+        <CardDescription className="text-base">{description}</CardDescription>
       </CardHeader>
-      <CardFooter>
-        <Button asChild variant="ghost" className="text-fresh-600 hover:text-fresh-700 hover:bg-fresh-50 p-0">
+      <CardFooter className="pt-2">
+        <Button asChild variant="ghost" className="text-fresh-600 hover:text-fresh-700 hover:bg-fresh-50 p-0 group">
           <Link to={link} className="flex items-center">
             Explore Tool
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="ml-2"
-            >
-              <path d="M5 12h14"></path>
-              <path d="m12 5 7 7-7 7"></path>
-            </svg>
+            <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>
       </CardFooter>

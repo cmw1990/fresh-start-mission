@@ -1,13 +1,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 const Hero = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-fresh-50 via-background to-background py-20 md:py-32">
+      {/* Background pattern */}
       <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-5"></div>
+      
+      {/* Main content container */}
       <div className="container relative z-10 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Left column - Text content */}
           <div className="space-y-6 text-center md:text-left animate-fade-in-up">
             <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-sm">
               A Fresh World is Mission Possible!
@@ -31,13 +36,18 @@ const Hero = () => {
               </a>
             </div>
           </div>
+          
+          {/* Right column - Visual element */}
           <div className="hidden md:block animate-fade-in">
             <div className="relative">
+              {/* Decorative gradient blobs */}
               <div className="absolute -top-16 -left-16 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl opacity-40 animate-blob"></div>
               <div className="absolute -bottom-16 -right-10 w-72 h-72 bg-blue-200/10 rounded-full filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
               
+              {/* App showcase mockup */}
               <div className="relative bg-white p-4 rounded-2xl shadow-xl border hover:scale-[1.02] transition-transform duration-300">
                 <div className="aspect-video w-full overflow-hidden rounded-xl relative">
+                  {/* App mockup content */}
                   <div className="absolute inset-0 bg-gradient-to-br from-fresh-300 to-fresh-600 flex flex-col items-center justify-center text-white p-6">
                     <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
@@ -48,6 +58,22 @@ const Hero = () => {
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-center">Mission Fresh App</h3>
                     <p className="text-center text-white/80 text-sm">Track your energy, mood, focus, and cravings in one place</p>
+                    
+                    {/* Data visualization mockup elements */}
+                    <div className="mt-6 w-full">
+                      <div className="flex justify-between mb-2">
+                        <div className="h-2 w-16 bg-white/30 rounded-full"></div>
+                        <div className="h-2 w-8 bg-white/30 rounded-full"></div>
+                      </div>
+                      <div className="flex space-x-1">
+                        <div className="h-16 w-8 bg-white/20 rounded-md"></div>
+                        <div className="h-12 w-8 bg-white/20 rounded-md"></div>
+                        <div className="h-20 w-8 bg-white/20 rounded-md"></div>
+                        <div className="h-10 w-8 bg-white/20 rounded-md"></div>
+                        <div className="h-16 w-8 bg-white/20 rounded-md"></div>
+                      </div>
+                    </div>
+                    
                     <div className="mt-4 flex space-x-2">
                       <div className="h-1 w-8 bg-white/40 rounded-full"></div>
                       <div className="h-1 w-4 bg-white/80 rounded-full"></div>
@@ -60,6 +86,9 @@ const Hero = () => {
           </div>
         </div>
       </div>
+      
+      {/* Decorative angle at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-background transform -translate-y-1/2"></div>
     </section>
   );
 };
