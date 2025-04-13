@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import {
@@ -256,7 +255,7 @@ const SidebarFooter = React.forwardRef<HTMLDivElement, SidebarFooterProps>(
 )
 SidebarFooter.displayName = "SidebarFooter"
 
-const SidebarNav = React.forwardRef<HTMLNavElement, SidebarNavProps>(
+const SidebarNav = React.forwardRef<HTMLElement, SidebarNavProps>(
   ({ className, ...props }, ref) => {
     return (
       <nav
