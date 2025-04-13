@@ -38,15 +38,23 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     // Get user preferences for cost calculation
     const preferences = await getUserPreferences();
     
-    // Fix: Access cost_per_product directly and provide a default if it doesn't exist or if the product doesn't exist
-    // Default to $10 per day cost if preferences or cost_per_product are not available
-    const costPerDay = preferences?.cost_per_product?.cigarette || 10;
+    // Get user goal to determine primary product if available
+    const userGoal = await getUserGoal();
+    const primaryProduct = userGoal?.product_type || 'cigarette'; // Default to cigarette
+    
+    // Determine daily cost based on primary product from goal, or fall back to defaults
+    // Access cost_per_product safely with defaults
+    let costPerDay = 10; // Default fallback
+    if (preferences?.cost_per_product) {
+      if (primaryProduct && preferences.cost_per_product[primaryProduct as keyof typeof preferences.cost_per_product]) {
+        costPerDay = preferences.cost_per_product[primaryProduct as keyof typeof preferences.cost_per_product]!;
+      } else if (preferences.cost_per_product.cigarette) {
+        costPerDay = preferences.cost_per_product.cigarette;
+      }
+    }
     
     // Calculate money saved based on actual cost per day from user preferences
     const moneySaved = logStats.daysAfresh * costPerDay;
-    
-    // Get user goal to determine milestone information
-    const userGoal = await getUserGoal();
     
     // Calculate next milestone information
     const milestones = [
@@ -69,8 +77,11 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       }
     }
     
+    // Get user name from profile if available, or use fallback
+    const userName = 'Fresh User'; // Replace with actual profile service call
+    
     return {
-      name: 'Fresh User', // This would come from the profile service in a real implementation
+      name: userName,
       daysAfresh: logStats.daysAfresh,
       moneySaved: moneySaved,
       lifeRegained: logStats.lifeRegained || "0 hrs",
