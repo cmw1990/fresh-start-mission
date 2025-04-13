@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -47,7 +46,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
       if (isLogin) {
         await signIn(email, password);
       } else {
-        await signUp(email, password, name);
+        await signUp(email, password);
       }
       
     } catch (err: any) {

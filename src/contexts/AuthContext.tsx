@@ -1,14 +1,17 @@
-
 import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-// Define the User type
+// Define the User type with user_metadata
 type User = {
   id: string;
   email: string;
   created_at: string;
+  user_metadata?: {
+    name?: string;
+    avatar_url?: string;
+  };
 } | null;
 
 // Define the AuthState type
@@ -80,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
-        dispatch({ type: 'AUTH_SUCCESS', payload: session.user });
+        dispatch({ type: 'AUTH_SUCCESS', payload: session.user as User });
       } else {
         dispatch({ type: 'AUTH_SUCCESS', payload: null });
       }
@@ -100,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       if (data.session) {
-        dispatch({ type: 'AUTH_SUCCESS', payload: data.user });
+        dispatch({ type: 'AUTH_SUCCESS', payload: data.user as User });
         toast.success("Account created successfully! Please check your email for verification.");
         navigate('/app/dashboard');
       } else {
@@ -124,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) throw error;
       
-      dispatch({ type: 'AUTH_SUCCESS', payload: data.user });
+      dispatch({ type: 'AUTH_SUCCESS', payload: data.user as User });
       toast.success("Signed in successfully!");
       navigate('/app/dashboard');
     } catch (error: any) {
@@ -172,7 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
-          dispatch({ type: 'AUTH_SUCCESS', payload: session.user });
+          dispatch({ type: 'AUTH_SUCCESS', payload: session.user as User });
         } else if (event === 'SIGNED_OUT') {
           dispatch({ type: 'AUTH_RESET' });
         }

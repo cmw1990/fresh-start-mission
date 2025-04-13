@@ -11,8 +11,11 @@ interface OfflineIndicatorProps {
 }
 
 const OfflineIndicator = ({ className }: OfflineIndicatorProps) => {
-  const { isOnline, offlineData, syncOfflineData, pendingItemsCount } = useOfflineSupport();
+  const { isOnline, offlineData, syncOfflineData } = useOfflineSupport();
   const [isSyncing, setIsSyncing] = useState(false);
+  
+  // Calculate pending items count
+  const pendingItemsCount = Object.values(offlineData || {}).flat().length;
   
   const handleSync = async () => {
     setIsSyncing(true);
@@ -23,7 +26,7 @@ const OfflineIndicator = ({ className }: OfflineIndicatorProps) => {
     }
   };
   
-  if (isOnline && (!offlineData || offlineData.length === 0)) {
+  if (isOnline && (!offlineData || pendingItemsCount === 0)) {
     return null;
   }
   

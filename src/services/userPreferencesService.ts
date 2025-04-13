@@ -74,9 +74,13 @@ export const createDefaultPreferences = async (): Promise<UserPreferences> => {
       }
     };
     
+    // Fix: Ensure user_id is set as required by the database
     const { data, error } = await supabase
       .from('user_preferences')
-      .insert(defaultPrefs)
+      .insert({
+        ...defaultPrefs,
+        user_id: user.id  // Make sure user_id is explicitly set
+      })
       .select()
       .single();
     
@@ -105,8 +109,8 @@ export const updateUserPreferences = async (preferences: Partial<UserPreferences
     if (!existingPrefs) {
       // Create with these preferences
       const newPrefs = {
-        user_id: user.id,
-        ...preferences
+        ...preferences,
+        user_id: user.id  // Ensure this is set
       };
       
       const { data, error } = await supabase

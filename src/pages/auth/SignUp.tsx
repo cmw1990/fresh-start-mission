@@ -24,7 +24,8 @@ const SignUp = () => {
       return;
     }
     
-    await signUp(email, password, name);
+    // Remove the third parameter (name)
+    await signUp(email, password);
   };
 
   return (

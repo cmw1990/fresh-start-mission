@@ -20,7 +20,7 @@ const Settings = () => {
   const { user } = useAuth();
   const [cigaretteCost, setCigaretteCost] = useState("");
   const [vapeCost, setVapeCost] = useState("");
-  const [dipCost, setDipCost] = useState("");
+  const [pouchCost, setPouchCost] = useState("");  // Changed from dipCost to pouchCost
   const [isSaving, setIsSaving] = useState(false);
   const { impact } = useHaptics();
 
@@ -32,7 +32,7 @@ const Settings = () => {
       if (data?.cost_per_product) {
         setCigaretteCost(data.cost_per_product.cigarette?.toString() || "");
         setVapeCost(data.cost_per_product.vape?.toString() || "");
-        setDipCost(data.cost_per_product.dip?.toString() || "");
+        setPouchCost(data.cost_per_product.pouch?.toString() || "");  // Changed from dip to pouch
       }
       return data;
     }
@@ -46,7 +46,7 @@ const Settings = () => {
       const costs = {
         cigarette: cigaretteCost ? parseFloat(cigaretteCost) : 0,
         vape: vapeCost ? parseFloat(vapeCost) : 0,
-        dip: dipCost ? parseFloat(dipCost) : 0,
+        pouch: pouchCost ? parseFloat(pouchCost) : 0,  // Changed from dip to pouch
       };
       
       await updateProductCosts(costs);
@@ -134,15 +134,15 @@ const Settings = () => {
                     </div>
                     
                     <div className="grid gap-2">
-                      <Label htmlFor="dip-cost">Smokeless Tin/Pouch Cost ($)</Label>
+                      <Label htmlFor="pouch-cost">Smokeless Tin/Pouch Cost ($)</Label>
                       <Input
-                        id="dip-cost"
+                        id="pouch-cost"
                         type="number"
                         step="0.01"
                         min="0"
                         placeholder="Enter cost per tin/pouch"
-                        value={dipCost}
-                        onChange={(e) => setDipCost(e.target.value)}
+                        value={pouchCost}
+                        onChange={(e) => setPouchCost(e.target.value)}
                       />
                       <p className="text-xs text-muted-foreground">Average cost per tin or pouch of smokeless tobacco</p>
                     </div>
