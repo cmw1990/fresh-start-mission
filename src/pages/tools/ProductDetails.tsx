@@ -63,11 +63,6 @@ interface RawProductData {
   user_rating_count?: number;
   created_at?: string;
   updated_at?: string;
-  // These fields don't exist in the database but are needed for our interface
-  price?: string;
-  category?: string;
-  nicotine_content?: string;
-  manufacturer?: string;
 }
 
 const ProductDetails = () => {
@@ -110,10 +105,10 @@ const ProductDetails = () => {
         name: productData.name,
         description: productData.description || '',
         image_url: productData.image_url,
-        price: productData.price || 'N/A',  // Default values for required fields
-        category: productData.category || productData.flavor_category || 'N/A',
-        nicotine_content: productData.nicotine_content || String(productData.nicotine_strength_mg || 'N/A'),
-        manufacturer: productData.manufacturer || productData.brand || 'N/A',
+        price: 'N/A',  // Default values for required fields
+        category: productData.flavor_category || 'N/A',
+        nicotine_content: productData.nicotine_strength_mg ? String(productData.nicotine_strength_mg) : 'N/A',
+        manufacturer: productData.brand || 'N/A',
         average_rating: productData.user_rating_avg,
         // Additional fields
         brand: productData.brand,
@@ -140,20 +135,29 @@ const ProductDetails = () => {
       if (reviewsError) throw reviewsError;
       
       // Filter reviews to ensure they match our Review interface structure
-      const validReviews = (reviewsData || [])
-        .filter(review => review && review.user && typeof review.user !== 'string' && !('error' in review.user))
-        .map(review => ({
-          id: review.id,
-          user_id: review.user_id,
-          rating: review.rating,
-          review_text: review.review_text,
-          created_at: review.created_at,
-          is_moderated: review.is_moderated,
-          user: {
-            email: review.user?.email || 'Unknown',
-            user_metadata: review.user?.user_metadata
+      const validReviews: Review[] = [];
+      
+      if (reviewsData) {
+        for (const review of reviewsData) {
+          // Skip reviews with invalid user data
+          if (!review || !review.user || typeof review.user === 'string' || 'error' in review.user) {
+            continue;
           }
-        })) as Review[];
+          
+          validReviews.push({
+            id: review.id,
+            user_id: review.user_id,
+            rating: review.rating,
+            review_text: review.review_text,
+            created_at: review.created_at,
+            is_moderated: review.is_moderated,
+            user: {
+              email: review.user?.email || 'Unknown',
+              user_metadata: review.user?.user_metadata
+            }
+          });
+        }
+      }
 
       setReviews(validReviews);
 
