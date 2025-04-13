@@ -1,657 +1,384 @@
 
-import { useState } from "react";
-import { 
-  Tabs, TabsContent, TabsList, TabsTrigger 
-} from "@/components/ui/tabs";
-import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter 
-} from "@/components/ui/card";
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { 
-  Accordion, AccordionContent, AccordionItem, AccordionTrigger 
-} from "@/components/ui/accordion";
-import { 
-  BatteryCharging, Brain, Activity, Flame, 
-  Coffee, Droplets, Heart, Moon, Utensils, 
-  Dumbbell, Sun, BookOpen, Clock
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface TipCardProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  tips: string[];
-  color: string;
-}
-
-const TipCard = ({ title, description, icon, tips, color }: TipCardProps) => {
-  return (
-    <Card>
-      <CardHeader className={cn("pb-3", `bg-${color}-50`)}>
-        <div className="flex items-center gap-3">
-          <div className={cn("p-2 rounded-lg bg-white", `text-${color}-500`)}>
-            {icon}
-          </div>
-          <div>
-            <CardTitle className="text-lg">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <ul className="list-disc pl-5 space-y-1.5">
-          {tips.map((tip, index) => (
-            <li key={index} className="text-sm">{tip}</li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
-  );
-};
-
-const EnergyContent = () => {
-  return (
-    <div className="space-y-6">
-      <div className="max-w-3xl mx-auto">
-        <p className="text-muted-foreground mb-6">
-          Nicotine withdrawal often leads to fatigue and energy slumps as your body adjusts to functioning without the stimulant effects.
-          These evidence-based strategies can help you manage energy dips during your fresh journey.
-        </p>
-      </div>
-      
-      <div className="grid md:grid-cols-2 gap-6">
-        <TipCard 
-          title="Physical Activity Boosts"
-          description="Use strategic movement to counteract fatigue"
-          icon={<Dumbbell className="h-5 w-5" />}
-          color="green"
-          tips={[
-            "Take a brisk 10-minute walk when energy dips - even brief activity increases circulation and energizes the body",
-            "Try 'exercise snacking' - short 2-3 minute bursts of moderate activity throughout the day",
-            "Do 5 minutes of stretching when feeling sluggish to release tension and improve blood flow",
-            "Stand up and do 10 jumping jacks or march in place to quickly elevate heart rate",
-            "Consider morning exercise to set a more energetic tone for the entire day"
-          ]}
-        />
-        
-        <TipCard 
-          title="Strategic Hydration"
-          description="Combat fatigue through proper fluid intake"
-          icon={<Droplets className="h-5 w-5" />}
-          color="blue"
-          tips={[
-            "Drink a full glass of water when a craving or energy slump hits - dehydration often masquerades as fatigue",
-            "Aim for at least 8 glasses of water daily during withdrawal",
-            "Use a marked water bottle to track intake throughout the day",
-            "Infuse water with lemon, cucumber, or mint for flavor without caffeine or sugar",
-            "Limit alcohol as it disrupts sleep quality and worsens fatigue"
-          ]}
-        />
-        
-        <TipCard 
-          title="Nutrition Strategies"
-          description="Eat to stabilize energy levels"
-          icon={<Utensils className="h-5 w-5" />}
-          color="amber"
-          tips={[
-            "Eat smaller, more frequent meals to prevent blood sugar crashes",
-            "Include protein with every meal and snack to maintain steady energy levels",
-            "Choose complex carbohydrates (whole grains, legumes) for sustained energy",
-            "Prepare healthy snacks in advance for when energy dips occur",
-            "Consider B-vitamin rich foods like eggs, leafy greens, and whole grains which support energy metabolism"
-          ]}
-        />
-        
-        <TipCard 
-          title="Caffeine Management"
-          description="Use caffeine strategically, not as a crutch"
-          icon={<Coffee className="h-5 w-5" />}
-          color="orange"
-          tips={[
-            "Limit caffeine to mornings to avoid sleep disruption",
-            "Consider green tea for a gentler caffeine boost with L-theanine for focus",
-            "Gradually reduce caffeine if you were using it with nicotine to avoid compounding withdrawal",
-            "Stay under 400mg of caffeine daily (about 4 small cups of coffee)",
-            "Be aware that caffeine can trigger nicotine cravings in some people"
-          ]}
-        />
-        
-        <TipCard 
-          title="Sleep Optimization"
-          description="Improve sleep quality for better daytime energy"
-          icon={<Moon className="h-5 w-5" />}
-          color="indigo"
-          tips={[
-            "Maintain a consistent sleep-wake schedule, even on weekends",
-            "Create a wind-down routine to signal your body it's time for sleep",
-            "Avoid screens 1 hour before bedtime to improve melatonin production",
-            "Keep your bedroom cool, dark, and quiet for optimal sleep",
-            "Consider temporary sleep aids like melatonin if withdrawal is severely disrupting sleep (consult healthcare provider)"
-          ]}
-        />
-        
-        <TipCard 
-          title="Environmental Adjustments"
-          description="Modify your surroundings for energy management"
-          icon={<Sun className="h-5 w-5" />}
-          color="purple"
-          tips={[
-            "Exposure to bright natural light for 15-20 minutes in the morning helps regulate energy levels",
-            "Take outdoor breaks during the day to combat afternoon slumps",
-            "Keep your workspace well-ventilated and at a comfortable temperature",
-            "Use energizing scents like peppermint, citrus, or rosemary via essential oils",
-            "Listen to upbeat music to boost energy when feeling sluggish"
-          ]}
-        />
-      </div>
-      
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="science">
-          <AccordionTrigger>The Science Behind Energy Fluctuations During Withdrawal</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
-              <p>
-                Nicotine stimulates the release of glucose from your liver and adrenaline from your adrenal glands, giving you a temporary energy boost. 
-                When you quit, your body needs time to readjust to regulating energy naturally.
-              </p>
-              <p>
-                Three key processes contribute to fatigue during withdrawal:
-              </p>
-              <ol className="list-decimal pl-5 space-y-2">
-                <li>
-                  <strong>Neurotransmitter rebalancing:</strong> Your brain is normalizing dopamine and other neurotransmitters previously affected by nicotine, causing temporary energy fluctuations.
-                </li>
-                <li>
-                  <strong>Blood sugar adaptation:</strong> Your body is learning to regulate blood glucose without nicotine's interference, sometimes resulting in feelings of fatigue.
-                </li>
-                <li>
-                  <strong>Sleep disruption:</strong> Many people experience changes in sleep patterns during withdrawal, leading to daytime tiredness.
-                </li>
-              </ol>
-              <p>
-                The good news is that these energy disruptions are temporary. Most people report improved energy levels within 2-4 weeks after quitting, once the body has adjusted to functioning without nicotine.
-              </p>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </div>
-  );
-};
-
-const FocusContent = () => {
-  return (
-    <div className="space-y-6">
-      <div className="max-w-3xl mx-auto">
-        <p className="text-muted-foreground mb-6">
-          Many people experience concentration difficulties during nicotine withdrawal. This "brain fog" occurs as your brain 
-          chemistry adjusts to functioning without nicotine. These science-backed approaches can help maintain focus during this transition.
-        </p>
-      </div>
-      
-      <div className="grid md:grid-cols-2 gap-6">
-        <TipCard 
-          title="Attention Training Techniques"
-          description="Structured exercises to rebuild focus capacity"
-          icon={<Brain className="h-5 w-5" />}
-          color="purple"
-          tips={[
-            "Practice the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break",
-            "Try mindfulness meditation starting with short 5-minute sessions to strengthen attention control",
-            "Engage in single-tasking - deliberately focus on one activity without multitasking",
-            "Use the '5 More' rule - when concentration wanes, commit to just 5 more minutes, then reassess",
-            "Schedule challenging cognitive tasks during your peak energy periods of the day"
-          ]}
-        />
-        
-        <TipCard 
-          title="Environment Optimization"
-          description="Create spaces that support concentration"
-          icon={<Sun className="h-5 w-5" />}
-          color="amber"
-          tips={[
-            "Minimize digital distractions by silencing notifications during focus periods",
-            "Use noise-cancelling headphones or white noise to mask disruptive sounds",
-            "Keep your workspace organized to reduce cognitive load",
-            "Try working in different environments to determine where you focus best",
-            "Consider using blue-enriched lighting which has been shown to enhance alertness"
-          ]}
-        />
-        
-        <TipCard 
-          title="Cognitive Support Strategies"
-          description="Tools and techniques for mental clarity"
-          icon={<BookOpen className="h-5 w-5" />}
-          color="green"
-          tips={[
-            "Use written lists and notes more frequently during withdrawal to compensate for working memory impacts",
-            "Break complex tasks into smaller, more manageable chunks",
-            "Verbalize tasks out loud to strengthen your attention to them",
-            "Try the 'brain dump' technique - write down all thoughts, concerns, and to-dos to clear mental space",
-            "Use visualization techniques before starting tasks to mentally rehearse completion"
-          ]}
-        />
-        
-        <TipCard 
-          title="Physiological Focus Enhancers"
-          description="Physical approaches to sharpen mental clarity"
-          icon={<Droplets className="h-5 w-5" />}
-          color="blue"
-          tips={[
-            "Stay well-hydrated - even mild dehydration can impair concentration",
-            "Take short movement breaks every 30-45 minutes to boost circulation to the brain",
-            "Practice 4-7-8 breathing (inhale for 4, hold for 7, exhale for 8) when focus starts to drift",
-            "Ensure adequate protein intake to support neurotransmitter production",
-            "Consider omega-3 fatty acids (fish, flaxseeds, walnuts) which support cognitive function"
-          ]}
-        />
-        
-        <TipCard 
-          title="Timing and Rhythms"
-          description="Work with your body's natural cycles"
-          icon={<Clock className="h-5 w-5" />}
-          color="red"
-          tips={[
-            "Identify your personal high-focus hours and schedule important tasks during those times",
-            "Take advantage of the 90-minute ultradian rhythm by working in 90-minute focused sessions",
-            "Schedule complex cognitive tasks earlier in the day when possible",
-            "Take a short 10-20 minute nap if afternoon focus severely deteriorates (set an alarm)",
-            "Consider brief exposure to bright light when concentration dips to reset alertness"
-          ]}
-        />
-        
-        <TipCard 
-          title="Supplements and Consumption"
-          description="What to consume (and avoid) for better focus"
-          icon={<Coffee className="h-5 w-5" />}
-          color="orange"
-          tips={[
-            "Use caffeine strategically rather than constantly - small amounts when needed most",
-            "Consider L-theanine (found in tea or supplements) which pairs with caffeine for focused alertness without jitters",
-            "Avoid high-sugar snacks which can cause energy and focus crashes",
-            "Stay adequately fed - low blood sugar impairs concentration",
-            "Consult a healthcare provider about temporary supplements like B vitamins or rhodiola that may support focus during withdrawal"
-          ]}
-        />
-      </div>
-      
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="science">
-          <AccordionTrigger>Why Nicotine Withdrawal Affects Concentration</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
-              <p>
-                The concentration difficulties experienced during nicotine withdrawal have a clear neurobiological basis:
-              </p>
-              <ol className="list-decimal pl-5 space-y-2">
-                <li>
-                  <strong>Acetylcholine receptor adjustment:</strong> Nicotine binds to acetylcholine receptors in the brain that play a crucial role in attention and memory. When nicotine is removed, these receptors must readjust, temporarily affecting cognitive function.
-                </li>
-                <li>
-                  <strong>Dopamine recalibration:</strong> Nicotine triggers dopamine release, which helps with focus and attention. Your brain is working to normalize dopamine signaling without nicotine's influence.
-                </li>
-                <li>
-                  <strong>Stress response:</strong> Withdrawal often increases stress hormones like cortisol, which can impair prefrontal cortex function - the brain region responsible for focus and executive function.
-                </li>
-              </ol>
-              <p>
-                These cognitive effects typically peak within the first week and gradually improve over 2-4 weeks. For some, subtle focus challenges may persist longer but will continue to improve with time and the strategies outlined above.
-              </p>
-              <p className="text-fresh-700 font-medium">
-                Remember: The cognitive improvements from quitting nicotine ultimately far outweigh the temporary challenges. Long-term nicotine abstinence is associated with better overall cognitive function compared to continued use.
-              </p>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </div>
-  );
-};
-
-const MoodContent = () => {
-  return (
-    <div className="space-y-6">
-      <div className="max-w-3xl mx-auto">
-        <p className="text-muted-foreground mb-6">
-          Mood disturbances are among the most challenging aspects of nicotine withdrawal. Irritability, anxiety, and even depressive symptoms 
-          can emerge as your brain chemistry rebalances. These evidence-based approaches can help stabilize your mood during this transition.
-        </p>
-      </div>
-      
-      <div className="grid md:grid-cols-2 gap-6">
-        <TipCard 
-          title="Cognitive Behavioral Approaches"
-          description="Change your thinking patterns to improve mood"
-          icon={<Brain className="h-5 w-5" />}
-          color="indigo"
-          tips={[
-            "Practice thought challenging - identify negative thoughts and test their accuracy",
-            "Use the RAIN technique: Recognize, Allow, Investigate, and Non-identify with difficult emotions",
-            "Maintain a 'wins journal' recording daily successes, no matter how small",
-            "Set realistic expectations - understanding that mood fluctuations are normal and temporary",
-            "Practice gratitude listing - writing 3 things you're grateful for each day can significantly improve mood"
-          ]}
-        />
-        
-        <TipCard 
-          title="Physical Mood Regulators"
-          description="Leverage body-mind connections"
-          icon={<Dumbbell className="h-5 w-5" />}
-          color="green"
-          tips={[
-            "Exercise for at least 20-30 minutes daily - physical activity is one of the most effective mood regulators",
-            "Get exposure to morning sunlight - this helps regulate serotonin and melatonin for mood stability",
-            "Try 'power posing' - standing in expansive, confident postures for 2 minutes can reduce stress hormones",
-            "Practice progressive muscle relaxation to release physical tension that contributes to irritability",
-            "Use rhythmic, bilateral movements like walking or drumming which can help regulate emotional states"
-          ]}
-        />
-        
-        <TipCard 
-          title="Social Approaches"
-          description="Harness social connections for mood support"
-          icon={<Heart className="h-5 w-5" />}
-          color="red"
-          tips={[
-            "Schedule regular contact with supportive friends or family during the withdrawal period",
-            "Consider joining a cessation support group to connect with others having similar experiences",
-            "Communicate clearly with close ones about what you're experiencing and what support you need",
-            "Practice prosocial behaviors like helping others, which activates reward circuits in the brain",
-            "Use strategic social withdrawal when irritability peaks to prevent relationship damage"
-          ]}
-        />
-        
-        <TipCard 
-          title="Mindfulness & Relaxation"
-          description="Calming techniques for emotional balance"
-          icon={<Activity className="h-5 w-5" />}
-          color="blue"
-          tips={[
-            "Try box breathing (4-4-4-4): Inhale for 4, hold for 4, exhale for 4, hold for 4",
-            "Practice body scanning - systematically noticing sensations throughout the body without judgment",
-            "Use 'urge surfing' for emotional waves - observe feelings rise and fall without acting on them",
-            "Set aside 5-10 minutes daily for a simple mindfulness practice to build emotional regulation skills",
-            "Try apps like Headspace, Calm, or Insight Timer for guided emotional regulation exercises"
-          ]}
-        />
-        
-        <TipCard 
-          title="Sensory Regulation"
-          description="Use sensory experiences to shift mood"
-          icon={<Sun className="h-5 w-5" />}
-          color="amber"
-          tips={[
-            "Create a 'sensory first aid kit' with items that appeal to each sense for mood regulation",
-            "Try aromatherapy - scents like lavender, orange, or peppermint can alter mood states",
-            "Use music strategically - create playlists for different emotional needs",
-            "Try temperature-based interventions like a warm shower or holding an ice cube when emotions are intense",
-            "Engage in sensory-rich activities like cooking, gardening, or crafting to shift focus away from negative moods"
-          ]}
-        />
-        
-        <TipCard 
-          title="Lifestyle Foundations"
-          description="Build a stable base for emotional health"
-          icon={<Moon className="h-5 w-5" />}
-          color="purple"
-          tips={[
-            "Prioritize sleep hygiene - mood regulation is significantly impaired by sleep deprivation",
-            "Stabilize blood sugar with regular meals - hunger can exacerbate irritability",
-            "Limit alcohol which can worsen mood swings and disrupt sleep",
-            "Consider temporary scaling back of responsibilities during peak withdrawal",
-            "Structure your day with a predictable routine to provide a sense of control and stability"
-          ]}
-        />
-      </div>
-      
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="science">
-          <AccordionTrigger>Understanding Mood Changes During Withdrawal</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
-              <p>
-                The mood disturbances experienced during nicotine withdrawal are linked to several neurobiological processes:
-              </p>
-              <ol className="list-decimal pl-5 space-y-2">
-                <li>
-                  <strong>Dopamine deficit:</strong> Nicotine triggers dopamine release in the brain's reward pathway. When nicotine is removed, there's a temporary deficit in dopamine signaling, which can manifest as anhedonia (reduced pleasure) and irritability.
-                </li>
-                <li>
-                  <strong>Altered stress response:</strong> Nicotine affects the hypothalamic-pituitary-adrenal (HPA) axis, which regulates stress hormones. During withdrawal, this system becomes temporarily dysregulated, leading to increased anxiety and stress reactivity.
-                </li>
-                <li>
-                  <strong>Glutamate and GABA imbalance:</strong> These neurotransmitters, which regulate excitation and inhibition in the brain, are thrown off balance during withdrawal, contributing to irritability and mood swings.
-                </li>
-              </ol>
-              <p>
-                The good news is that these neurochemical changes are temporary. Most people see significant mood improvements within 2-4 weeks, with subtle changes continuing to normalize over 2-3 months.
-              </p>
-              <div className="bg-blue-50 p-4 rounded-md mt-4">
-                <p className="text-blue-700 font-medium">When to Seek Professional Help</p>
-                <p className="text-sm text-blue-600">
-                  While temporary mood changes are normal during withdrawal, consult a healthcare provider if you experience:
-                </p>
-                <ul className="list-disc pl-5 mt-2 text-sm text-blue-600">
-                  <li>Severe depression or persistent thoughts of self-harm</li>
-                  <li>Anxiety that significantly interferes with daily functioning</li>
-                  <li>Mood symptoms that worsen rather than improve over time</li>
-                  <li>History of mental health conditions that may be exacerbated by withdrawal</li>
-                </ul>
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </div>
-  );
-};
-
-const CravingContent = () => {
-  return (
-    <div className="space-y-6">
-      <div className="max-w-3xl mx-auto">
-        <p className="text-muted-foreground mb-6">
-          Cravings are the brain's natural response when a habit is interrupted. During nicotine withdrawal, these urges 
-          can be intense but always temporary. Understanding and effectively managing cravings is essential for successful cessation.
-        </p>
-      </div>
-      
-      <div className="grid md:grid-cols-2 gap-6">
-        <TipCard 
-          title="Urge Surfing Techniques"
-          description="Ride the wave instead of fighting it"
-          icon={<Activity className="h-5 w-5" />}
-          color="blue"
-          tips={[
-            "Observe cravings with curiosity rather than judgment or fear",
-            "Note physical sensations associated with the craving - where do you feel it in your body?",
-            "Remember that cravings typically peak at 3-5 minutes before subsiding",
-            "Use the phrase 'This feeling will pass, whether or not I use nicotine'",
-            "Practice the RAIN approach: Recognize, Accept, Investigate, Non-identify with the craving"
-          ]}
-        />
-        
-        <TipCard 
-          title="Distraction Strategies"
-          description="Refocus your mind effectively"
-          icon={<Brain className="h-5 w-5" />}
-          color="purple"
-          tips={[
-            "Have a list of 5-minute activities ready for when cravings hit",
-            "Try the 'second activity' technique - always do something else while experiencing a craving",
-            "Use games or puzzles on your phone that require full concentration",
-            "Change your physical environment immediately when a craving begins",
-            "Engage with sensory distractions - strong flavors, scents, or tactile objects"
-          ]}
-        />
-        
-        <TipCard 
-          title="Physical Interventions"
-          description="Use your body to overcome urges"
-          icon={<Dumbbell className="h-5 w-5" />}
-          color="green"
-          tips={[
-            "Drink water or brush teeth when cravings hit - these interrupt the craving cycle",
-            "Try rapid physical exercise - even 1 minute of jumping jacks can reduce craving intensity",
-            "Practice deep breathing to activate the parasympathetic nervous system",
-            "Use progressive muscle relaxation to release tension associated with cravings",
-            "Try 'urge tapping' - tapping specific acupressure points during cravings"
-          ]}
-        />
-        
-        <TipCard 
-          title="Cognitive Reframing"
-          description="Change how you think about cravings"
-          icon={<Activity className="h-5 w-5" />}
-          color="indigo"
-          tips={[
-            "Challenge thoughts like 'I need nicotine' by recognizing them as withdrawal symptoms, not truths",
-            "Reframe each resisted craving as strengthening your 'quitting muscle'",
-            "Use visualization - imagine the craving as a wave that rises and falls",
-            "Remind yourself of your reasons for quitting when cravings occur",
-            "Practice the 'future self' technique - imagine yourself in 1 hour, grateful you didn't give in"
-          ]}
-        />
-        
-        <TipCard 
-          title="Environmental Management"
-          description="Control your surroundings for success"
-          icon={<Sun className="h-5 w-5" />}
-          color="amber"
-          tips={[
-            "Remove all nicotine products and paraphernalia from your environment",
-            "Temporarily avoid high-risk situations where you commonly used nicotine",
-            "Create physical barriers to usage - give away products, delete delivery apps",
-            "Use environmental cues like motivational notes in key locations",
-            "Reorganize spaces associated with nicotine use to break environmental triggers"
-          ]}
-        />
-        
-        <TipCard 
-          title="Social and Behavioral Strategies"
-          description="Leverage others and new habits"
-          icon={<Heart className="h-5 w-5" />}
-          color="red"
-          tips={[
-            "Call or text a supportive person when experiencing strong cravings",
-            "Develop a replacement behavior for every situation where you typically used nicotine",
-            "Use public accountability by sharing your quit journey with others",
-            "Keep a craving journal to identify patterns and triggers",
-            "Establish a 'craving buddy' - someone who agrees to be available for support"
-          ]}
-        />
-      </div>
-      
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="science">
-          <AccordionTrigger>The Neuroscience of Cravings</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
-              <p>
-                Nicotine cravings involve two distinct brain systems working in tandem:
-              </p>
-              <ol className="list-decimal pl-5 space-y-2">
-                <li>
-                  <strong>The mesolimbic reward pathway:</strong> Nicotine stimulates dopamine release in this circuit, creating pleasure and reinforcement. During withdrawal, this system signals for more nicotine to restore dopamine levels.
-                </li>
-                <li>
-                  <strong>The prefrontal cortex and insula:</strong> These regions process drug-associated cues and memories, triggering cravings when you encounter situations, emotions, or environments linked to nicotine use.
-                </li>
-              </ol>
-              <p>
-                Understanding the time course of cravings can be helpful:
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Acute cravings typically last 3-5 minutes if not reinforced</li>
-                <li>Cravings are most frequent in the first 2-3 days after quitting</li>
-                <li>By the 4-7 day mark, their frequency begins to decrease</li>
-                <li>After 2-4 weeks, most people experience significant reduction in craving intensity and frequency</li>
-                <li>Occasional cravings may persist for months but become increasingly rare and less intense</li>
-              </ul>
-              <div className="bg-blue-50 p-4 rounded-md mt-4">
-                <p className="text-blue-700 font-medium">Craving Facts That Help</p>
-                <ul className="list-disc pl-5 mt-2 text-sm text-blue-600">
-                  <li>Each craving you successfully resist weakens the neural pathways associated with nicotine use</li>
-                  <li>Cravings cannot physically harm you - they're uncomfortable but not dangerous</li>
-                  <li>The brain forms new neural pathways surprisingly quickly - each day without nicotine strengthens these healthy circuits</li>
-                  <li>Cravings are conditioned responses that can be "unconditioned" through repeated exposure to triggers without nicotine</li>
-                </ul>
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </div>
-  );
-};
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { ArrowLeft, ArrowRight, Heart, Brain, Battery, Coffee, Droplets, Moon } from 'lucide-react';
 
 const HolisticHealth = () => {
-  const [selectedTab, setSelectedTab] = useState("energy");
+  const categories = [
+    {
+      title: "Energy Management",
+      icon: <Battery className="h-8 w-8 text-green-500" />,
+      description: "Strategies for maintaining physical energy during nicotine reduction",
+      sections: [
+        {
+          title: "Understanding Energy Slumps",
+          content: `
+            <p>When reducing nicotine intake, many people experience temporary but significant energy drops. This happens because:</p>
+            <ul>
+              <li>Nicotine is a stimulant that artificially boosts your energy and alertness</li>
+              <li>Your body has adapted to functioning with regular nicotine stimulation</li>
+              <li>Without nicotine, your natural energy regulation systems need time to readjust</li>
+              <li>Withdrawal symptoms can temporarily disrupt sleep patterns, further affecting energy levels</li>
+            </ul>
+            <p>Remember that these energy fluctuations are temporary and typically improve significantly after 2-3 weeks.</p>
+          `
+        },
+        {
+          title: "Quick Energy Boosting Techniques",
+          content: `
+            <p>When you're experiencing an energy slump, try these scientifically-backed approaches:</p>
+            <ul>
+              <li><strong>Micro-Movement:</strong> Even 5 minutes of physical activity like brisk walking, stretching, or jumping jacks can boost circulation and energy</li>
+              <li><strong>Cold Exposure:</strong> Splash cold water on your face or take a quick cold shower to trigger alertness</li>
+              <li><strong>Deep Breathing:</strong> 10 deep belly breaths with extended exhalations can increase oxygen flow and energy</li>
+              <li><strong>Strategic Hydration:</strong> Dehydration worsens fatigue; drink a glass of water with a pinch of salt for better absorption</li>
+              <li><strong>Nature Exposure:</strong> Even brief exposure to natural light and outdoor environments improves alertness</li>
+            </ul>
+          `
+        },
+        {
+          title: "Nutrition for Stable Energy",
+          content: `
+            <p>What you eat significantly impacts your energy levels during nicotine reduction:</p>
+            <ul>
+              <li>Focus on balanced meals with protein, healthy fats, and complex carbohydrates</li>
+              <li>Avoid high-sugar foods that cause energy crashes</li>
+              <li>Consider smaller, more frequent meals to maintain steady blood sugar</li>
+              <li>Some find that temporarily increasing protein intake helps manage energy fluctuations</li>
+              <li>Stay adequately hydrated - even mild dehydration can significantly impact energy levels</li>
+            </ul>
+            <p>Many people find that their taste buds become more sensitive after reducing nicotine, making healthy foods more enjoyable over time.</p>
+          `
+        }
+      ]
+    },
+    {
+      title: "Focus Enhancement",
+      icon: <Brain className="h-8 w-8 text-blue-500" />,
+      description: "Techniques to maintain mental clarity and concentration",
+      sections: [
+        {
+          title: "Why Focus Suffers During Withdrawal",
+          content: `
+            <p>Temporary cognitive fog and attention difficulties are common when reducing nicotine use because:</p>
+            <ul>
+              <li>Nicotine directly affects neurotransmitters involved in attention and cognitive function</li>
+              <li>Your brain has adapted to functioning with these chemical alterations</li>
+              <li>While readjusting to functioning without nicotine, concentration may temporarily decline</li>
+              <li>Stress and anxiety about quitting can further impact cognitive resources</li>
+            </ul>
+            <p>Most people notice significant improvements in concentration within 2-4 weeks, with many reporting better focus than before quitting once fully adjusted.</p>
+          `
+        },
+        {
+          title: "Practical Focus Techniques",
+          content: `
+            <p>These evidence-based strategies can help manage focus difficulties:</p>
+            <ul>
+              <li><strong>Pomodoro Technique:</strong> Work in focused 25-minute intervals with short breaks</li>
+              <li><strong>Environment Optimization:</strong> Minimize distractions in your physical space</li>
+              <li><strong>Task Segmentation:</strong> Break complex tasks into smaller, more manageable steps</li>
+              <li><strong>Mindfulness Practice:</strong> Even brief mindfulness sessions improve attention control</li>
+              <li><strong>Single-Tasking:</strong> Focus exclusively on one task rather than multitasking</li>
+              <li><strong>Implementation Intentions:</strong> Create specific "if-then" plans for focus challenges</li>
+            </ul>
+          `
+        },
+        {
+          title: "Supplements & Natural Aids",
+          content: `
+            <p>Some natural compounds may support cognitive function during nicotine reduction:</p>
+            <ul>
+              <li><strong>L-theanine:</strong> Found in green tea, promotes calm alertness without sedation</li>
+              <li><strong>Rhodiola rosea:</strong> An adaptogenic herb that may improve mental stamina</li>
+              <li><strong>B vitamins:</strong> Particularly B6, B12, and folate support brain function</li>
+              <li><strong>Omega-3 fatty acids:</strong> Support overall cognitive health and function</li>
+            </ul>
+            <p>Always consult with a healthcare provider before starting any supplement regimen.</p>
+          `
+        }
+      ]
+    },
+    {
+      title: "Mood Regulation",
+      icon: <Heart className="h-8 w-8 text-red-500" />,
+      description: "Strategies for emotional balance during nicotine withdrawal",
+      sections: [
+        {
+          title: "Understanding Mood Changes",
+          content: `
+            <p>Temporary mood fluctuations during nicotine reduction are normal and result from:</p>
+            <ul>
+              <li>Changes in dopamine and other neurotransmitter systems previously regulated by nicotine</li>
+              <li>Stress hormones that can be elevated during withdrawal</li>
+              <li>Sleep disruptions that affect emotional regulation</li>
+              <li>The psychological challenge of changing an established habit</li>
+            </ul>
+            <p>Most people experience significant improvement in mood stability within 2-4 weeks, with many reporting better overall mood than before quitting.</p>
+          `
+        },
+        {
+          title: "Immediate Mood Management",
+          content: `
+            <p>When experiencing difficult emotions, these techniques can help provide relief:</p>
+            <ul>
+              <li><strong>Emotional Labeling:</strong> Simply naming your emotions reduces their intensity</li>
+              <li><strong>5-4-3-2-1 Grounding:</strong> Identify 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste</li>
+              <li><strong>Physical Movement:</strong> Even brief exercise releases endorphins that improve mood</li>
+              <li><strong>Social Connection:</strong> Briefly connecting with a supportive person can regulate emotions</li>
+              <li><strong>Progressive Muscle Relaxation:</strong> Systematically tensing and releasing muscle groups</li>
+            </ul>
+          `
+        },
+        {
+          title: "Building Emotional Resilience",
+          content: `
+            <p>Developing these practices can help build longer-term emotional stability:</p>
+            <ul>
+              <li><strong>Gratitude Practice:</strong> Daily noting of 3 things you appreciate</li>
+              <li><strong>Regular Physical Activity:</strong> Even moderate exercise significantly improves mood</li>
+              <li><strong>Sleep Hygiene:</strong> Prioritizing sleep quality directly impacts emotional regulation</li>
+              <li><strong>Cognitive Reframing:</strong> Practicing looking at situations from different perspectives</li>
+              <li><strong>Mindfulness Practice:</strong> Building awareness without judgment improves emotional processing</li>
+              <li><strong>Social Support:</strong> Regular connection with understanding people</li>
+            </ul>
+          `
+        }
+      ]
+    },
+    {
+      title: "Sleep Optimization",
+      icon: <Moon className="h-8 w-8 text-indigo-500" />,
+      description: "Techniques for better sleep quality during nicotine reduction",
+      sections: [
+        {
+          title: "Why Sleep Changes During Withdrawal",
+          content: `
+            <p>Many people experience temporary sleep disruptions when reducing nicotine because:</p>
+            <ul>
+              <li>Nicotine affects sleep architecture and circadian rhythms</li>
+              <li>Your body needs to reestablish natural sleep regulation</li>
+              <li>Withdrawal symptoms like anxiety can interfere with falling and staying asleep</li>
+              <li>Dreams may temporarily become more vivid as REM sleep rebounds</li>
+            </ul>
+            <p>Most sleep disruptions peak within the first week and significantly improve by week 2-3.</p>
+          `
+        },
+        {
+          title: "Sleep Environment Optimization",
+          content: `
+            <p>Creating ideal conditions for quality sleep:</p>
+            <ul>
+              <li><strong>Temperature:</strong> Keep your bedroom cool (65-68°F/18-20°C is optimal for most people)</li>
+              <li><strong>Light:</strong> Ensure your sleep environment is as dark as possible</li>
+              <li><strong>Sound:</strong> Minimize noise disruptions with earplugs or white noise if needed</li>
+              <li><strong>Comfort:</strong> Invest in a supportive mattress and pillows that work for your body</li>
+              <li><strong>Electronics:</strong> Remove devices from the bedroom or use night mode features</li>
+            </ul>
+          `
+        },
+        {
+          title: "Evening Routine for Better Sleep",
+          content: `
+            <p>Developing a consistent pre-sleep routine signals your body it's time to wind down:</p>
+            <ul>
+              <li>Maintain consistent sleep and wake times, even on weekends</li>
+              <li>Avoid caffeine after noon and limit alcohol, which disrupts sleep quality</li>
+              <li>Dim lights 1-2 hours before bedtime to support melatonin production</li>
+              <li>Consider relaxation techniques like gentle stretching, reading, or a warm bath</li>
+              <li>Try 10 minutes of deep breathing or progressive muscle relaxation before sleep</li>
+              <li>If you can't fall asleep within 20 minutes, get up and do something relaxing until you feel sleepy</li>
+            </ul>
+          `
+        }
+      ]
+    },
+    {
+      title: "Hydration & Nutrition",
+      icon: <Droplets className="h-8 w-8 text-cyan-500" />,
+      description: "How proper nutrition supports nicotine reduction",
+      sections: [
+        {
+          title: "Nutrition Basics During Nicotine Reduction",
+          content: `
+            <p>Strategic nutrition can help manage withdrawal symptoms and cravings:</p>
+            <ul>
+              <li>Nicotine affects how your body processes certain nutrients and regulates blood sugar</li>
+              <li>Metabolism often temporarily slows when reducing nicotine intake</li>
+              <li>Taste and smell perception often change, affecting food preferences</li>
+              <li>Some people experience increased appetite during withdrawal</li>
+            </ul>
+            <p>A thoughtful approach to nutrition can ease the transition and minimize weight concerns.</p>
+          `
+        },
+        {
+          title: "Hydration Strategy",
+          content: `
+            <p>Proper hydration is particularly important during nicotine reduction:</p>
+            <ul>
+              <li>Aim for 2-3 liters (68-100 oz) of water daily during nicotine withdrawal</li>
+              <li>Mild dehydration worsens fatigue, headaches, and cravings</li>
+              <li>Consider adding electrolytes to water, especially if experiencing headaches</li>
+              <li>Herbal teas can provide both hydration and beneficial compounds</li>
+              <li>Drinking water can help manage oral fixation and temporary hunger sensations</li>
+            </ul>
+          `
+        },
+        {
+          title: "Foods That Support Withdrawal",
+          content: `
+            <p>Certain foods may help ease specific withdrawal symptoms:</p>
+            <ul>
+              <li><strong>For energy stability:</strong> Complex carbohydrates paired with protein (e.g., whole grain toast with eggs)</li>
+              <li><strong>For oral fixation:</strong> Crunchy vegetables, sugar-free gum, or frozen grapes</li>
+              <li><strong>For stress reduction:</strong> Foods rich in magnesium like dark leafy greens and nuts</li>
+              <li><strong>For dopamine support:</strong> Tyrosine-rich foods like eggs, cheese, and legumes</li>
+              <li><strong>For brain function:</strong> Omega-3 rich foods like salmon, walnuts, and flaxseeds</li>
+            </ul>
+            <p>Small, balanced meals every 3-4 hours help maintain steady blood sugar and energy levels.</p>
+          `
+        }
+      ]
+    },
+    {
+      title: "Caffeine Management",
+      icon: <Coffee className="h-8 w-8 text-yellow-700" />,
+      description: "Adjusting caffeine intake during nicotine reduction",
+      sections: [
+        {
+          title: "The Nicotine-Caffeine Connection",
+          content: `
+            <p>Understanding the important relationship between these two substances:</p>
+            <ul>
+              <li>Nicotine accelerates caffeine metabolism by up to 50%</li>
+              <li>When you reduce nicotine, caffeine stays in your system much longer</li>
+              <li>This means your usual caffeine amount can suddenly feel like 1.5-2x stronger</li>
+              <li>This can cause anxiety, jitters, sleep problems, and increased heart rate</li>
+            </ul>
+            <p>Many withdrawal symptoms attributed to nicotine are actually caffeine overload.</p>
+          `
+        },
+        {
+          title: "Caffeine Adjustment Strategy",
+          content: `
+            <p>How to manage caffeine during your nicotine reduction:</p>
+            <ul>
+              <li>Consider reducing caffeine intake by approximately 50% when reducing nicotine</li>
+              <li>Do this gradually to avoid caffeine withdrawal headaches</li>
+              <li>Be especially mindful of afternoon caffeine consumption</li>
+              <li>Consider switching to half-caf or decaf versions of your usual beverages</li>
+              <li>Watch for hidden caffeine in teas, sodas, energy drinks, and chocolate</li>
+            </ul>
+            <p>After 1-2 weeks, your body will begin adjusting to the new caffeine metabolism rate.</p>
+          `
+        },
+        {
+          title: "Caffeine Alternatives",
+          content: `
+            <p>If you're looking to reduce caffeine while maintaining energy:</p>
+            <ul>
+              <li><strong>Green tea:</strong> Contains L-theanine which provides balanced energy without jitters</li>
+              <li><strong>Golden milk:</strong> Turmeric-based beverage with anti-inflammatory properties</li>
+              <li><strong>Chicory root coffee:</strong> Coffee-like flavor without caffeine</li>
+              <li><strong>Rooibos tea:</strong> Naturally caffeine-free with a rich flavor profile</li>
+              <li><strong>Dandelion root tea:</strong> Earthy, coffee-like taste with liver-supporting properties</li>
+            </ul>
+          `
+        }
+      ]
+    }
+  ];
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="container py-12 px-4 mx-auto max-w-6xl">
       <div className="text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-4">Holistic Support Guides</h1>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Evidence-based strategies for managing the real challenges beyond just cravings. 
-          These approaches help address the physical and mental impacts of nicotine withdrawal.
+        <h1 className="text-4xl font-bold tracking-tight mb-3">Holistic Health Guide</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Practical strategies for managing energy, focus, mood, and overall wellbeing during your nicotine reduction journey.
         </p>
       </div>
-      
-      <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 max-w-3xl mx-auto mb-8">
-          <TabsTrigger value="energy" id="energy">
-            <BatteryCharging className="h-4 w-4 mr-2" />
-            Energy
-          </TabsTrigger>
-          <TabsTrigger value="focus" id="focus">
-            <Brain className="h-4 w-4 mr-2" />
-            Focus
-          </TabsTrigger>
-          <TabsTrigger value="mood" id="mood">
-            <Activity className="h-4 w-4 mr-2" />
-            Mood
-          </TabsTrigger>
-          <TabsTrigger value="cravings" id="cravings">
-            <Flame className="h-4 w-4 mr-2" />
-            Cravings
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="energy">
-          <EnergyContent />
-        </TabsContent>
-        
-        <TabsContent value="focus">
-          <FocusContent />
-        </TabsContent>
-        
-        <TabsContent value="mood">
-          <MoodContent />
-        </TabsContent>
-        
-        <TabsContent value="cravings">
-          <CravingContent />
-        </TabsContent>
-      </Tabs>
-      
-      <div className="mt-12 p-6 bg-fresh-50 border border-fresh-100 rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Ready for personalized support?</h2>
-        <div className="space-y-2">
-          <p>Get interactive tools and personalized tracking by creating a Mission Fresh account.</p>
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <a href="/app/dashboard" className="inline-flex items-center justify-center rounded-md bg-fresh-300 hover:bg-fresh-400 text-white px-4 py-2">
-              Get Started
-            </a>
-            <a href="/tools/nrt-guide" className="inline-flex items-center justify-center rounded-md border border-fresh-200 bg-white hover:bg-fresh-50 px-4 py-2">
-              NRT Guide
-            </a>
-            <a href="/tools/quit-methods" className="inline-flex items-center justify-center rounded-md border border-fresh-200 bg-white hover:bg-fresh-50 px-4 py-2">
-              Quitting Methods
-            </a>
+
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 mb-12">
+        <h2 className="text-2xl font-semibold mb-4">The Holistic Approach to Nicotine Reduction</h2>
+        <p className="mb-4">
+          Reducing nicotine isn't just about willpower—it's about understanding and supporting your body and mind through a significant transition.
+        </p>
+        <p className="mb-4">
+          Nicotine affects multiple systems in your body, from neurotransmitters that regulate mood and focus to hormones that influence energy and metabolism. When you reduce or eliminate nicotine, these systems need time to recalibrate.
+        </p>
+        <p>
+          This guide provides evidence-based strategies to support your body during this adjustment period, making your journey more comfortable and increasing your chances of success.
+        </p>
+      </div>
+
+      {/* Category Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {categories.map((category, index) => (
+          <Card key={index} className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <div className="mb-2">{category.icon}</div>
+              <CardTitle>{category.title}</CardTitle>
+              <CardDescription>{category.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                {category.sections.map((section, idx) => (
+                  <li key={idx}>{section.title}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Detailed Content Sections */}
+      {categories.map((category, categoryIndex) => (
+        <div key={categoryIndex} className="mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-full bg-gray-100">{category.icon}</div>
+            <h2 className="text-2xl font-bold">{category.title}</h2>
           </div>
+
+          {category.sections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="mb-10">
+              <h3 className="text-xl font-semibold mb-4">{section.title}</h3>
+              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: section.content }}></div>
+            </div>
+          ))}
         </div>
+      ))}
+
+      <div className="bg-gradient-to-r from-fresh-50 to-green-50 rounded-xl p-8 mb-10">
+        <h3 className="text-xl font-semibold mb-4">Remember: Progress, Not Perfection</h3>
+        <p className="mb-4">
+          Every person's journey to reducing nicotine is unique. Some days will be easier than others, and that's completely normal.
+        </p>
+        <p>
+          Focus on implementing these strategies gradually. Even small improvements in your energy, focus, mood, and sleep can create positive momentum that makes your journey more sustainable and successful.
+        </p>
+      </div>
+
+      <div className="flex justify-between">
+        <Link to="/tools">
+          <Button variant="outline" className="flex items-center">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Tools
+          </Button>
+        </Link>
+        <Link to="/tools/calculators">
+          <Button variant="default" className="bg-fresh-500 hover:bg-fresh-600">
+            Explore Calculators
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
       </div>
     </div>
   );

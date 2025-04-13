@@ -5,15 +5,19 @@ import HowItWorks from '@/components/home/HowItWorks';
 import KeyFeatures from '@/components/home/KeyFeatures';
 import WebTools from '@/components/home/WebTools';
 import CallToAction from '@/components/home/CallToAction';
+import Footer from '@/components/layout/Footer';
 
 const LandingPage: React.FC = () => {
   return (
-    <div>
-      <Hero />
-      <HowItWorks />
-      <KeyFeatures />
-      <WebTools />
-      <CallToAction />
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-grow">
+        <Hero />
+        <HowItWorks />
+        <KeyFeatures />
+        <WebTools />
+        <CallToAction />
+      </main>
+      <Footer />
     </div>
   );
 };

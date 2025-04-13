@@ -1,84 +1,64 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { Heart, Activity, Target, Box, Footprints } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Brain, Activity, Heart, Zap, Target } from "lucide-react";
 
 const features = [
   {
-    icon: <Heart className="h-8 w-8 text-fresh-600" />,
-    title: "Holistic Support",
-    description: "Tools for energy, mood, focus, and craving management - addressing the real challenges of quitting.",
-    link: "/sign-up",
-    color: "bg-fresh-50"
+    icon: <Activity className="h-12 w-12 text-fresh-400" />,
+    title: "Energy Support",
+    description:
+      "Combat the energy slumps that often come with reducing nicotine. Our tools and techniques help you maintain vitality throughout your journey."
   },
   {
-    icon: <Activity className="h-8 w-8 text-blue-600" />,
-    title: "Comprehensive Tracking",
-    description: "Track any nicotine product with detailed metrics on physical and mental wellbeing.",
-    link: "/sign-up",
-    color: "bg-blue-50"
+    icon: <Heart className="h-12 w-12 text-fresh-400" />,
+    title: "Mood Enhancement",
+    description:
+      "Stabilize your emotions and find balance with specialized exercises designed to counter the mood swings associated with nicotine reduction."
   },
   {
-    icon: <Target className="h-8 w-8 text-purple-600" />,
+    icon: <Brain className="h-12 w-12 text-fresh-400" />,
+    title: "Focus Improvement",
+    description:
+      "Maintain mental clarity and concentration with targeted techniques that help overcome the brain fog that can accompany nicotine withdrawal."
+  },
+  {
+    icon: <Zap className="h-12 w-12 text-fresh-400" />,
+    title: "Craving Management",
+    description:
+      "Powerful tools to help you navigate through cravings effectively, breaking the cycle of dependency with evidence-based approaches."
+  },
+  {
+    icon: <Target className="h-12 w-12 text-fresh-400" />,
     title: "Flexible Goals",
-    description: "Stay Afresh (quit) or Fresher (reduce) - your path, your choice. All methods supported.",
-    link: "/sign-up",
-    color: "bg-purple-50"
-  },
-  {
-    icon: <Box className="h-8 w-8 text-green-600" />,
-    title: "Smokeless Directory",
-    description: "Comprehensive guide to alternatives with expert health notes and verified vendor listings.",
-    link: "/tools/smokeless-directory",
-    color: "bg-green-50"
-  },
-  {
-    icon: <Footprints className="h-8 w-8 text-amber-600" />,
-    title: "Step Rewards",
-    description: "Turn your daily steps into rewards while improving your physical health and reducing cravings.",
-    link: "/sign-up",
-    color: "bg-amber-50"
-  },
+    description:
+      "Whether you want to quit completely or just reduce usage, we support all paths with personalized tracking and non-judgmental guidance."
+  }
 ];
 
 const KeyFeatures = () => {
   return (
-    <section className="py-24 bg-white" id="features">
+    <section className="py-20 bg-white" id="features">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Features Designed For Real Success</h2>
           <p className="text-lg text-muted-foreground">
-            Mission Fresh offers a unique approach to nicotine reduction and quitting
+            We address the true challenges of nicotine reduction - not just willpower, but the physical and mental impacts
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div 
-              key={index}
-              className="rounded-lg border border-gray-100 overflow-hidden transition hover:shadow-md"
-            >
-              <div className="p-6">
-                <div className={`w-14 h-14 ${feature.color} rounded-lg flex items-center justify-center mb-4`}>
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground mb-4">{feature.description}</p>
-                <Link to={feature.link}>
-                  <Button variant="link" className="p-0 h-auto">
-                    Learn more
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            <Card key={index} className="border border-gray-100 shadow-sm hover:shadow-md transition-all">
+              <CardHeader className="pb-2">
+                <div className="mb-4">{feature.icon}</div>
+                <CardTitle className="text-xl font-bold">{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-sm text-gray-600">{feature.description}</CardDescription>
+              </CardContent>
+            </Card>
           ))}
-        </div>
-
-        <div className="mt-16 text-center">
-          <Button asChild size="lg" className="bg-fresh-300 hover:bg-fresh-400 text-white">
-            <Link to="/sign-up">Start Your Fresh Journey</Link>
-          </Button>
         </div>
       </div>
     </section>
