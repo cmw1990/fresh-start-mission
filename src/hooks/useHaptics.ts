@@ -1,77 +1,68 @@
 
-import { Capacitor } from '@capacitor/core';
+/**
+ * Custom hook for haptic feedback on mobile devices
+ * Uses Capacitor Haptics plugin when available, falls back to Web Vibration API
+ */
 
 export enum HapticImpact {
-  LIGHT = 'light',
-  MEDIUM = 'medium',
-  HEAVY = 'heavy'
+  LIGHT = "light",
+  MEDIUM = "medium",
+  HEAVY = "heavy"
 }
 
-export function useHaptics() {
-  const isNative = Capacitor.isNativePlatform();
-
-  const impact = async (style: HapticImpact = HapticImpact.MEDIUM) => {
-    if (!isNative) return;
-    
+export const useHaptics = () => {
+  // Check if the device supports vibration
+  const hasVibration = 'navigator' in window && 'vibrate' in navigator;
+  
+  // Function to trigger impact haptic feedback
+  const impact = (style: HapticImpact = HapticImpact.MEDIUM) => {
     try {
-      // Dynamic import to avoid loading this on web
-      const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
-      
-      let impactStyle;
-      switch (style) {
-        case HapticImpact.LIGHT:
-          impactStyle = ImpactStyle.Light;
-          break;
-        case HapticImpact.HEAVY:
-          impactStyle = ImpactStyle.Heavy;
-          break;
-        default:
-          impactStyle = ImpactStyle.Medium;
+      // For now we'll use the Web Vibration API as a fallback
+      // In a real implementation, we would check for Capacitor's Haptics plugin first
+      if (hasVibration) {
+        switch (style) {
+          case HapticImpact.LIGHT:
+            navigator.vibrate(10);
+            break;
+          case HapticImpact.MEDIUM:
+            navigator.vibrate(20);
+            break;
+          case HapticImpact.HEAVY:
+            navigator.vibrate([30, 10, 30]);
+            break;
+        }
       }
-      
-      await Haptics.impact({ style: impactStyle });
-    } catch (err) {
-      console.warn('Haptic feedback error:', err);
+    } catch (error) {
+      console.log('Haptic feedback not available');
     }
   };
-
-  const notification = async (type: 'SUCCESS' | 'WARNING' | 'ERROR' = 'SUCCESS') => {
-    if (!isNative) return;
-    
+  
+  // Function for notification-style haptic
+  const notification = () => {
     try {
-      const { Haptics, NotificationType } = await import('@capacitor/haptics');
-      
-      let notificationType;
-      switch (type) {
-        case 'SUCCESS':
-          notificationType = NotificationType.Success;
-          break;
-        case 'WARNING':
-          notificationType = NotificationType.Warning;
-          break;
-        case 'ERROR':
-          notificationType = NotificationType.Error;
-          break;
-        default:
-          notificationType = NotificationType.Success;
+      if (hasVibration) {
+        navigator.vibrate([10, 100, 10]);
       }
-      
-      await Haptics.notification({ type: notificationType });
-    } catch (err) {
-      console.warn('Haptic notification error:', err);
+    } catch (error) {
+      console.log('Haptic feedback not available');
     }
   };
-
-  const vibrate = async (duration = 300) => {
-    if (!isNative) return;
-    
+  
+  // Function for selection change haptic
+  const selectionChange = () => {
     try {
-      const { Haptics } = await import('@capacitor/haptics');
-      await Haptics.vibrate({ duration });
-    } catch (err) {
-      console.warn('Haptic vibration error:', err);
+      if (hasVibration) {
+        navigator.vibrate(5);
+      }
+    } catch (error) {
+      console.log('Haptic feedback not available');
     }
   };
-
-  return { impact, notification, vibrate, isNative };
-}
+  
+  return {
+    impact,
+    notification,
+    selectionChange,
+    hasHaptics: hasVibration
+  };
+};

@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, RotateCcw } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
-import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
 interface BreathingExerciseProps {
   exerciseType?: 'box' | 'relaxing' | 'energizing';
@@ -32,7 +31,6 @@ const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   duration = 120, // 2 minutes by default
   onComplete
 }) => {
-  const { impact } = useHaptics();
   const [isActive, setIsActive] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<BreathingPhase>('inhale');
   const [timeLeft, setTimeLeft] = useState(duration);
@@ -43,51 +41,53 @@ const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   const cycleTime = pattern.inhale + pattern.hold + pattern.exhale + pattern.rest;
   
   // Reset the exercise
-  const resetExercise = () => {
+  const resetExercise = useCallback(() => {
     setIsActive(false);
     setCurrentPhase('inhale');
     setTimeLeft(duration);
     setPhaseProgress(0);
-  };
+  }, [duration]);
   
   // Toggle play/pause
-  const toggleActive = () => {
+  const toggleActive = useCallback(() => {
     if (!isActive && timeLeft === 0) {
       resetExercise();
     }
-    setIsActive(!isActive);
-    impact(HapticImpact.LIGHT);
-  };
+    setIsActive(prev => !prev);
+  }, [isActive, timeLeft, resetExercise]);
   
   // Get current phase time
-  const getCurrentPhaseTime = (phase: BreathingPhase): number => {
+  const getCurrentPhaseTime = useCallback((phase: BreathingPhase): number => {
     switch (phase) {
       case 'inhale': return pattern.inhale;
       case 'hold': return pattern.hold;
       case 'exhale': return pattern.exhale;
       case 'rest': return pattern.rest;
+      default: return 4; // Default fallback
     }
-  };
+  }, [pattern]);
   
   // Get color for current phase
-  const getPhaseColor = (): string => {
+  const getPhaseColor = useCallback((): string => {
     switch (currentPhase) {
       case 'inhale': return 'bg-blue-500';
       case 'hold': return 'bg-amber-500';
       case 'exhale': return 'bg-green-500';
       case 'rest': return 'bg-slate-400';
+      default: return 'bg-blue-500';
     }
-  };
+  }, [currentPhase]);
   
   // Get instruction text for current phase
-  const getPhaseInstruction = (): string => {
+  const getPhaseInstruction = useCallback((): string => {
     switch (currentPhase) {
       case 'inhale': return 'Breathe In...';
       case 'hold': return 'Hold...';
       case 'exhale': return 'Breathe Out...';
       case 'rest': return 'Rest...';
+      default: return '';
     }
-  };
+  }, [currentPhase]);
   
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -108,19 +108,15 @@ const BreathingExercise: React.FC<BreathingExerciseProps> = ({
           switch (currentPhase) {
             case 'inhale':
               setCurrentPhase(pattern.hold > 0 ? 'hold' : 'exhale');
-              impact(HapticImpact.MEDIUM);
               break;
             case 'hold':
               setCurrentPhase('exhale');
-              impact(HapticImpact.MEDIUM);
               break;
             case 'exhale':
               setCurrentPhase(pattern.rest > 0 ? 'rest' : 'inhale');
-              impact(HapticImpact.MEDIUM);
               break;
             case 'rest':
               setCurrentPhase('inhale');
-              impact(HapticImpact.MEDIUM);
               break;
           }
         }
@@ -133,13 +129,13 @@ const BreathingExercise: React.FC<BreathingExerciseProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft, currentPhase, phaseProgress, pattern, impact, onComplete]);
+  }, [isActive, timeLeft, currentPhase, phaseProgress, pattern, getCurrentPhaseTime, onComplete]);
   
   // Calculate progress for visualization
-  const calculateCirclePercentage = (): number => {
+  const calculateCirclePercentage = useCallback((): number => {
     const phaseTime = getCurrentPhaseTime(currentPhase);
     return ((phaseTime - phaseProgress) / phaseTime) * 100;
-  };
+  }, [currentPhase, phaseProgress, getCurrentPhaseTime]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -175,34 +171,36 @@ const BreathingExercise: React.FC<BreathingExerciseProps> = ({
         </div>
         
         {/* Progress bar */}
-        <Progress value={calculateCirclePercentage()} className="w-full h-2 mb-4" />
+        <Progress value={calculateCirclePercentage()} className="w-full mb-4" />
         
-        {/* Timer */}
-        <div className="text-center mb-4">
-          <div className="text-4xl font-bold">
-            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            {isActive ? 'Exercise in progress' : timeLeft === 0 ? 'Exercise complete' : 'Ready to begin'}
-          </div>
+        {/* Time remaining */}
+        <div className="text-sm text-muted-foreground mb-4">
+          Time left: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+        </div>
+        
+        {/* Controls */}
+        <div className="flex justify-center items-center space-x-4">
+          <Button variant="outline" size="icon" onClick={resetExercise}>
+            <RotateCcw className="h-5 w-5" />
+            <span className="sr-only">Reset</span>
+          </Button>
+          
+          <Button 
+            variant="default" 
+            size="lg" 
+            onClick={toggleActive} 
+            className="w-16 h-16 rounded-full"
+          >
+            {isActive ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+            <span className="sr-only">{isActive ? 'Pause' : 'Play'}</span>
+          </Button>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-center space-x-4">
-        <Button 
-          onClick={toggleActive} 
-          variant="default"
-          size="lg"
-          className="w-32"
-        >
-          {isActive ? <><Pause className="mr-2 h-4 w-4" /> Pause</> : <><Play className="mr-2 h-4 w-4" /> Start</>}
-        </Button>
-        <Button 
-          onClick={resetExercise} 
-          variant="outline"
-          size="lg"
-        >
-          <RotateCcw className="mr-2 h-4 w-4" /> Reset
-        </Button>
+      <CardFooter className="flex flex-col space-y-2">
+        <p className="text-xs text-center text-muted-foreground">
+          Find a comfortable position and focus on your breath. 
+          This exercise will guide you through timed breathing patterns.
+        </p>
       </CardFooter>
     </Card>
   );

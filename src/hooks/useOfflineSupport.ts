@@ -1,33 +1,33 @@
 
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
 
-interface OfflineDataItem {
-  id: string;
-  type: string;
-  data: any;
-  timestamp: string;
+interface OfflineData {
+  key: string;
+  value: any;
+  timestamp: number;
 }
 
-export function useOfflineSupport() {
+export const useOfflineSupport = () => {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [offlineData, setOfflineData] = useState<OfflineDataItem[]>([]);
+  const [offlineData, setOfflineData] = useState<OfflineData[]>([]);
   
-  // Update online status
+  // Monitor online/offline status
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      toast.success('You\'re back online! Syncing data...');
-      syncOfflineData();
-    };
-    
-    const handleOffline = () => {
-      setIsOnline(false);
-      toast.error('You\'re offline. Data will be saved locally and synced when you reconnect.');
-    };
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    
+    // Load offline data from localStorage on mount
+    try {
+      const savedData = localStorage.getItem('offlineData');
+      if (savedData) {
+        setOfflineData(JSON.parse(savedData));
+      }
+    } catch (error) {
+      console.error('Error loading offline data:', error);
+    }
     
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -35,85 +35,53 @@ export function useOfflineSupport() {
     };
   }, []);
   
-  // Load any stored offline data from localStorage
+  // Update localStorage when offlineData changes
   useEffect(() => {
-    const loadOfflineData = () => {
-      try {
-        const storedData = localStorage.getItem('offlineData');
-        if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          setOfflineData(Array.isArray(parsedData) ? parsedData : []);
-        }
-      } catch (error) {
-        console.error('Error loading offline data:', error);
-      }
-    };
-    
-    loadOfflineData();
-  }, []);
-  
-  // Save data locally when offline
-  const saveOfflineData = (type: string, data: any) => {
     try {
-      const newItem: OfflineDataItem = {
-        id: `offline_${Date.now()}`,
-        type,
-        data,
-        timestamp: new Date().toISOString()
-      };
-      
-      const updatedData = [...offlineData, newItem];
-      setOfflineData(updatedData);
-      localStorage.setItem('offlineData', JSON.stringify(updatedData));
-      
-      toast.info('Data saved locally. Will sync when online.');
-      return true;
+      localStorage.setItem('offlineData', JSON.stringify(offlineData));
     } catch (error) {
       console.error('Error saving offline data:', error);
-      toast.error('Failed to save data locally');
-      return false;
     }
+  }, [offlineData]);
+  
+  // Save data for offline use
+  const saveOfflineData = (key: string, value: any) => {
+    setOfflineData(prev => [
+      ...prev.filter(item => item.key !== key),
+      {
+        key,
+        value,
+        timestamp: Date.now()
+      }
+    ]);
   };
   
-  // Sync offline data when back online
-  const syncOfflineData = async () => {
-    if (!isOnline || offlineData.length === 0) return;
-    
-    try {
-      // Group data by type for more efficient syncing
-      const groupedData = offlineData.reduce((acc, item) => {
-        if (!acc[item.type]) {
-          acc[item.type] = [];
-        }
-        acc[item.type].push(item.data);
-        return acc;
-      }, {} as Record<string, any[]>);
-      
-      // Process each data type
-      for (const [type, dataArray] of Object.entries(groupedData)) {
-        // Here we would implement the actual sync logic for each data type
-        console.log(`Syncing ${dataArray.length} items of type: ${type}`);
-        
-        // Example sync implementation placeholder:
-        // await syncSpecificTypeData(type, dataArray);
-      }
-      
-      // Clear synced data
-      setOfflineData([]);
-      localStorage.removeItem('offlineData');
-      
-      toast.success('All offline data has been synced!');
-    } catch (error) {
-      console.error('Error syncing offline data:', error);
-      toast.error('Failed to sync some offline data. Will try again later.');
-    }
+  // Get offline data by key
+  const getOfflineData = (key: string) => {
+    return offlineData.find(item => item.key === key)?.value;
+  };
+  
+  // Clear processed offline data
+  const clearOfflineData = (key: string) => {
+    setOfflineData(prev => prev.filter(item => item.key !== key));
+  };
+  
+  // Clear all offline data
+  const clearAllOfflineData = () => {
+    setOfflineData([]);
+  };
+  
+  // Get all pending offline data
+  const getPendingOfflineData = () => {
+    return offlineData;
   };
   
   return {
     isOnline,
-    offlineData,
     saveOfflineData,
-    syncOfflineData,
-    pendingItemsCount: offlineData.length
+    getOfflineData,
+    clearOfflineData,
+    clearAllOfflineData,
+    getPendingOfflineData
   };
-}
+};

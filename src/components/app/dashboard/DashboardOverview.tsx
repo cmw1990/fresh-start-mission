@@ -86,10 +86,17 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </Card>
       </div>
       
-      {/* New: AI Insights */}
-      <AiInsights />
+      {/* Second row: AI Insights and Step Tracker */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <AiInsights />
+        </div>
+        <div>
+          <StepTracker />
+        </div>
+      </div>
       
-      {/* Second row: Charts */}
+      {/* Third row: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CravingIntensityChart />
         <HolisticMetricsChart />
