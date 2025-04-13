@@ -1,8 +1,9 @@
+
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PublicLayout } from './components/layout/PublicLayout';
-import { AppLayout } from './components/layout/AppLayout';
+import AppLayout from './components/layout/AppLayout'; // Update to correct import 
 import LandingPage from './pages/LandingPage';
 import SignUp from './pages/auth/SignUp';
 import Login from './pages/auth/Login';
@@ -21,7 +22,7 @@ import QuitMethods from './pages/tools/QuitMethods';
 import Calculators from './pages/tools/Calculators';
 import HolisticHealth from './pages/tools/HolisticHealth';
 
-// Import our new tools
+// Import our tools
 import CravingTools from "./pages/app/tools/CravingTools";
 import EnergyTools from "./pages/app/tools/EnergyTools";
 import FocusTools from "./pages/app/tools/FocusTools";

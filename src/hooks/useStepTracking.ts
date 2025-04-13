@@ -3,22 +3,52 @@ import { useState, useEffect, useCallback } from 'react';
 import { logSteps } from '@/services/rewardService';
 import { toast } from 'sonner';
 import { useHaptics, HapticImpact } from './useHaptics';
+import { useIsMobile } from './use-mobile';
 
 interface StepData {
   steps: number;
   date: string;
   source: 'health-api' | 'manual' | 'mock';
+  lastUpdated?: Date; // Add the lastUpdated property that's being used
 }
 
 export function useStepTracking() {
   const [stepData, setStepData] = useState<StepData>({
     steps: 0,
     date: new Date().toISOString().split('T')[0],
-    source: 'mock'
+    source: 'mock',
+    lastUpdated: new Date() // Initialize lastUpdated
   });
   const [isLoading, setIsLoading] = useState(false);
   const [hasPermission, setHasPermission] = useState(true); // Assume permission for now
   const { impact } = useHaptics();
+  const isMobile = useIsMobile();
+  
+  // Add isNative property based on mobile detection
+  const isNative = isMobile;
+  
+  // Function to request permissions (mock for now)
+  const requestPermissions = useCallback(async () => {
+    try {
+      // In a real implementation, we would request permissions from HealthKit/Google Fit
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setHasPermission(true);
+      toast.success('Health permissions granted successfully');
+      impact(HapticImpact.LIGHT);
+      
+      // After getting permission, fetch steps
+      return await fetchSteps();
+    } catch (error) {
+      console.error('Error requesting health permissions:', error);
+      toast.error('Failed to get health permissions');
+      setHasPermission(false);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [impact]);
   
   // Function to fetch steps from health APIs (mock for now)
   const fetchSteps = useCallback(async () => {
@@ -34,7 +64,8 @@ export function useStepTracking() {
       setStepData({
         steps: mockSteps,
         date: today,
-        source: 'mock'
+        source: 'mock',
+        lastUpdated: new Date() // Set the lastUpdated timestamp
       });
       
       // Log to the backend
@@ -66,7 +97,8 @@ export function useStepTracking() {
       setStepData({
         steps,
         date: today,
-        source: 'manual'
+        source: 'manual',
+        lastUpdated: new Date() // Set the lastUpdated timestamp
       });
       
       // Log to the backend
@@ -94,6 +126,8 @@ export function useStepTracking() {
     isLoading,
     hasPermission,
     fetchSteps,
-    logManualSteps
+    logManualSteps,
+    isNative, // Add the isNative property to the return object
+    requestPermissions // Add the requestPermissions function to the return object
   };
 }

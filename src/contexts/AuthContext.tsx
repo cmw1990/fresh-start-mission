@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -12,6 +11,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   loading: boolean;
   error: string | null;
+  initializeAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,7 +21,8 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => {},
   signOut: async () => {},
   loading: true,
-  error: null
+  error: null,
+  initializeAuth: () => {}
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -31,26 +32,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
+
+  const initializeAuth = useCallback(() => {
+    if (initialized) return;
+    
+    setLoading(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      setInitialized(true);
+    }).catch(error => {
+      console.error('Error initializing auth:', error);
+      setLoading(false);
+      setInitialized(true);
+    });
+  }, [initialized]);
 
   useEffect(() => {
-    // First, set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setLoading(false);
     });
 
-    // Then check for an existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [initializeAuth]);
 
   const signIn = async (email: string, password: string): Promise<void> => {
     try {
@@ -130,7 +142,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signOut,
     loading,
-    error
+    error,
+    initializeAuth
   };
 
   return (

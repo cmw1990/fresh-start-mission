@@ -1,7 +1,8 @@
 
 import { useCallback } from 'react';
-import { Haptics } from '@capacitor/haptics';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
+// Update this enum to match the ImpactStyle type from Capacitor
 export enum HapticImpact {
   LIGHT = 'light',
   MEDIUM = 'medium',
@@ -11,7 +12,8 @@ export enum HapticImpact {
 export function useHaptics() {
   const impact = useCallback(async (style: HapticImpact = HapticImpact.MEDIUM) => {
     try {
-      await Haptics.impact({ style });
+      // Convert our enum to the ImpactStyle type expected by Capacitor
+      await Haptics.impact({ style: style as ImpactStyle });
     } catch (error) {
       console.log('Haptics not available or error:', error);
     }
