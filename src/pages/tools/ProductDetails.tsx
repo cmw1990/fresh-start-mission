@@ -139,7 +139,7 @@ const ProductDetails = () => {
       
       if (reviewsData) {
         for (const review of reviewsData) {
-          // Skip reviews with invalid user data
+          // Skip reviews with invalid data
           if (!review) continue;
           
           // Create a safe user object with default values
@@ -149,12 +149,13 @@ const ProductDetails = () => {
           };
           
           // Check if user data exists and is valid
-          if (review.user && typeof review.user === 'object' && !('error' in review.user)) {
-            if (review.user.email) {
+          if (review.user && typeof review.user === 'object') {
+            // Use optional chaining to safely access properties
+            if (review.user?.email && typeof review.user.email === 'string') {
               userObj.email = review.user.email;
             }
             
-            if (review.user.user_metadata) {
+            if (review.user?.user_metadata && typeof review.user.user_metadata === 'object') {
               userObj.user_metadata = review.user.user_metadata;
             }
           }
