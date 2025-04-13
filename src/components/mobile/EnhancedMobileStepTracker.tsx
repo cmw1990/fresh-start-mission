@@ -2,91 +2,67 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Footprints } from 'lucide-react';
-import { logSteps } from '@/services/rewardService';
-import { getUserPointsBalance } from '@/services/rewardService';
+import { Footprints, RefreshCw, Award } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { useHaptics, HapticImpact } from '@/hooks/useHaptics';
 
-// Mock health tracking integration for demo purposes
-// In a real implementation, this would connect to Apple HealthKit or Google Fit
-const useHealthTracking = () => {
+const EnhancedMobileStepTracker = () => {
   const [steps, setSteps] = useState(0);
-  const [isTracking, setIsTracking] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const { impact } = useHaptics();
   
-  // Simulate fetching steps from a health platform
+  // Simulate fetching steps from a health platform on component mount
   useEffect(() => {
     const randomSteps = Math.floor(Math.random() * 8000) + 2000; // Random between 2000-10000
     setSteps(randomSteps);
+    
+    // Check if we have a last synced time in local storage
+    const stored = localStorage.getItem('lastStepSync');
+    if (stored) {
+      setLastSynced(stored);
+    }
+    
+    // Fetch points balance - simulated
+    setPoints(Math.floor(Math.random() * 500) + 100);
   }, []);
   
   const refreshSteps = () => {
     // Simulate refreshing steps data
-    setIsTracking(true);
+    setIsLoading(true);
     setTimeout(() => {
       const newSteps = steps + Math.floor(Math.random() * 500) + 100; // Add 100-600 steps
       setSteps(newSteps);
-      setIsTracking(false);
+      setIsLoading(false);
+      toast.success("Steps refreshed from health data");
+      impact(HapticImpact.LIGHT);
+    }, 1200);
+  };
+  
+  const syncSteps = () => {
+    setIsLoading(true);
+    
+    // Simulate syncing steps to backend
+    setTimeout(() => {
+      // Calculate points earned (1 point per 100 steps)
+      const newPoints = Math.floor(steps / 100);
+      setPoints(prev => prev + newPoints);
+      
+      // Update last synced time
+      const now = new Date().toLocaleTimeString();
+      setLastSynced(now);
+      localStorage.setItem('lastStepSync', now);
+      
+      setIsLoading(false);
+      toast.success(`Synced ${steps} steps! Earned ${newPoints} points.`);
+      impact(HapticImpact.MEDIUM);
     }, 1500);
   };
   
-  return { steps, refreshSteps, isTracking };
-};
-
-const EnhancedMobileStepTracker: React.FC = () => {
-  const [points, setPoints] = useState(0);
-  const [lastSynced, setLastSynced] = useState<string | null>(null);
-  const { impact } = useHaptics();
-  const { steps, refreshSteps, isTracking } = useHealthTracking();
-  
-  // Fetch points balance on load
-  useEffect(() => {
-    const fetchPoints = async () => {
-      try {
-        const pointBalance = await getUserPointsBalance();
-        setPoints(pointBalance);
-        
-        // Check if we have a last synced time in local storage
-        const stored = localStorage.getItem('lastStepSync');
-        if (stored) {
-          setLastSynced(stored);
-        }
-      } catch (error) {
-        console.error('Error fetching points balance:', error);
-      }
-    };
-    
-    fetchPoints();
-  }, []);
-  
-  const syncSteps = async () => {
-    try {
-      const success = await logSteps(steps);
-      
-      if (success) {
-        // Update points (in a real app we'd refetch the actual balance)
-        const newPoints = Math.floor(steps / 100);
-        setPoints(prevPoints => prevPoints + newPoints);
-        
-        // Update last synced time
-        const now = new Date().toLocaleTimeString();
-        setLastSynced(now);
-        localStorage.setItem('lastStepSync', now);
-        
-        // Feedback
-        toast.success(`Successfully synced ${steps} steps!`);
-        impact(HapticImpact.MEDIUM);
-      } else {
-        toast.error("Failed to sync steps. Please try again.");
-      }
-    } catch (error) {
-      console.error('Error syncing steps:', error);
-      toast.error("Error syncing steps");
-    }
-  };
-  
   return (
-    <Card className="border-2 border-fresh-100">
+    <Card className="border-2 border-fresh-100 shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center">
           <Footprints className="h-5 w-5 mr-2 text-fresh-400" />
@@ -96,6 +72,7 @@ const EnhancedMobileStepTracker: React.FC = () => {
           {lastSynced ? `Last synced: ${lastSynced}` : 'Sync to earn points'}
         </CardDescription>
       </CardHeader>
+      
       <CardContent>
         <div className="flex flex-col space-y-4">
           <div className="flex flex-col items-center">
@@ -126,9 +103,10 @@ const EnhancedMobileStepTracker: React.FC = () => {
               size="sm"
               className="flex-1"
               onClick={refreshSteps}
-              disabled={isTracking}
+              disabled={isLoading}
             >
-              {isTracking ? 'Refreshing...' : 'Refresh Steps'}
+              <RefreshCw className={`mr-1 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
             
             <Button
@@ -136,9 +114,10 @@ const EnhancedMobileStepTracker: React.FC = () => {
               size="sm"
               className="flex-1 bg-fresh-400 hover:bg-fresh-500"
               onClick={syncSteps}
-              disabled={isTracking}
+              disabled={isLoading}
             >
-              Sync & Earn Points
+              <Award className="mr-1 h-4 w-4" />
+              Sync & Earn
             </Button>
           </div>
         </div>

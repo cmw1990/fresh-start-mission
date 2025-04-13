@@ -2,8 +2,9 @@
 import React from 'react';
 import Sidebar from '../app/Sidebar';
 import { Outlet } from 'react-router-dom';
-import MobileNav from '../app/MobileNav';
+import MobileAppNav from '../mobile/MobileAppNav';
 import { useIsMobile } from '@/hooks/use-mobile';
+import OfflineIndicator from '../common/OfflineIndicator';
 
 const AppLayout = () => {
   const isMobile = useIsMobile();
@@ -22,15 +23,16 @@ const AppLayout = () => {
         )}
         
         {/* Main content area */}
-        <main className="flex-1 min-h-screen">
+        <main className={`flex-1 min-h-screen ${isMobile ? 'mb-16' : ''}`}>
           <div className="container mx-auto p-6">
+            <OfflineIndicator />
             <Outlet />
           </div>
         </main>
       </div>
       
       {/* Mobile navigation at bottom */}
-      {isMobile && <MobileNav />}
+      {isMobile && <MobileAppNav />}
     </div>
   );
 };
