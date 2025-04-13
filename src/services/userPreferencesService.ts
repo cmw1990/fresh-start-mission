@@ -12,6 +12,13 @@ export type UserPreferences = {
   dashboard_widgets?: string[];
   created_at?: string;
   updated_at?: string;
+  cost_per_product?: {
+    cigarette?: number;
+    vape?: number;
+    pouch?: number;
+    other?: number;
+  };
+  notifications?: Record<string, boolean>;
 };
 
 export const getUserPreferences = async (): Promise<UserPreferences> => {
@@ -58,7 +65,13 @@ export const createDefaultPreferences = async (): Promise<UserPreferences> => {
       notification_logs: true,
       notification_milestones: true,
       notification_cravings: true,
-      dashboard_widgets: ['keyStats', 'wellness', 'milestone', 'quote', 'supportTools']
+      dashboard_widgets: ['keyStats', 'wellness', 'milestone', 'quote', 'supportTools'],
+      cost_per_product: {
+        cigarette: 0.50,
+        vape: 0.30,
+        pouch: 0.25,
+        other: 0.40
+      }
     };
     
     const { data, error } = await supabase
@@ -125,4 +138,19 @@ export const updateUserPreferences = async (preferences: Partial<UserPreferences
     toast.error("Failed to save preferences");
     throw error;
   }
+};
+
+// Add this function specifically for theme updates
+export const updateThemePreference = async (theme: string): Promise<UserPreferences> => {
+  return updateUserPreferences({ theme });
+};
+
+// For saving notification preferences
+export const saveUserPreferences = async (preferences: Partial<UserPreferences>): Promise<UserPreferences> => {
+  return updateUserPreferences(preferences);
+};
+
+// For updating product costs
+export const updateProductCosts = async (costs: UserPreferences['cost_per_product']): Promise<UserPreferences> => {
+  return updateUserPreferences({ cost_per_product: costs });
 };
