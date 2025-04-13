@@ -1,335 +1,203 @@
 
-import { useState } from "react";
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Battery, Coffee, Droplets, Dumbbell, Sun, UtensilsCrossed } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BatteryCharging, Zap, Utensils, Coffee, Apple, Droplets, Sun, MoonStar } from "lucide-react";
-import ToolExerciseCard from "@/components/tools/ToolExerciseCard";
-import QuickToolCard from "@/components/tools/QuickToolCard";
-import ExerciseModal from "@/components/tools/ExerciseModal";
-import { ExerciseStep } from "@/components/tools/ExerciseModal";
-import { toast } from "sonner";
-
-// Exercise definitions
-const energizingBreathingExercise = {
-  title: "Energizing Breath Technique",
-  description: "A stimulating breathing exercise designed to increase alertness and energy levels.",
-  steps: [
-    {
-      title: "Find Your Position",
-      instructions: "Sit comfortably with your back straight. You may also stand if you prefer.",
-      duration: 5,
-    },
-    {
-      title: "Begin With Deep Breaths",
-      instructions: "Take 3 deep, slow breaths to center yourself.",
-      duration: 15,
-    },
-    {
-      title: "Quick Inhale",
-      instructions: "Inhale quickly through your nose, filling your lungs about 3/4 full.",
-      duration: 2,
-    },
-    {
-      title: "Quick Exhale",
-      instructions: "Exhale sharply through your mouth, making a 'ha' sound if comfortable.",
-      duration: 2,
-    },
-    {
-      title: "Continue Pattern",
-      instructions: "Repeat this quick inhale-exhale pattern for 15 breaths, keeping a steady rhythm.",
-      duration: 30,
-    },
-    {
-      title: "Return to Normal",
-      instructions: "Take a few normal breaths and notice how you feel. Is there a change in your energy level?",
-      duration: 10,
-    },
-    {
-      title: "Second Round",
-      instructions: "Perform another 15 quick breath cycles.",
-      duration: 30,
-    },
-    {
-      title: "Final Reflection",
-      instructions: "Return to normal breathing. Notice the sensations in your body and mind.",
-      duration: 10,
-    },
-  ] as ExerciseStep[],
-};
-
-const energyMeditationExercise = {
-  title: "Energy Visualization",
-  description: "A guided meditation that uses visualization to increase energy and alertness.",
-  steps: [
-    {
-      title: "Preparation",
-      instructions: "Find a comfortable seated position with your back straight. Close your eyes or maintain a soft gaze.",
-      duration: 10,
-    },
-    {
-      title: "Center Yourself",
-      instructions: "Take a few deep breaths, allowing your body to relax while maintaining an alert posture.",
-      duration: 15,
-    },
-    {
-      title: "Golden Light",
-      instructions: "Imagine a warm, golden light above your head. This light represents pure, vibrant energy.",
-      duration: 20,
-    },
-    {
-      title: "Energy Enters",
-      instructions: "With each inhale, visualize this golden light entering through the crown of your head and filling your body.",
-      duration: 30,
-    },
-    {
-      title: "Body Filling",
-      instructions: "See and feel this light filling your chest, your core, your limbs - bringing vitality wherever it flows.",
-      duration: 30,
-    },
-    {
-      title: "Release Fatigue",
-      instructions: "As you exhale, imagine releasing any fatigue or heaviness as dark smoke that dissolves and disappears.",
-      duration: 30,
-    },
-    {
-      title: "Energetic Circulation",
-      instructions: "Continue breathing, circulating this golden energy throughout your entire body.",
-      duration: 60,
-    },
-    {
-      title: "Seal the Practice",
-      instructions: "Take three deep breaths. With each inhale, draw in more vitality. With each exhale, release any remaining lethargy.",
-      duration: 15,
-    },
-    {
-      title: "Return",
-      instructions: "Slowly become aware of your surroundings. Wiggle your fingers and toes. When ready, open your eyes.",
-      duration: 10,
-    },
-  ] as ExerciseStep[],
-};
-
-const quickStretchExercise = {
-  title: "5-Minute Energy Stretch Routine",
-  description: "A series of simple stretches designed to increase blood flow and energy levels.",
-  steps: [
-    {
-      title: "Preparation",
-      instructions: "Stand up in a clear space where you can extend your arms fully without hitting anything.",
-      duration: 5,
-    },
-    {
-      title: "Shoulder Rolls",
-      instructions: "Roll your shoulders backward 5 times, then forward 5 times. Feel the tension releasing.",
-      duration: 20,
-    },
-    {
-      title: "Neck Stretches",
-      instructions: "Gently tilt your head to the right, holding for 5 seconds. Then tilt to the left. Repeat twice on each side.",
-      duration: 20,
-    },
-    {
-      title: "Side Stretches",
-      instructions: "Raise your right arm overhead and lean gently to the left. Hold for 10 seconds. Switch sides and repeat.",
-      duration: 20,
-    },
-    {
-      title: "Forward Fold",
-      instructions: "Stand with feet hip-width apart. Hinge at your hips and let your upper body hang forward loosely. Bend your knees if needed. Hold for 15 seconds.",
-      duration: 15,
-    },
-    {
-      title: "Chest Opener",
-      instructions: "Clasp your hands behind your back. Lift your arms slightly while drawing your shoulders back. Hold for 10 seconds.",
-      duration: 10,
-    },
-    {
-      title: "Mini Squat",
-      instructions: "Stand with feet shoulder-width apart. Perform 10 small squats, just going down a few inches.",
-      duration: 20,
-    },
-    {
-      title: "Arm Circles",
-      instructions: "Extend your arms out to the sides and make 10 small circles forward, then 10 backward.",
-      duration: 20,
-    },
-    {
-      title: "Shake It Out",
-      instructions: "Shake your hands, arms, and legs to release any remaining tension.",
-      duration: 10,
-    },
-    {
-      title: "Final Breath",
-      instructions: "Stand tall, take a deep breath in, raising your arms overhead. Exhale and lower your arms. Repeat twice more.",
-      duration: 15,
-    },
-  ] as ExerciseStep[],
-};
 
 const EnergyTools = () => {
-  const [activeExercise, setActiveExercise] = useState<any | null>(null);
-  const [exerciseModalOpen, setExerciseModalOpen] = useState(false);
-
-  const startExercise = (exercise: any) => {
-    setActiveExercise(exercise);
-    setExerciseModalOpen(true);
-  };
-
-  const handleQuickTool = (toolName: string) => {
-    // For now just show a toast - these could be expanded into mini-exercises later
-    toast.success(`${toolName} activated!`, {
-      description: "This energy tool would provide immediate support."
-    });
-  };
-
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Energy Tools</h1>
-        <p className="text-muted-foreground">
-          Combat fatigue and boost your energy during your fresh journey
+        <h1 className="text-3xl font-bold tracking-tight">Energy Boosters</h1>
+        <p className="text-muted-foreground mt-1">
+          Combat fatigue and boost your energy levels during nicotine withdrawal
         </p>
       </div>
 
-      <Tabs defaultValue="exercises">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="exercises">Guided Exercises</TabsTrigger>
-          <TabsTrigger value="quick-tools">Quick Boosters</TabsTrigger>
+      <Tabs defaultValue="quick" className="space-y-6">
+        <TabsList className="grid grid-cols-3 mb-6">
+          <TabsTrigger value="quick">Quick Boosts</TabsTrigger>
+          <TabsTrigger value="habits">Daily Habits</TabsTrigger>
+          <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="exercises" className="space-y-8">
+        
+        <TabsContent value="quick" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ToolExerciseCard
-              title={energizingBreathingExercise.title}
-              description={energizingBreathingExercise.description}
-              duration="3 minutes"
-              difficulty="easy"
-              tags={["Breathing", "Stimulating"]}
-              popular={true}
-              onStart={() => startExercise(energizingBreathingExercise)}
-            />
+            <Card>
+              <CardHeader>
+                <Dumbbell className="h-8 w-8 text-blue-500 mb-2" />
+                <CardTitle>Power Stretch Routine</CardTitle>
+                <CardDescription>2-minute energy booster (no equipment)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ol className="list-decimal pl-5 space-y-2">
+                  <li>25 jumping jacks (30 seconds)</li>
+                  <li>10 bodyweight squats (30 seconds)</li>
+                  <li>High knees in place (30 seconds)</li>
+                  <li>Full body stretch (30 seconds)</li>
+                </ol>
+                <p className="text-muted-foreground mt-4">
+                  Moving your body activates your circulation and releases endorphins. This quick routine gets your heart pumping and can provide an instant energy boost.
+                </p>
+              </CardContent>
+            </Card>
             
-            <ToolExerciseCard
-              title={energyMeditationExercise.title}
-              description={energyMeditationExercise.description}
-              duration="4 minutes"
-              difficulty="easy"
-              tags={["Meditation", "Visualization"]}
-              onStart={() => startExercise(energyMeditationExercise)}
-            />
+            <Card>
+              <CardHeader>
+                <Droplets className="h-8 w-8 text-blue-500 mb-2" />
+                <CardTitle>Cold Water Splash</CardTitle>
+                <CardDescription>Reset your system with cold water</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Splash your face with cold water for an instant energy boost. Cold water triggers your body's "fight or flight" response, increasing alertness and energy levels.
+                </p>
+                <div className="mt-4 space-y-2">
+                  <h3 className="font-medium">For extra effect:</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Focus on wrists and neck too (major pulse points)</li>
+                    <li>Take 3 deep breaths while doing this</li>
+                    <li>If available, hold an ice cube in your hands</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
             
-            <ToolExerciseCard
-              title={quickStretchExercise.title}
-              description={quickStretchExercise.description}
-              duration="5 minutes"
-              difficulty="moderate"
-              tags={["Physical", "Movement"]}
-              onStart={() => startExercise(quickStretchExercise)}
-            />
-
-            <ToolExerciseCard
-              title="Power Posing"
-              description="Stand in powerful postures that have been shown to increase energy and confidence levels."
-              duration="2 minutes"
-              difficulty="easy"
-              tags={["Body Language", "Confidence"]}
-              onStart={() => toast.info("This exercise will be available soon!")}
-            />
-
-            <ToolExerciseCard
-              title="Energy Audit Reflection"
-              description="A guided assessment to identify energy drains and sources in your life."
-              duration="5 minutes"
-              difficulty="moderate"
-              tags={["Self-awareness", "Planning"]}
-              onStart={() => toast.info("This exercise will be available soon!")}
-            />
+            <Card>
+              <CardHeader>
+                <Sun className="h-8 w-8 text-amber-500 mb-2" />
+                <CardTitle>Sunlight Exposure</CardTitle>
+                <CardDescription>Use natural light to boost energy</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Take a 5-minute break outside in sunlight. Sunlight helps regulate your circadian rhythm and boosts vitamin D production, which can increase energy levels and improve mood.
+                </p>
+                <div className="mt-4 space-y-2">
+                  <h3 className="font-medium">While outside:</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Look at distant objects to rest your eyes</li>
+                    <li>Take deep breaths of fresh air</li>
+                    <li>Stretch your arms overhead</li>
+                    <li>Try to find something beautiful to appreciate</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
-
-        <TabsContent value="quick-tools">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <QuickToolCard
-              title="Power Minute"
-              description="60 seconds of quick movements: 20 jumping jacks, 20 arm circles, 20 high knees."
-              icon={Zap}
-              iconColor="text-yellow-500"
-              iconBgColor="bg-yellow-50"
-              onClick={() => handleQuickTool("Power Minute")}
-            />
-            
-            <QuickToolCard
-              title="Energy Snack Ideas"
-              description="Quick suggestions for energy-boosting snacks that don't trigger cravings."
-              icon={Apple}
-              iconColor="text-green-500"
-              iconBgColor="bg-green-50"
-              onClick={() => handleQuickTool("Energy Snacks")}
-            />
-            
-            <QuickToolCard
-              title="Hydration Reminder"
-              description="Reminder to drink water, as dehydration often masquerades as fatigue."
-              icon={Droplets}
-              iconColor="text-blue-500"
-              iconBgColor="bg-blue-50"
-              onClick={() => handleQuickTool("Hydration Reminder")}
-            />
-            
-            <QuickToolCard
-              title="Caffeine Guide"
-              description="Smart tips for using caffeine effectively without triggering cravings."
-              icon={Coffee}
-              iconColor="text-amber-700"
-              iconBgColor="bg-amber-50"
-              onClick={() => handleQuickTool("Caffeine Guide")}
-            />
-            
-            <QuickToolCard
-              title="Cold Splash"
-              description="Quick instruction for using cold water on your face to increase alertness."
-              icon={Droplets}
-              iconColor="text-sky-500"
-              iconBgColor="bg-sky-50"
-              onClick={() => handleQuickTool("Cold Splash")}
-            />
-            
-            <QuickToolCard
-              title="Light Exposure"
-              description="Get outside for natural light which helps regulate energy levels."
-              icon={Sun}
-              iconColor="text-orange-500"
-              iconBgColor="bg-orange-50"
-              onClick={() => handleQuickTool("Light Exposure")}
-            />
-            
-            <QuickToolCard
-              title="Sleep Tips"
-              description="Quick adjustments to improve tonight's sleep for better energy tomorrow."
-              icon={MoonStar}
-              iconColor="text-indigo-500"
-              iconBgColor="bg-indigo-50"
-              onClick={() => handleQuickTool("Sleep Tips")}
-            />
-            
-            <QuickToolCard
-              title="Energizing Foods"
-              description="List of foods that provide sustained energy without sugar crashes."
-              icon={Utensils}
-              iconColor="text-purple-500"
-              iconBgColor="bg-purple-50"
-              onClick={() => handleQuickTool("Energizing Foods")}
-            />
-          </div>
+        
+        <TabsContent value="habits" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Energy-Building Daily Habits</CardTitle>
+              <CardDescription>Consistent practices to maintain higher energy levels</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <Battery className="h-5 w-5 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Consistent Sleep Schedule</h3>
+                    <p className="text-muted-foreground">
+                      Nicotine withdrawal often disrupts sleep patterns. Try to go to bed and wake up at the same times each day, even on weekends. This helps regulate your body's internal clock and improves sleep quality.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <Dumbbell className="h-5 w-5 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Regular Physical Activity</h3>
+                    <p className="text-muted-foreground">
+                      Aim for 30 minutes of moderate exercise most days. Regular physical activity increases energy levels by improving circulation and oxygen delivery to tissues. It also helps with sleep quality at night.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <Droplets className="h-5 w-5 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Hydration Routine</h3>
+                    <p className="text-muted-foreground">
+                      Dehydration is a common cause of fatigue. Try to drink at least 8 glasses of water daily, and more if you're physically active. Keep a water bottle with you and set reminders to drink regularly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <Sun className="h-5 w-5 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Morning Light Exposure</h3>
+                    <p className="text-muted-foreground">
+                      Get at least 10-15 minutes of natural light exposure in the morning. This helps reset your circadian rhythm, improves mood, and increases daytime alertness.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="nutrition" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Energy-Supporting Nutrition</CardTitle>
+              <CardDescription>Foods and eating patterns that help maintain energy</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <UtensilsCrossed className="h-5 w-5 text-amber-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Energy-Boosting Foods</h3>
+                    <p className="text-muted-foreground mb-2">
+                      Focus on foods that provide sustained energy rather than quick spikes followed by crashes:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Complex carbohydrates (whole grains, brown rice, oats)</li>
+                      <li>Lean proteins (chicken, fish, beans, eggs)</li>
+                      <li>Healthy fats (avocados, nuts, olive oil)</li>
+                      <li>Iron-rich foods (spinach, liver, legumes)</li>
+                      <li>B-vitamin rich foods (leafy greens, meat, whole grains)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <Coffee className="h-5 w-5 text-amber-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Caffeine Management</h3>
+                    <p className="text-muted-foreground">
+                      While caffeine can provide a temporary energy boost, it can also disrupt sleep if consumed too late. Limit caffeine to the morning hours, and consider switching to green tea which provides a more balanced energy boost with L-theanine.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <UtensilsCrossed className="h-5 w-5 text-amber-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium">Meal Timing and Sizing</h3>
+                    <p className="text-muted-foreground">
+                      Eat smaller, more frequent meals to maintain steady blood sugar and energy levels. Very large meals require significant energy for digestion, which can leave you feeling tired. Avoid sugar-heavy snacks which cause energy crashes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-
-      {activeExercise && (
-        <ExerciseModal
-          exercise={activeExercise}
-          open={exerciseModalOpen}
-          onClose={() => setExerciseModalOpen(false)}
-        />
-      )}
     </div>
   );
 };
